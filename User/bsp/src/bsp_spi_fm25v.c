@@ -1,9 +1,9 @@
 /*
 *********************************************************************************************************
-*	Ä£¿éÃû³Æ : SPI½Ó¿Ú´®ĞĞFLASH ¶ÁĞ´Ä£¿é
-*	ÎÄ¼şÃû³Æ : bsp_spi_fm25v.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
+*	Nombre del mÃ³dulo : MÃ³dulo de lectura y escritura FLASH serial de interfaz SPI
+*	Nombre del archivo: bsp_spi_fm25v.c
+*	libro de versiones : V1.0
+*	ilustrar: 
 *
 *********************************************************************************************************
 */
@@ -11,23 +11,23 @@
 #include "bsp.h"
 
 
-/* ¶¨Òå´®ĞĞFlash ID */
+/* definir serie Flash ID */
 const char Fm25v_ID[9] = {0x7F,0x7F,0x7F,0x7F,0x7F,0x7F,0xC2,0x24,0x00};
 
 
-/* Fm25v10-GÆ¬Ñ¡¿ÚÏß ÖÃµÍÑ¡ÖĞ ÖÃ¸ß²»Ñ¡ÖĞ */
+/* Fm25v10-G LÃ­nea de selecciÃ³n de chip Establecer bajo para seleccionar, establecer alto para no seleccionar */
 #define Fm25v_CS_PORT       GPIOC
 #define Fm25v_CS_PIN        GPIO_Pin_4
 #define Fm25v_CS_LOW()      Fm25v_CS_PORT->BRR  = Fm25v_CS_PIN
 #define Fm25v_CS_HIGH()     Fm25v_CS_PORT->BSRR = Fm25v_CS_PIN
 
-/* Fm25v10-GÆ¬Ñ¡¿ÚÏß ÖÃµÍÑ¡ÖĞ ÖÃ¸ß²»Ñ¡ÖĞ */
+/* Fm25v10-G LÃ­nea de selecciÃ³n de chip Establecer bajo para seleccionar, establecer alto para no seleccionar */
 #define W25Q_CS_PORT        GPIOC
 #define W25Q_CS_PIN	        GPIO_Pin_5
 #define W25Q_CS_LOW()       W25Q_CS_PORT->BRR  = W25Q_CS_PIN
 #define W25Q_CS_HIGH()      W25Q_CS_PORT->BSRR = W25Q_CS_PIN
 
-/* Fm25v10-GÆ¬Ñ¡¿ÚÏß ÖÃµÍÑ¡ÖĞ ÖÃ¸ß²»Ñ¡ÖĞ */
+/* Fm25v10-G LÃ­nea de selecciÃ³n de chip Establecer bajo para seleccionar, establecer alto para no seleccionar */
 #define W5500_CS_PORT       GPIOA
 #define W5500_CS_PIN        GPIO_Pin_8
 #define W5500_CS_LOW()      W5500_CS_PORT->BRR  = W5500_CS_PIN
@@ -45,7 +45,7 @@ const char Fm25v_ID[9] = {0x7F,0x7F,0x7F,0x7F,0x7F,0x7F,0xC2,0x24,0x00};
 #define Fm25v_RDID	0x9F	/* Read device ID */
 #define Fm25v_SNR	0xc3	/* Read S/N */
 
-#define DUMMY_BYTE  0xA5	/* ÑÆÃüÁî£¬¿ÉÒÔÎªÈÎÒâÖµ£¬ÓÃÓÚ¶Á²Ù×÷ */
+#define DUMMY_BYTE  0xA5	/*Comando ficticio, puede ser cualquier valor, utilizado para la operaciÃ³n de lectura */
 
 Fm25v_T fm25v;
 
@@ -67,41 +67,41 @@ uint8_t Fm25v_FastRead(uint8_t * _pBuf, uint32_t _uiReadAddr, uint32_t _uiSize);
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: sf_ConfigGPIO
-*	¹¦ÄÜËµÃ÷: ÅäÖÃ´®ĞĞFlashµÄÆ¬Ñ¡GPIO¡£ ÉèÖÃÎªÍÆÍìÊä³ö
-*	ĞÎ    ²Î: ÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	å‡½ æ•° å: sf_ConfigGPIO
+*	FunciÃ³n descriptiva: Configure el chip selecto GPIO de serial Flash. Establecer como salida push-pull
+*	ParÃ¡metros formales: Ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void Fm25v_ConfigGPIO(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	/* Ê¹ÄÜGPIO Ê±ÖÓ */
+	/* L Habilitar reloj GPIO */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOE, ENABLE);
 
-	/* PC4-Fm25v_CS PC5-W25Q_CS PA8-W5500_CS ÅäÖÃÆ¬Ñ¡¿ÚÏßÎªÍÆÍìÊä³öÄ£Ê½ */
-	Fm25v_SetCS(1);		/* Æ¬Ñ¡ÖÃ¸ß£¬²»Ñ¡ÖĞ */
+	/* PC4-Fm25v_CS PC5-W25Q_CS PA8-W5500_CS Configure la lÃ­nea de selecciÃ³n de chip como modo de salida push-pull */
+	Fm25v_SetCS(1);		/* Chip select establecido alto, no seleccionado */
 	GPIO_SetBits(W25Q_CS_PORT,W25Q_CS_PIN);
 	GPIO_SetBits(W5500_CS_PORT,W5500_CS_PIN);
 	
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* IO¿Ú×î´óËÙ¶È */	
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;		/* ÉèÎªÊä³ö¿Ú */
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* Velocidad mÃ¡xima del puerto IO */	
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;		/* establecer como puerto de salida*/
 	GPIO_InitStructure.GPIO_Pin = Fm25v_CS_PIN | W25Q_CS_PIN | W5500_CS_PIN;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
     
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* IO¿Ú×î´óËÙ¶È */	
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;		/* ÉèÎªÊä³ö¿Ú */
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* Velocidad mÃ¡xima del puerto IO */	
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;		/* establecer como puerto de salida*/
 	GPIO_InitStructure.GPIO_Pin = W5500_CS_PIN;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_InitSpiFlash
-*	¹¦ÄÜËµÃ÷: ³õÊ¼»¯´®ĞĞFlashÓ²¼ş½Ó¿Ú£¨ÅäÖÃSTM32µÄSPIÊ±ÖÓ¡¢GPIO)
-*	ĞÎ    ²Î:  ÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	å‡½ æ•° å: bsp_InitSpiFlash
+*	åŠŸèƒ½è¯´æ˜: Inicialice la interfaz de hardware serial Flash (configure el reloj SPI y GPIO de STM32)
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void Fm25v_Init(void)
@@ -114,104 +114,104 @@ void Fm25v_Init(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: Fm25v_SetCS(0)
-*	¹¦ÄÜËµÃ÷: ÉèÖÃCS¡£ ÓÃÓÚÔËĞĞÖĞSPI¹²Ïí¡£
-*	ĞÎ    ²Î: ÎŞ
-	·µ »Ø Öµ: ÎŞ
+*	å‡½ æ•° å: Fm25v_SetCS(0)
+*	åŠŸèƒ½è¯´æ˜: Establecer CS. Se utiliza para compartir SPI sobre la marcha.
+*	ParÃ¡metros formales: Ninguno
+	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 static void Fm25v_SetCS(uint8_t _level)
 {
 	if (_level == 0)
 	{
-		//bsp_SpiBusEnter();	/* Õ¼ÓÃSPI×ÜÏß£¬ ÓÃÓÚ×ÜÏß¹²Ïí */
+		//bsp_SpiBusEnter();	/* Ocupa el bus SPI para compartir bus */
 		Fm25v_CS_LOW();
 	}
 	else
 	{
 		Fm25v_CS_HIGH();
-		//bsp_SpiBusExit();	    /* ÊÍ·ÅSPI×ÜÏß£¬ ÓÃÓÚ×ÜÏß¹²Ïí */
+		//bsp_SpiBusExit();	    /*Liberar el bus SPI para compartir bus */
 	}
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: Fm25v_WriteEnable
-*	¹¦ÄÜËµÃ÷: ÏòÆ÷¼ş·¢ËÍĞ´Ê¹ÄÜÃüÁî
-*	ĞÎ    ²Î:  ÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	å‡½ æ•° å: Fm25v_WriteEnable
+*	åŠŸèƒ½è¯´æ˜: Enviar un comando de habilitaciÃ³n de escritura al dispositivo
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 static void Fm25v_WriteEnable(void)
 {
-	Fm25v_SetCS(0);						/* Ê¹ÄÜÆ¬Ñ¡ */
-	Spi_SendByte(Fm25v_WREN);			/* ·¢ËÍÃüÁî */
-	Fm25v_SetCS(1);					    /* ½ûÄÜÆ¬Ñ¡ */
+	Fm25v_SetCS(0);						/* habilitar la selecciÃ³n de chips */
+	Spi_SendByte(Fm25v_WREN);			/* Enviar comando*/
+	Fm25v_SetCS(1);					    /* Desactivar selecciÃ³n de chip */
 }
 static void Fm25v_WriteDisable(void)
 {
-	Fm25v_SetCS(0);						/* Ê¹ÄÜÆ¬Ñ¡ */
-	Spi_SendByte(Fm25v_WRDI);			/* ·¢ËÍÃüÁî */
-	Fm25v_SetCS(1);						/* ½ûÄÜÆ¬Ñ¡ */
+	Fm25v_SetCS(0);						/* habilitar la selecciÃ³n de chips */
+	Spi_SendByte(Fm25v_WRDI);			/* enviar comando */
+	Fm25v_SetCS(1);						/* Desactivar selecciÃ³n de chip */
 }
 
 static void Fm25v_ReadStatus(uint8_t * _pBuf)
 {
-    Fm25v_SetCS(0);					/* Ê¹ÄÜÆ¬Ñ¡ */
-    Spi_SendByte(Fm25v_RDSR);		/* ·¢ËÍÃüÁî£¬¶Á×´Ì¬¼Ä´æÆ÷ */
+    Fm25v_SetCS(0);					/* habilitar la selecciÃ³n de chips */
+    Spi_SendByte(Fm25v_RDSR);		/* Enviar comando, leer registro de estado */
     *_pBuf = Spi_SendByte(DUMMY_BYTE);
-    Fm25v_SetCS(1);					/* ½ûÄÜÆ¬Ñ¡ */
+    Fm25v_SetCS(1);					/* Desactivar selecciÃ³n de chip*/
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: Fm25v_WriteStatus
-*	¹¦ÄÜËµÃ÷: Ğ´×´Ì¬¼Ä´æÆ÷
-*	ĞÎ    ²Î:  _ucValue : ×´Ì¬¼Ä´æÆ÷µÄÖµ
-*	·µ »Ø Öµ: ÎŞ
+*	å‡½ æ•° å: Fm25v_WriteStatus
+*	åŠŸèƒ½è¯´æ˜: registro de estado de escritura
+*	ParÃ¡metros formales: _ucValue: el valor del registro de estado
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 static void Fm25v_WriteStatus(uint8_t _ucValue)
 {
-    Fm25v_SetCS(0);					/* Ê¹ÄÜÆ¬Ñ¡ */
-    Spi_SendByte(Fm25v_WRSR);		/* ·¢ËÍÃüÁî£¬Ğ´×´Ì¬¼Ä´æÆ÷ */
-    Spi_SendByte(_ucValue);		    /* ·¢ËÍÊı¾İ£º×´Ì¬¼Ä´æÆ÷µÄÖµ */
-    Fm25v_SetCS(1);					/* ½ûÄÜÆ¬Ñ¡ */
+    Fm25v_SetCS(0);					/*habilitar la selecciÃ³n de chips */
+    Spi_SendByte(Fm25v_WRSR);		/* Enviar comando, escribir registro de estado */
+    Spi_SendByte(_ucValue);		    /* Enviar datos: el valor del registro de estado */
+    Fm25v_SetCS(1);					/* Desactivar selecciÃ³n de chip */
 }
 
 void Fm25v_Sleep(void)
 {
-    Fm25v_SetCS(0);					/* Ê¹ÄÜÆ¬Ñ¡ */
-    Spi_SendByte(Fm25v_SLEEP);		/* ·¢ËÍÃüÁî£¬Ğ´×´Ì¬¼Ä´æÆ÷ */
-    Fm25v_SetCS(1);					/* ½ûÄÜÆ¬Ñ¡ */
+    Fm25v_SetCS(0);					/* habilitar la selecciÃ³n de chips */
+    Spi_SendByte(Fm25v_SLEEP);		/* Enviar comando, escribir registro de estado */
+    Fm25v_SetCS(1);					/* Desactivar selecciÃ³n de chip */
 }
 
 uint8_t Fm25v_Read (uint8_t * _pBuf, uint32_t _uiReadAddr)
 {
-	/* Èç¹û¶ÁÈ¡µÄÊı¾İ³¤¶ÈÎª0»òÕß³¬³ö´®ĞĞFlashµØÖ·¿Õ¼ä£¬ÔòÖ±½Ó·µ»Ø */
+	/* Si la longitud de los datos de lectura es 0 o supera el espacio de direcciones Flash en serie, regrese directamente */
 	if(_uiReadAddr > fm25v.TotalSize)
 	{
 		return 0;
 	}
 
-	Fm25v_SetCS(0);						        /* Ê¹ÄÜÆ¬Ñ¡ */
+	Fm25v_SetCS(0);						        /* habilitar la selecciÃ³n de chips */
 	Spi_SendByte(Fm25v_READ);			        /* Fast Read Operation */
-	Spi_SendByte((_uiReadAddr&0xFF0000) >> 16); /* ·¢ËÍÉÈÇøµØÖ·µÄ¸ß8bit */
-	Spi_SendByte((_uiReadAddr&0xFF00) >> 8);	/* ·¢ËÍÉÈÇøµØÖ·ÖĞ¼ä8bit */
-	Spi_SendByte(_uiReadAddr&0xFF);			    /* ·¢ËÍÉÈÇøµØÖ·µÍ8bit */
-	*_pBuf = Spi_SendByte(DUMMY_BYTE);			/* ¶ÁÒ»¸ö×Ö½Ú²¢´æ´¢µ½pBuf£¬¶ÁÍêºóÖ¸Õë×Ô¼Ó1 */
-	Fm25v_SetCS(1);								/* ½ûÄÜÆ¬Ñ¡ */
+	Spi_SendByte((_uiReadAddr&0xFF0000) >> 16); /* EnvÃ­a los 8 bits superiores de la direcciÃ³n de sector */
+	Spi_SendByte((_uiReadAddr&0xFF00) >> 8);	/* EnvÃ­a los 8 bits del medio de la direcciÃ³n del sector */
+	Spi_SendByte(_uiReadAddr&0xFF);			    /* Enviar direcciÃ³n de sector de 8 bits bajo */
+	*_pBuf = Spi_SendByte(DUMMY_BYTE);			/* Lea un byte y guÃ¡rdelo en pBuf, y el puntero aumentarÃ¡ en 1 despuÃ©s de leer */
+	Fm25v_SetCS(1);								/* Desactivar selecciÃ³n de chip */
 	return 1;
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: Fm25v_Write
-*	¹¦ÄÜËµÃ÷:
-*	ĞÎ    ²Î:  	_pBuf : Êı¾İÔ´»º³åÇø£»
-*				_uiWriteAddr £ºÄ¿±êÇøÓòÊ×µØÖ·
-*				_usSize £ºÊı¾İ¸öÊı
-*	·µ »Ø Öµ: ÎŞ
+*	å‡½ æ•° å: Fm25v_Write
+*	åŠŸèƒ½è¯´æ˜:
+*	å½¢    å‚:  	_pBuf: bÃºfer de fuente de datos;
+*				_uiWriteAddr ï¼šLa primera direcciÃ³n del Ã¡rea objetivo
+*				_usSize ï¼šNÃºmero de datos
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 uint8_t Fm25v_Write(uint8_t * _pBuf, uint32_t _uiWriteAddr, uint16_t _usSize)
@@ -221,73 +221,73 @@ uint8_t Fm25v_Write(uint8_t * _pBuf, uint32_t _uiWriteAddr, uint16_t _usSize)
 	{
 		return 0;
 	}
-	Fm25v_WriteEnable();				/* ·¢ËÍĞ´Ê¹ÄÜÃüÁî */
+	Fm25v_WriteEnable();				/*Enviar comando de habilitaciÃ³n de escritura */
 	
-	Fm25v_SetCS(0);						/* Ê¹ÄÜÆ¬Ñ¡ */
+	Fm25v_SetCS(0);						/* habilitar la selecciÃ³n de chips */
 	Spi_SendByte(Fm25v_WRITE);			/* Write Operation */
-	Spi_SendByte((_uiWriteAddr & 0xFF0000) >> 16);	/* ·¢ËÍÉÈÇøµØÖ·µÄ¸ß8bit */
-	Spi_SendByte((_uiWriteAddr & 0xFF00) >> 8);		/* ·¢ËÍÉÈÇøµØÖ·ÖĞ¼ä8bit */
-	Spi_SendByte(_uiWriteAddr & 0xFF);				/* ·¢ËÍÉÈÇøµØÖ·µÍ8bit */
+	Spi_SendByte((_uiWriteAddr & 0xFF0000) >> 16);	/* EnvÃ­a los 8 bits superiores de la direcciÃ³n de sector */
+	Spi_SendByte((_uiWriteAddr & 0xFF00) >> 8);		/* EnvÃ­a los 8 bits del medio de la direcciÃ³n del sector */
+	Spi_SendByte(_uiWriteAddr & 0xFF);				/* Enviar direcciÃ³n de sector de 8 bits bajo */
 
 	for( i = 0; i < _usSize; i++)
 	{
-		Spi_SendByte(*_pBuf++);			/* ·¢ËÍÊı¾İ */
+		Spi_SendByte(*_pBuf++);			/* enviar datos */
 	}
-	Fm25v_SetCS(1);						/* ½ûÖ¹Æ¬Ñ¡ */
+	Fm25v_SetCS(1);						/* deshabilitar selecciÃ³n de chip*/
 	return 1;
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: Fm25v_FastRead
-*	¹¦ÄÜËµÃ÷: ¿ìËÙ¶Á È¡Èô¸É×Ö½Ú¡£×Ö½Ú¸öÊı²»ÄÜ³¬³öĞ¾Æ¬ÈİÁ¿¡£
-*	ĞÎ    ²Î: _pBuf : Êı¾İÔ´»º³åÇø£»
-*						_uiReadAddr £ºÊ×µØÖ·
-*						_usSize £ºÊı¾İ¸öÊı,²»ÄÜ³¬³öĞ¾Æ¬×ÜÈİÁ¿
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: Fm25v_FastRead
+*	åŠŸèƒ½è¯´æ˜: Leer varios bytes rÃ¡pidamente. El nÃºmero de bytes no puede exceder la capacidad del chip.
+*	parÃ¡metro formal:_pBuf: bÃºfer de fuente de datos;
+*						_uiReadAddr ï¼šprimera direcciÃ³n
+*						_usSize ï¼šEl nÃºmero de datos no puede exceder la capacidad total del chip
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 uint8_t Fm25v_FastRead(uint8_t * _pBuf, uint32_t _uiReadAddr, uint32_t _uiSize)
 {
-	/* Èç¹û¶ÁÈ¡µÄÊı¾İ³¤¶ÈÎª0»òÕß³¬³ö´®ĞĞFlashµØÖ·¿Õ¼ä£¬ÔòÖ±½Ó·µ»Ø */
+	/* Si la longitud de los datos de lectura es 0 o supera el espacio de direcciones Flash en serie, regrese directamente */
 	if((_uiSize == 0) ||(_uiReadAddr + _uiSize) > fm25v.TotalSize)
 	{
 		return 0;
 	}
 
-	Fm25v_SetCS(0);									/* Ê¹ÄÜÆ¬Ñ¡ */
+	Fm25v_SetCS(0);									/*habilitar la selecciÃ³n de chips*/
 	Spi_SendByte(Fm25v_FSTRD);			/* Fast Read Operation */
-	Spi_SendByte((_uiReadAddr & 0xFF0000) >> 16);	/* ·¢ËÍÉÈÇøµØÖ·µÄ¸ß8bit */
-	Spi_SendByte((_uiReadAddr & 0xFF00) >> 8);		/* ·¢ËÍÉÈÇøµØÖ·ÖĞ¼ä8bit */
-	Spi_SendByte(_uiReadAddr & 0xFF);				/* ·¢ËÍÉÈÇøµØÖ·µÍ8bit */
+	Spi_SendByte((_uiReadAddr & 0xFF0000) >> 16);	/* EnvÃ­a los 8 bits superiores de la direcciÃ³n de sector */
+	Spi_SendByte((_uiReadAddr & 0xFF00) >> 8);		/* EnvÃ­a los 8 bits del medio de la direcciÃ³n del sector */
+	Spi_SendByte(_uiReadAddr & 0xFF);				/* Enviar direcciÃ³n de sector de 8 bits bajo */
 	Spi_SendByte(DUMMY_BYTE);
 	while (_uiSize--)
 	{
-		*_pBuf++ = Spi_SendByte(DUMMY_BYTE);			/* ¶ÁÒ»¸ö×Ö½Ú²¢´æ´¢µ½pBuf£¬¶ÁÍêºóÖ¸Õë×Ô¼Ó1 */
+		*_pBuf++ = Spi_SendByte(DUMMY_BYTE);			/* Lea un byte y guÃ¡rdelo en pBuf, y el puntero aumentarÃ¡ en 1 despuÃ©s de leer */
 	}
-	Fm25v_SetCS(1);									/* ½ûÄÜÆ¬Ñ¡ */
+	Fm25v_SetCS(1);									/* Desactivar selecciÃ³n de chip */
 	return 1;
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: Fm25v_ReadID
-*	¹¦ÄÜËµÃ÷: ¶ÁÈ¡Æ÷¼şID
-*	ĞÎ    ²Î: ÎŞ
-*	·µ »Ø Öµ:
+*	å‡½ æ•° å: Fm25v_ReadID
+*	åŠŸèƒ½è¯´æ˜: Leer ID de dispositivo
+*	ParÃ¡metros formales: ninguno
+*	valor de retorno:
 *********************************************************************************************************
 */
 uint8_t Fm25v_ReadID(void)
 {
 	uint8_t i;
 
-	Fm25v_SetCS(0);							/* Ê¹ÄÜÆ¬Ñ¡ */
-	Spi_SendByte(Fm25v_RDID);				/* ·¢ËÍ¶ÁIDÃüÁî */
+	Fm25v_SetCS(0);							/* habilitar la selecciÃ³n de chips */
+	Spi_SendByte(Fm25v_RDID);				/* Enviar comando de lectura de ID */
 	for(i=0;i<=8;i++)
     {
-		fm25v.ChipID[i] = Spi_SendByte(DUMMY_BYTE);		/* ¶ÁIDµÄµÚi¸ö×Ö½Ú */
+		fm25v.ChipID[i] = Spi_SendByte(DUMMY_BYTE);		/* Leer el i-Ã©simo byte del ID */
     }
-	Fm25v_SetCS(1);							/* ½ûÄÜÆ¬Ñ¡ */
+	Fm25v_SetCS(1);							/* Desactivar selecciÃ³n de chip */
     
     //ID read finish, then check if it is ok;
     for(i=0;i<9;i++)
@@ -299,15 +299,15 @@ uint8_t Fm25v_ReadID(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: Fm25v_ReadInfo
-*	¹¦ÄÜËµÃ÷: ¶ÁÈ¡Æ÷¼şID,²¢Ìî³äÆ÷¼ş²ÎÊı
-*	ĞÎ    ²Î:  ÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	å‡½ æ•° å: Fm25v_ReadInfo
+*	åŠŸèƒ½è¯´æ˜: Lea la identificaciÃ³n del dispositivo y complete los parÃ¡metros del dispositivo
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void Fm25v_ReadInfo(void)
 {
-	/* ×Ô¶¯Ê¶±ğ´®ĞĞFlashĞÍºÅ */
+	/*IdentificaciÃ³n automÃ¡tica de modelos Flash seriales*/
     #if DEBUG
 	printf("ChipID = %x%x%x%x%x%x%x%x%x ",
         fm25v.ChipID[0],
