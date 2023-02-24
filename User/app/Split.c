@@ -1,13 +1,13 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : ÂÌĞÅ±ÈÄ£¿é
-*	ÎÄ¼şÃû³Æ : Split.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
-*	ĞŞ¸Ä¼ÇÂ¼ :
-*		°æ±¾ºÅ  ÈÕÆÚ       ×÷Õß    ËµÃ÷
-*		V1.0    2019-12-30  wcx     Ê×·¢
+*	æ¨¡å—åç§° : ç»¿ä¿¡æ¯”æ¨¡å—
+*	æ–‡ä»¶åç§° : Split.c
+*	ç‰ˆ    æœ¬ : V1.0
+*	è¯´    æ˜ : 
+*	ä¿®æ”¹è®°å½• :
+*		ç‰ˆæœ¬å·  æ—¥æœŸ       ä½œè€…    è¯´æ˜
+*		V1.0    2019-12-30  wcx     é¦–å‘
 *
 *********************************************************************************************************
 */
@@ -15,14 +15,14 @@
 #include "Split.h"
 
 
-SplitType       SplitNow;   //µ±Ç°ÔËĞĞµÄ ÂÌĞÅ±È Êı¾İ
-SplitTable      SplitTab;   //ÂÌĞÅ±È±í
-PhaseSplitType  RingSplit[RingMax];    //¸÷»·µ±Ç°ÂÌĞÅ±È
+SplitType       SplitNow;   //Datos de relaciÃ³n de letras verdes actualmente en ejecuciÃ³n
+SplitTable      SplitTab;   //Tabla de relaciÃ³n de letras verdes
+PhaseSplitType  RingSplit[RingMax];    //RelaciÃ³n de tiempo a seÃ±al verde de cada anillo
 
 
 
 
-//ÏàÎ»ºÅ + ÂÌĞÅ±ÈÊı¾İ = ÂÌĞÅ±ÈÏàÎ»Ë÷Òı
+//ç›¸ä½å· + ç»¿ä¿¡æ¯”æ•°æ® = ç»¿ä¿¡æ¯”ç›¸ä½ç´¢å¼•
 uint8_t GetSplitPhaseIndex(SplitType* Split, uint8_t PhaseNum)
 {
     uint8_t     i;
@@ -48,27 +48,27 @@ void SplitDefault(void)
     SplitTab.Maximum = SplitMax;
 
     SplitTab.Split[0].Num = 1;
-    for(i = 0; i <= 4; i++)//Ä¬ÈÏÅäÖÃ5¸öÏàÎ»
+    for(i = 0; i <= 4; i++)//é»˜è®¤é…ç½®5ä¸ªç›¸ä½
     {
         SplitTab.Split[0].Phase[i].PhaseNum = i + 1;//
-        SplitTab.Split[0].Phase[i].Time = 16;       //ÏàÎ»µÄ·ÅĞĞÊ±¼ä¡£°üº¬ÂÌµÆ¡¢ÂÌÉÁ¡¢»ÆµÆ¡¢È«ºìÊ±¼ä
-        SplitTab.Split[0].Phase[i].Mode = SM_None;  //ÂÌĞÅ±ÈÄ£Ê½ 2-ÎŞ
-        SplitTab.Split[0].Phase[i].Coord = SC_FIXED;//Ğ­µ÷ÅäÖÃCoord bit2£º1-×÷Îª¹Ì¶¨ÏàÎ»
+        SplitTab.Split[0].Phase[i].Time = 16;       //ç›¸ä½çš„æ”¾è¡Œæ—¶é—´ã€‚åŒ…å«ç»¿ç¯ã€ç»¿é—ªã€é»„ç¯ã€å…¨çº¢æ—¶é—´
+        SplitTab.Split[0].Phase[i].Mode = SM_None;  //ç»¿ä¿¡æ¯”æ¨¡å¼ 2-æ— 
+        SplitTab.Split[0].Phase[i].Coord = SC_FIXED;//åè°ƒé…ç½®Coord bit2ï¼š1-ä½œä¸ºå›ºå®šç›¸ä½
     }
 }
 
-//Ä¬ÈÏµÄÂÌĞÅ±ÈÅäÖÃ
-//ÂÌĞÅ±È1µÄÄ¬ÈÏÅäÖÃ
+//é»˜è®¤çš„ç»¿ä¿¡æ¯”é…ç½®
+//ç»¿ä¿¡æ¯”1çš„é»˜è®¤é…ç½®
 void SplitDataInit(uint8_t n)
 {
     uint8_t i;
     SplitTab.Split[n].Num = n + 1;
-    for(i = 0; i <= 4; i++)//Ä¬ÈÏÅäÖÃ5¸öÏàÎ»
+    for(i = 0; i <= 4; i++)//é»˜è®¤é…ç½®5ä¸ªç›¸ä½
     {
         SplitTab.Split[n].Phase[i].PhaseNum = i + 1;//
-        SplitTab.Split[n].Phase[i].Time = 18;       //ÏàÎ»µÄ·ÅĞĞÊ±¼ä¡£°üº¬ÂÌµÆ¡¢ÂÌÉÁ¡¢»ÆµÆ¡¢È«ºìÊ±¼ä
-        SplitTab.Split[n].Phase[i].Mode = SM_None;  //ÂÌĞÅ±ÈÄ£Ê½ 2-ÎŞ
-        SplitTab.Split[n].Phase[i].Coord = SC_FIXED;//Ğ­µ÷ÅäÖÃCoord bit2£º1-×÷Îª¹Ì¶¨ÏàÎ»
+        SplitTab.Split[n].Phase[i].Time = 18;       //ç›¸ä½çš„æ”¾è¡Œæ—¶é—´ã€‚åŒ…å«ç»¿ç¯ã€ç»¿é—ªã€é»„ç¯ã€å…¨çº¢æ—¶é—´
+        SplitTab.Split[n].Phase[i].Mode = SM_None;  //ç»¿ä¿¡æ¯”æ¨¡å¼ 2-æ— 
+        SplitTab.Split[n].Phase[i].Coord = SC_FIXED;//åè°ƒé…ç½®Coord bit2ï¼š1-ä½œä¸ºå›ºå®šç›¸ä½
     }
 }
 
@@ -79,10 +79,10 @@ void SplitXDataInit(SplitType* Split)
     for(n=0;n<=4;n++)
     {
         Split->Phase[n].PhaseNum = n + 1;//
-        Split->Phase[n].Time = 18;      //ÏàÎ»µÄ·ÅĞĞÊ±¼ä¡£°üº¬ÁË»ú¶¯³µÏàÎ»µÄÂÌµÆ¡¢ÂÌÉÁ¡¢»ÆµÆ¡¢È«ºìÊ±¼ä
-                                            //ÒÔ¼°ĞĞÈËÏàÎ»µÄ·ÅĞĞÊ±¼äºÍÇå¿ÕÊ±¼ä¡£
-        Split->Phase[n].Mode = SM_None;  //ÂÌĞÅ±ÈÄ£Ê½ 2-ÎŞ
-        Split->Phase[n].Coord = SC_FIXED;//Ğ­µ÷ÅäÖÃCoord bit2£º1-×÷Îª¹Ì¶¨ÏàÎ»
+        Split->Phase[n].Time = 18;      //ç›¸ä½çš„æ”¾è¡Œæ—¶é—´ã€‚åŒ…å«äº†æœºåŠ¨è½¦ç›¸ä½çš„ç»¿ç¯ã€ç»¿é—ªã€é»„ç¯ã€å…¨çº¢æ—¶é—´
+                                            //ä»¥åŠè¡Œäººç›¸ä½çš„æ”¾è¡Œæ—¶é—´å’Œæ¸…ç©ºæ—¶é—´ã€‚
+        Split->Phase[n].Mode = SM_None;  //ç»¿ä¿¡æ¯”æ¨¡å¼ 2-æ— 
+        Split->Phase[n].Coord = SC_FIXED;//åè°ƒé…ç½®Coord bit2ï¼š1-ä½œä¸ºå›ºå®šç›¸ä½
     }
 }
 
