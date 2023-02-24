@@ -1,4 +1,4 @@
-#include "bsp.h" 				/* µ×²ãÓ²¼şÇı¶¯ */
+#include "bsp.h" 				/* åº•å±‚ç¡¬ä»¶é©±åŠ¨ */
 #include "gb25280.h"
 #include "PhaseStateControl.h"
 
@@ -11,7 +11,7 @@ uint8_t SearchResponse(GBMSG_TYPE *gbmsg, SEND_TYPE* send)
     uint8_t  CheckSumCalc;
     uint8_t  msgerror;
     
-    if(gbmsg->OperationType == OT_Query)//ËÑË÷²Ù×÷
+    if(gbmsg->OperationType == OT_Query)//æœç´¢æ“ä½œ
     {
         gbtx[0] = frame_head;
         gbtx[1] = frame_ver;
@@ -24,7 +24,7 @@ uint8_t SearchResponse(GBMSG_TYPE *gbmsg, SEND_TYPE* send)
         gbtx[8] = OT_QueryAnswer;
         gbtx[9] = O_Call; 
         gbtx[10] = Reserve_Data; 
-        /* ·¢ËÍĞÅºÅ»ú»ù±¾ĞÅÏ¢£ºĞÍºÅ£¬Êä³öÂ·Êı£¬Ö§³Ö¹¦ÄÜ£¬ µÈµÈ*/
+        /* å‘é€ä¿¡å·æœºåŸºæœ¬ä¿¡æ¯ï¼šå‹å·ï¼Œè¾“å‡ºè·¯æ•°ï¼Œæ”¯æŒåŠŸèƒ½ï¼Œ ç­‰ç­‰*/
         gbtx[11] = DeviceInfo.DeviceVersion[0];
         gbtx[12] = DeviceInfo.DeviceVersion[1];
         gbtx[13] = DeviceInfo.DeviceVersion[2];
@@ -56,7 +56,7 @@ uint8_t SearchResponse(GBMSG_TYPE *gbmsg, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else//²»Ö§³ÖµÄ²Ù×÷ÀàĞÍ
+    else//ä¸æ”¯æŒçš„æ“ä½œç±»å‹
         msgerror = Unsupport_OT;
     
     return msgerror;
@@ -79,7 +79,7 @@ uint8_t TimeOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_CurrentTime;
     gbtx[10] = Reserve_Data;
                     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯Ê±¼ä
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢æ—¶é—´
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -113,7 +113,7 @@ uint8_t TimeOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃÊ±¼ä
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®æ—¶é—´
     {
         RtcType rtc;
         rtc.second  = pd[11];
@@ -148,7 +148,7 @@ uint8_t TimeOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else//²»Ö§³ÖµÄ²Ù×÷ÀàĞÍ
+    else//ä¸æ”¯æŒçš„æ“ä½œç±»å‹
         msgerror = Unsupport_OT;
 
     return msgerror;
@@ -173,7 +173,7 @@ uint8_t ScheduleOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Schedule;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯µ÷¶È¼Æ»®
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢è°ƒåº¦è®¡åˆ’
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -222,7 +222,7 @@ uint8_t ScheduleOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃµ÷¶È¼Æ»®
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®è°ƒåº¦è®¡åˆ’
     {
         if(ScheduleMax != pd[11]) msgerror = DataError;
         else
@@ -301,7 +301,7 @@ uint8_t PlanOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Plan;
     gbtx[10]= Reserve_Data;
                     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯ÈÕ¼Æ»®
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢æ—¥è®¡åˆ’
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -349,7 +349,7 @@ uint8_t PlanOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃÈÕ¼Æ»®
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®æ—¥è®¡åˆ’
     {
         if(PlanMax != pd[11]) msgerror = DataError;
         else
@@ -427,7 +427,7 @@ uint8_t ActionOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Action;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯¶¯×÷
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢åŠ¨ä½œ
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -475,7 +475,7 @@ uint8_t ActionOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃÈÕ¼Æ»®
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®æ—¥è®¡åˆ’
     {
         if(ActionMax != pd[11]) msgerror = DataError;
         else
@@ -552,7 +552,7 @@ uint8_t PatternOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Pattern;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯·½°¸
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢æ–¹æ¡ˆ
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -600,7 +600,7 @@ uint8_t PatternOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃ·½°¸
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®æ–¹æ¡ˆ
     {
         if(PatternMax != pd[11]) msgerror = DataError;
         else
@@ -678,7 +678,7 @@ uint8_t SequenceOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Sequence;
     gbtx[10]= Reserve_Data;
                     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯ÏàĞò
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢ç›¸åº
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -726,7 +726,7 @@ uint8_t SequenceOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃÏàĞò
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®ç›¸åº
     {
         if(SequenceMax != pd[11]) msgerror = DataError;
         else
@@ -803,7 +803,7 @@ uint8_t SplitOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Split;
     gbtx[10]= Reserve_Data;
                     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯ÂÌĞÅ±È
+    if(gbmsg->OperationType == OT_Query)//Consulta la proporciÃ³n de letras verdes
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -851,7 +851,7 @@ uint8_t SplitOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃÂÌĞÅ±È
+    else if(gbmsg->OperationType == OT_Set)//ProporciÃ³n de letra verde de diseÃ±o
     {
         if(SplitMax != pd[11]) msgerror = DataError;
         else
@@ -931,7 +931,7 @@ uint8_t PhaseOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Phase;
     gbtx[10]= Reserve_Data;
 
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯ÏàÎ»
+    if(gbmsg->OperationType == OT_Query)//fase de consulta
     {
         gbtx[8] = OT_QueryAnswer;
         gbtx[11] = PhaseMax;
@@ -981,7 +981,7 @@ uint8_t PhaseOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃÏàÎ»
+    else if(gbmsg->OperationType == OT_Set)//establecer fase
     {
         if(PhaseMax != pd[11]) msgerror = DataError;
         else
@@ -1061,7 +1061,7 @@ uint8_t ChannelOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Channel;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯Í¨µÀ
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢é€šé“
     {
         gbtx[8] = OT_QueryAnswer;
         gbtx[11] = ChannelMax;
@@ -1111,7 +1111,7 @@ uint8_t ChannelOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃÍ¨µÀ
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®é€šé“
     {
         if(ChannelMax != pd[11]) msgerror = DataError;
         else
@@ -1191,7 +1191,7 @@ uint8_t UnitOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Unit;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯µ¥Ôª²ÎÊı
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢å•å…ƒå‚æ•°
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -1240,7 +1240,7 @@ uint8_t UnitOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃµ¥Ôª²ÎÊı
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®å•å…ƒå‚æ•°
     {
         uint8_t *pi;
         pi = &pd[11];
@@ -1316,7 +1316,7 @@ uint8_t CoordOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Coord;
     gbtx[10]= Reserve_Data;
                     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯Ğ­µ÷²ÎÊı
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢åè°ƒå‚æ•°
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -1365,7 +1365,7 @@ uint8_t CoordOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃĞ­µ÷²ÎÊı
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®åè°ƒå‚æ•°
     {
         uint8_t *pi;
         pi = &pd[11];
@@ -1440,7 +1440,7 @@ uint8_t OverlapOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Overlap;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯¸úËæÏàÎ»
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢è·Ÿéšç›¸ä½
     {
         gbtx[8] = OT_QueryAnswer;
         gbtx[11] = OverlapMax;
@@ -1490,7 +1490,7 @@ uint8_t OverlapOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃ¸úËæÏàÎ»
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®è·Ÿéšç›¸ä½
     {
         if(OverlapMax != pd[11]) msgerror = DataError;
         else
@@ -1521,7 +1521,7 @@ uint8_t OverlapOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
             for(i=0;i<OverlapMax;i++)
             {
                 IncludedPhases[i] = OverlapTab.Overlap[i].IncludedPhases[0]|(OverlapTab.Overlap[i].IncludedPhases[1]<<8);     
-                ModifierPhases[i] = OverlapTab.Overlap[i].ModifierPhases[0]|(OverlapTab.Overlap[i].ModifierPhases[1]<<8);;     //Ä¸ÏàÎ» Ëù¸úËæ·ÅĞĞµÄ»ú¶¯³µÏàÎ»
+                ModifierPhases[i] = OverlapTab.Overlap[i].ModifierPhases[0]|(OverlapTab.Overlap[i].ModifierPhases[1]<<8);;     //æ¯ç›¸ä½ æ‰€è·Ÿéšæ”¾è¡Œçš„æœºåŠ¨è½¦ç›¸ä½
             }
             #if DEBUG
             printf("Overlap Data Changed \r\n");
@@ -1573,7 +1573,7 @@ uint8_t RemoteControlOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_RemoteControl;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Set)//ÉèÖÃ
+    if(gbmsg->OperationType == OT_Set)//è®¾ç½®
     {
         if(ClearError == pd[11])
         {
@@ -1584,18 +1584,18 @@ uint8_t RemoteControlOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
             {
                 if(WMR_RedGreenConflict == OP.WorkMode_Reason)
                 {
-                    OP.red_green_conflict_reg = 0;//Çå³ş¹ÊÕÏ
-                    OP.WorkMode_Reason = WMR_Normal;//Ê¹ĞÅºÅ»úÕı³£»ÆÉÁ,¶ø·Ç¹ÊÕÏ»ÆÉÁ
+                    OP.red_green_conflict_reg = 0;//æ¸…æ¥šæ•…éšœ
+                    OP.WorkMode_Reason = WMR_Normal;//ä½¿ä¿¡å·æœºæ­£å¸¸é»„é—ª,è€Œéæ•…éšœé»„é—ª
                 }
                 if(WMR_GreenConflict == OP.WorkMode_Reason)
                 {
-                    OP.green_conflict_reg = 0;//Çå³ş¹ÊÕÏ
-                    OP.WorkMode_Reason = WMR_Normal;//Ê¹ĞÅºÅ»úÕı³£»ÆÉÁ,¶ø·Ç¹ÊÕÏ»ÆÉÁ
+                    OP.green_conflict_reg = 0;//æ¸…æ¥šæ•…éšœ
+                    OP.WorkMode_Reason = WMR_Normal;//ä½¿ä¿¡å·æœºæ­£å¸¸é»„é—ª,è€Œéæ•…éšœé»„é—ª
                 }
                 if(WMR_RedFailed == OP.WorkMode_Reason)
                 {
-                    OP.red_install_reg = red_install_fail_detect(0);//Çå³ş¹ÊÕÏ
-                    OP.WorkMode_Reason = WMR_Normal;//Ê¹ĞÅºÅ»úÕı³£»ÆÉÁ,¶ø·Ç¹ÊÕÏ»ÆÉÁ
+                    OP.red_install_reg = red_install_fail_detect(0);//æ¸…æ¥šæ•…éšœ
+                    OP.WorkMode_Reason = WMR_Normal;//ä½¿ä¿¡å·æœºæ­£å¸¸é»„é—ª,è€Œéæ•…éšœé»„é—ª
                 }
             }
             
@@ -1628,7 +1628,7 @@ uint8_t RemoteControlOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         {
             uint8_t *po;
             //WorkPoint
-            if(Manual_start == pd[11])//¿ªÊ¼ÊÖ¶¯
+            if(Manual_start == pd[11])//å¼€å§‹æ‰‹åŠ¨
             {
                 #if DEBUG
                 printf("Manual_start\r\n");
@@ -1792,7 +1792,7 @@ uint8_t VehdetOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Vehdet;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢
     {
         gbtx[8] = OT_QueryAnswer;
         gbtx[11] = VehdetMax;
@@ -1842,7 +1842,7 @@ uint8_t VehdetOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃ
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®
     {
         if(VehdetMax != pd[11]) msgerror = DataError;
         else
@@ -1921,7 +1921,7 @@ uint8_t PeddetOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Peddet;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢
     {
         gbtx[8] = OT_QueryAnswer;
         gbtx[11] = PeddetMax;
@@ -1971,7 +1971,7 @@ uint8_t PeddetOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃ
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®
     {
         if(PeddetMax != pd[11]) msgerror = DataError;
         else
@@ -2051,7 +2051,7 @@ uint8_t PeddetStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_PeddetState;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢
     {
         gbtx[8] = OT_QueryAnswer;
         gbtx[11] = PeddetMax;
@@ -2105,7 +2105,7 @@ uint8_t PeddetStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃ
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®
     {
         if(PeddetMax != pd[11]) msgerror = DataError;
         else
@@ -2165,7 +2165,7 @@ uint8_t WorkStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_WorkState;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯×´Ì¬ĞÅÏ¢
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢çŠ¶æ€ä¿¡æ¯
     {
         gbtx[8] = OT_QueryAnswer;
         CheckSumCalc = 0;
@@ -2175,13 +2175,13 @@ uint8_t WorkStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         }
         num = 11;
         
-        //Ê±¶ÎºÅ£¬»·ºÅ£¬
-        temp[0] = ScheduleNow.Num; //µ÷¶È¼Æ»®ºÅ
-        temp[1] = Plan.Num;     //Ê±¶Î±íºÅ
-        temp[2] = Action.Num;   //¶¯×÷ºÅ
-        temp[3] = PatternNow.Num;  //·½°¸ºÅ
-        temp[4] = SequenceNow.Num; //ÏàĞò±í
-        temp[5] = SplitNow.Num;    //ÂÌĞÅ±È
+        //æ—¶æ®µå·ï¼Œç¯å·ï¼Œ
+        temp[0] = ScheduleNow.Num; //è°ƒåº¦è®¡åˆ’å·
+        temp[1] = Plan.Num;     //æ—¶æ®µè¡¨å·
+        temp[2] = Action.Num;   //åŠ¨ä½œå·
+        temp[3] = PatternNow.Num;  //æ–¹æ¡ˆå·
+        temp[4] = SequenceNow.Num; //ç›¸åºè¡¨
+        temp[5] = SplitNow.Num;    //ç»¿ä¿¡æ¯”
         
         temp[6] = OP.WorkMode;
         temp[7] = OP.WorkMode_Reason;
@@ -2213,18 +2213,18 @@ uint8_t WorkStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         
         temp[14] = PeddetStateTab.peddet[7].Valid;
         i = 15;
-        temp[i++] = SequenceNow.Ring[0].Phase[PhaseState.Ring[0].SeqNum];//ÏàÎ»ºÅ
-        temp[i++] = RingSplit[0].Time;//ÏàÎ»Ê±¼ä
-        temp[i++] = PhaseState.Ring[0].SecondRemain;//Ê£ÓàÊ±¼ä
-        temp[i++] = SequenceNow.Ring[1].Phase[PhaseState.Ring[1].SeqNum];//ÏàÎ»ºÅ
-        temp[i++] = RingSplit[1].Time;//ÏàÎ»Ê±¼ä
-        temp[i++] = PhaseState.Ring[1].SecondRemain;//Ê£ÓàÊ±¼ä
-        temp[i++] = SequenceNow.Ring[2].Phase[PhaseState.Ring[2].SeqNum];//ÏàÎ»ºÅ
-        temp[i++] = RingSplit[2].Time;//ÏàÎ»Ê±¼ä
-        temp[i++] = PhaseState.Ring[2].SecondRemain;//Ê£ÓàÊ±¼ä
-        temp[i++] = SequenceNow.Ring[3].Phase[PhaseState.Ring[3].SeqNum];//ÏàÎ»ºÅ
-        temp[i++] = RingSplit[3].Time;//ÏàÎ»Ê±¼ä
-        temp[i++] = PhaseState.Ring[3].SecondRemain;//Ê£ÓàÊ±¼ä
+        temp[i++] = SequenceNow.Ring[0].Phase[PhaseState.Ring[0].SeqNum];//ç›¸ä½å·
+        temp[i++] = RingSplit[0].Time;//ç›¸ä½æ—¶é—´
+        temp[i++] = PhaseState.Ring[0].SecondRemain;//å‰©ä½™æ—¶é—´
+        temp[i++] = SequenceNow.Ring[1].Phase[PhaseState.Ring[1].SeqNum];//ç›¸ä½å·
+        temp[i++] = RingSplit[1].Time;//ç›¸ä½æ—¶é—´
+        temp[i++] = PhaseState.Ring[1].SecondRemain;//å‰©ä½™æ—¶é—´
+        temp[i++] = SequenceNow.Ring[2].Phase[PhaseState.Ring[2].SeqNum];//ç›¸ä½å·
+        temp[i++] = RingSplit[2].Time;//ç›¸ä½æ—¶é—´
+        temp[i++] = PhaseState.Ring[2].SecondRemain;//å‰©ä½™æ—¶é—´
+        temp[i++] = SequenceNow.Ring[3].Phase[PhaseState.Ring[3].SeqNum];//ç›¸ä½å·
+        temp[i++] = RingSplit[3].Time;//ç›¸ä½æ—¶é—´
+        temp[i++] = PhaseState.Ring[3].SecondRemain;//å‰©ä½™æ—¶é—´
         
         DataLength = 27;
         po = temp;
@@ -2277,13 +2277,13 @@ uint8_t SignalState(uint8_t* temp)
     uint8_t i = 0;
     uint32_t Statustemp = 0;
     
-    //Ê±¶ÎºÅ£¬»·ºÅ£¬10 byte
-    temp[i++] = ScheduleNow.Num; //µ÷¶È¼Æ»®ºÅ
-    temp[i++] = Plan.Num;     //Ê±¶Î±íºÅ
-    temp[i++] = Action.Num;   //¶¯×÷ºÅ
-    temp[i++] = PatternNow.Num;  //·½°¸ºÅ
-    temp[i++] = SequenceNow.Num; //ÏàĞò±í
-    temp[i++] = SplitNow.Num;    //ÂÌĞÅ±È
+    //æ—¶æ®µå·ï¼Œç¯å·ï¼Œ10 byte
+    temp[i++] = ScheduleNow.Num; //è°ƒåº¦è®¡åˆ’å·
+    temp[i++] = Plan.Num;     //æ—¶æ®µè¡¨å·
+    temp[i++] = Action.Num;   //åŠ¨ä½œå·
+    temp[i++] = PatternNow.Num;  //æ–¹æ¡ˆå·
+    temp[i++] = SequenceNow.Num; //ç›¸åºè¡¨
+    temp[i++] = SplitNow.Num;    //ç»¿ä¿¡æ¯”
 
     temp[i++] = OP.WorkMode;
     temp[i++] = OP.WorkMode_Reason;
@@ -2313,23 +2313,23 @@ uint8_t SignalState(uint8_t* temp)
         temp[i++] = 0;
     }
     
-    //12 byte »·ÏàÎ»Êı¾İ
-    temp[i++] = SequenceNow.Ring[0].Phase[PhaseState.Ring[0].SeqNum];//ÏàÎ»ºÅ
-    temp[i++] = RingSplit[0].Time;//ÏàÎ»Ê±¼ä
-    temp[i++] = PhaseState.Ring[0].SecondRemain;//Ê£ÓàÊ±¼ä
-    temp[i++] = SequenceNow.Ring[1].Phase[PhaseState.Ring[1].SeqNum];//ÏàÎ»ºÅ
-    temp[i++] = RingSplit[1].Time;//ÏàÎ»Ê±¼ä
-    temp[i++] = PhaseState.Ring[1].SecondRemain;//Ê£ÓàÊ±¼ä
-    temp[i++] = SequenceNow.Ring[2].Phase[PhaseState.Ring[2].SeqNum];//ÏàÎ»ºÅ
-    temp[i++] = RingSplit[2].Time;//ÏàÎ»Ê±¼ä
-    temp[i++] = PhaseState.Ring[2].SecondRemain;//Ê£ÓàÊ±¼ä
-    temp[i++] = SequenceNow.Ring[3].Phase[PhaseState.Ring[3].SeqNum];//ÏàÎ»ºÅ
-    temp[i++] = RingSplit[3].Time;//ÏàÎ»Ê±¼ä
-    temp[i++] = PhaseState.Ring[3].SecondRemain;//Ê£ÓàÊ±¼ä
+    //12 byte ç¯ç›¸ä½æ•°æ®
+    temp[i++] = SequenceNow.Ring[0].Phase[PhaseState.Ring[0].SeqNum];//ç›¸ä½å·
+    temp[i++] = RingSplit[0].Time;//ç›¸ä½æ—¶é—´
+    temp[i++] = PhaseState.Ring[0].SecondRemain;//å‰©ä½™æ—¶é—´
+    temp[i++] = SequenceNow.Ring[1].Phase[PhaseState.Ring[1].SeqNum];//ç›¸ä½å·
+    temp[i++] = RingSplit[1].Time;//ç›¸ä½æ—¶é—´
+    temp[i++] = PhaseState.Ring[1].SecondRemain;//å‰©ä½™æ—¶é—´
+    temp[i++] = SequenceNow.Ring[2].Phase[PhaseState.Ring[2].SeqNum];//ç›¸ä½å·
+    temp[i++] = RingSplit[2].Time;//ç›¸ä½æ—¶é—´
+    temp[i++] = PhaseState.Ring[2].SecondRemain;//å‰©ä½™æ—¶é—´
+    temp[i++] = SequenceNow.Ring[3].Phase[PhaseState.Ring[3].SeqNum];//ç›¸ä½å·
+    temp[i++] = RingSplit[3].Time;//ç›¸ä½æ—¶é—´
+    temp[i++] = PhaseState.Ring[3].SecondRemain;//å‰©ä½™æ—¶é—´
     
 
     
-    //12 byte Í¨µÀ×´Ì¬
+    //12 byte é€šé“çŠ¶æ€
     if(PhaseState.Phase10msCount < 50) Statustemp = (~(ChannelStatus.Reds&ChannelStatus.Flash))&ChannelStatus.Reds;
     else Statustemp = ChannelStatus.Reds;
     temp[i++] = (Statustemp>>24);
@@ -2349,12 +2349,12 @@ uint8_t SignalState(uint8_t* temp)
     temp[i++] = (Statustemp>>8);
     temp[i++] = (Statustemp&0xff);
     
-    //ÏµÍ³³ÖĞøÔËĞĞÊ±¼ä
+    //ç³»ç»ŸæŒç»­è¿è¡Œæ—¶é—´
     temp[i++] = OP.Reg1sCount&0xff;
     temp[i++] = OP.Reg1sCount>>8;
     temp[i++] = OP.Reg1sCount>>16;
     temp[i++] = OP.Reg1sCount>>24;
-    //ĞĞÈË¼ì²âÆ÷8×÷Îª¿ªÃÅ×´Ì¬±êÖ¾
+    //è¡Œäººæ£€æµ‹å™¨8ä½œä¸ºå¼€é—¨çŠ¶æ€æ ‡å¿—
     temp[i++] = PeddetStateTab.peddet[7].Valid;
     return i;
 }
@@ -2368,7 +2368,7 @@ uint8_t SignalStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     uint16_t DataLength;
     uint8_t temp[64];
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯×´Ì¬ĞÅÏ¢
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢çŠ¶æ€ä¿¡æ¯
     {
         if(gbmsg->Reserve == 0x02) OP.SendWorkModeAutoFlag = 1; else OP.SendWorkModeAutoFlag = 0;
         
@@ -2595,7 +2595,7 @@ uint8_t BasicInfoOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_BasicInfo;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯»ù´¡ĞÅÏ¢
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢åŸºç¡€ä¿¡æ¯
     {
         gbtx[8] = OT_QueryAnswer;
         CheckSumCalc = 0;
@@ -2643,7 +2643,7 @@ uint8_t BasicInfoOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃÉè±¸ĞÅÏ¢
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®è®¾å¤‡ä¿¡æ¯
     {
         uint8_t *pi;
         pi = &pd[11];
@@ -2720,7 +2720,7 @@ uint8_t DeviceInfoOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_DeviceInfo;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//²éÑ¯Éè±¸ĞÅÏ¢
+    if(gbmsg->OperationType == OT_Query)//æŸ¥è¯¢è®¾å¤‡ä¿¡æ¯
     {
         gbtx[8] = OT_QueryAnswer;
         CheckSumCalc = 0;
@@ -2768,7 +2768,7 @@ uint8_t DeviceInfoOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//ÉèÖÃÉè±¸ĞÅÏ¢
+    else if(gbmsg->OperationType == OT_Set)//è®¾ç½®è®¾å¤‡ä¿¡æ¯
     {
         uint8_t *pi;
         pi = &pd[11];
@@ -2860,23 +2860,23 @@ uint8_t gb25280_Process(uint8_t *pd, uint16_t size, SEND_TYPE* send)
             CheckSumCalc += pd[i];
         }
     }
-    if(CheckSumCalc != CheckSumReceive) return CheckSum_failed;//Ğ£Ñé´íÎó
+    if(CheckSumCalc != CheckSumReceive) return CheckSum_failed;//æ ¡éªŒé”™è¯¯
     
-    if(gbmsg->DataLinkCode == DL_BasicInfo)//»ù±¾ĞÅÏ¢
+    if(gbmsg->DataLinkCode == DL_BasicInfo)//åŸºæœ¬ä¿¡æ¯
     {
-        if(gbmsg->ObjectCode == O_CurrentTime)//Ê±¼ä²Ù×÷
+        if(gbmsg->ObjectCode == O_CurrentTime)//æ—¶é—´æ“ä½œ
         {
             msgerror = TimeOperate(gbmsg, pd, send);
         }
-        else if(gbmsg->ObjectCode == O_DeviceInfo)//»ù±¾ĞÅÏ¢²Ù×÷
+        else if(gbmsg->ObjectCode == O_DeviceInfo)//åŸºæœ¬ä¿¡æ¯æ“ä½œ
         {
             msgerror = DeviceInfoOperate(gbmsg, pd, send);
         }
-        else if(gbmsg->ObjectCode == O_BasicInfo)//»ù±¾ĞÅÏ¢²Ù×÷
+        else if(gbmsg->ObjectCode == O_BasicInfo)//åŸºæœ¬ä¿¡æ¯æ“ä½œ
         {
             msgerror = BasicInfoOperate(gbmsg, pd, send);
         }
-        else if(gbmsg->ObjectCode == O_WorkState)//»ù±¾ĞÅÏ¢²Ù×÷
+        else if(gbmsg->ObjectCode == O_WorkState)//åŸºæœ¬ä¿¡æ¯æ“ä½œ
         {
             msgerror = SignalStateOperate(gbmsg, pd, send);
         }
@@ -2885,9 +2885,9 @@ uint8_t gb25280_Process(uint8_t *pd, uint16_t size, SEND_TYPE* send)
             msgerror = Unsupport_OB;
         }
     }
-    else if(gbmsg->DataLinkCode == DL_Com)//Í¨ĞÅÁ´Â·
+    else if(gbmsg->DataLinkCode == DL_Com)//é€šä¿¡é“¾è·¯
     {
-        if(gbmsg->ObjectCode == O_Call)//ËÑË÷²Ù×÷
+        if(gbmsg->ObjectCode == O_Call)//æœç´¢æ“ä½œ
         {
             msgerror = SearchResponse(gbmsg, send);
         }
@@ -2896,27 +2896,27 @@ uint8_t gb25280_Process(uint8_t *pd, uint16_t size, SEND_TYPE* send)
     {
         switch(gbmsg->ObjectCode)
         {
-            case O_Schedule:    msgerror = ScheduleOperate(gbmsg, pd, send);    break;  //µ÷¶È¼Æ»®²Ù×÷
-            case O_Plan:        msgerror = PlanOperate(gbmsg, pd, send);        break;  //ÈÕ¼Æ»®²Ù×÷
-            case O_Action:      msgerror = ActionOperate(gbmsg, pd, send);      break;  //¶¯×÷²Ù×÷
-            case O_Pattern:     msgerror = PatternOperate(gbmsg, pd, send);     break;  //·½°¸²Ù×÷
-            case O_Sequence:    msgerror = SequenceOperate(gbmsg, pd, send);    break;  //ÏàĞò²Ù×÷
-            case O_Split:       msgerror = SplitOperate(gbmsg, pd, send);       break;  //ÂÌĞÅ±È²Ù×÷
-            case O_Phase:       msgerror = PhaseOperate(gbmsg, pd, send);       break;  //ÏàÎ»²Ù×÷
-            case O_Channel:     msgerror = ChannelOperate(gbmsg, pd, send);     break;  //Í¨µÀ²Ù×÷
-            case O_Unit:        msgerror = UnitOperate(gbmsg, pd, send);        break;  //µ¥Ôª²ÎÊı²Ù×÷
-            case O_Coord:       msgerror = CoordOperate(gbmsg, pd, send);       break;  //Ğ­µ÷²Ù×÷
-            case O_Overlap:     msgerror = OverlapOperate(gbmsg, pd, send);     break;  //¸úËæÏàÎ»²Ù×÷
+            case O_Schedule:    msgerror = ScheduleOperate(gbmsg, pd, send);    break;  //è°ƒåº¦è®¡åˆ’æ“ä½œ
+            case O_Plan:        msgerror = PlanOperate(gbmsg, pd, send);        break;  //æ—¥è®¡åˆ’æ“ä½œ
+            case O_Action:      msgerror = ActionOperate(gbmsg, pd, send);      break;  //åŠ¨ä½œæ“ä½œ
+            case O_Pattern:     msgerror = PatternOperate(gbmsg, pd, send);     break;  //æ–¹æ¡ˆæ“ä½œ
+            case O_Sequence:    msgerror = SequenceOperate(gbmsg, pd, send);    break;  //ç›¸åºæ“ä½œ
+            case O_Split:       msgerror = SplitOperate(gbmsg, pd, send);       break;  //ç»¿ä¿¡æ¯”æ“ä½œ
+            case O_Phase:       msgerror = PhaseOperate(gbmsg, pd, send);       break;  //ç›¸ä½æ“ä½œ
+            case O_Channel:     msgerror = ChannelOperate(gbmsg, pd, send);     break;  //é€šé“æ“ä½œ
+            case O_Unit:        msgerror = UnitOperate(gbmsg, pd, send);        break;  //å•å…ƒå‚æ•°æ“ä½œ
+            case O_Coord:       msgerror = CoordOperate(gbmsg, pd, send);       break;  //åè°ƒæ“ä½œ
+            case O_Overlap:     msgerror = OverlapOperate(gbmsg, pd, send);     break;  //è·Ÿéšç›¸ä½æ“ä½œ
             default:            msgerror = Unsupport_OB;                        break;
         }
     }
     else if(gbmsg->DataLinkCode == DL_Intervention)
     {
-        if(gbmsg->ObjectCode == O_Vehdet)//ĞĞÈË¼ì²âÆ÷²Ù×÷
+        if(gbmsg->ObjectCode == O_Vehdet)//è¡Œäººæ£€æµ‹å™¨æ“ä½œ
         {
             msgerror = VehdetOperate(gbmsg, pd, send);
         }
-        else if(gbmsg->ObjectCode == O_Peddet)//ĞĞÈË¼ì²âÆ÷²Ù×÷
+        else if(gbmsg->ObjectCode == O_Peddet)//è¡Œäººæ£€æµ‹å™¨æ“ä½œ
         {
             msgerror = PeddetOperate(gbmsg, pd, send);
         }
