@@ -190,7 +190,7 @@ void ReadOverlap(void)
     Fm25v_FastRead(&OverlapTab.Maximum, ReadAddr, ReadSize);
     for(i=0;i<OverlapMax;i++)
     {
-        IncludedPhases[i] = OverlapTab.Overlap[i].IncludedPhases[0]|(OverlapTab.Overlap[i].IncludedPhases[1]<<8);//母相位 所跟随放行的机动车相位
+        IncludedPhases[i] = OverlapTab.Overlap[i].IncludedPhases[0]|(OverlapTab.Overlap[i].IncludedPhases[1]<<8);//Fase principal Fase de veh铆culos de motor de la pel铆cula estrenada
         ModifierPhases[i] = OverlapTab.Overlap[i].ModifierPhases[0]|(OverlapTab.Overlap[i].ModifierPhases[1]<<8);
     }
 }
@@ -288,7 +288,7 @@ void Write_StartCode(void)
     Fm25v_Write(StartCode, StartCodeAddr, 16);
 }
 
-//检查启动码,
+//verifique el c贸digo de arranque,
 uint8_t Check_StartCode(void)
 {
     uint8_t StartCode[2];
