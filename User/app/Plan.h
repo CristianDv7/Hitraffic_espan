@@ -11,28 +11,28 @@ typedef struct
 
 typedef struct
 {
-    //uint8_t   EventNum;   //Ê±¶ÎºÅ     ½ÚÊ¡´æ´¢¿Õ¼ä£¬²»¶¨Òå¸Ã×ÓÏà
-    TimeType    Time;       //1,2 Ê±¼ä
-    uint8_t     ActionNum;  //3 ¶¯×÷±íºÅ
-}PeriodType;//Ê±¶Î±í
+    //uint8_t   EventNum;   //NÃºmero de perÃ­odo de tiempo Ahorre espacio de almacenamiento, no defina esta subfase
+    TimeType    Time;       //1,2 veces
+    uint8_t     ActionNum;  //3 NÃºmero de tabla de acciones
+}PeriodType;//æ—¶æ®µè¡¨
 
 typedef struct 
 {
-    uint8_t     Num;         //1  Ê±¶Î¼Æ»®±íºÅ
-    PeriodType  Period[PeriodMax]; //96 Ê±¶Î¶¨Òå,×î¶à·Ö24¸öÊ±¼ä¶Î 3*24 = 72
-}PlanType;    //Ê±¶Î±í
+    uint8_t     Num;         //1 nÃºmero de horario de la franja horaria
+    PeriodType  Period[PeriodMax]; //96 definiciones de perÃ­odos de tiempo, hasta 24 perÃ­odos de tiempo 3*24 = 72
+}PlanType;    //calendario
 
 typedef struct
 {
     uint8_t     Maximum;
     PlanType    Plan[PlanMax];       //16 * 73
     uint8_t     Reserve[15];
-}PlanTable;  //Ê±¶Î±í 16*74 = 1184 = 0x04A0
+}PlanTable;  //æ—¶æ®µè¡¨ 16*74 = 1184 = 0x04A0
 
 
-extern PeriodType   Period;     //µ±Ç°ÔËÐÐÊ±¶Î
+extern PeriodType   Period;     //tiempo de ejecuciÃ³n actual
 extern PlanType     Plan;
-extern PlanTable    PlanTab;    //Ê±¶Î±í
+extern PlanTable    PlanTab;    //calendario
 
 
 
