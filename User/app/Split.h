@@ -5,26 +5,26 @@
 
 /*
   1. Tiempo de fase SplitTime 0-255
-        Tiempo de liberación de fase. Incluyendo la luz verde, el destello verde, la luz amarilla y el tiempo rojo completo de la fase del vehículo de motor
-        Y el tiempo de liberación y tiempo de despeje de la fase peatonal.
-    2. Modo de relación de señal verde SplitMode
-    Bandera de 1 variable: la fase se emite como una bandera variable en este modo de relación de señal verde
+        Tiempo de liberacié«‡ de fase. Incluyendo la luz verde, el destello verde, la luz amarilla y el tiempo rojo completo de la fase del vehéŸˆulo de motor
+        Y el tiempo de liberacié«‡ y tiempo de despeje de la fase peatonal.
+    2. Modo de relacié«‡ de seé¦»l verde SplitMode
+    Bandera de 1 variable: la fase se emite como una bandera variable en este modo de relacié«‡ de seé¦»l verde
     2-ninguno
-    3- Respuesta mínima del vehículo:
-        Cuando el control es inductivo, la fase del vehículo se aplica en verde mínimo.
-        Este atributo tiene prioridad sobre el atributo "Motor Auto Request" en los parámetros de fase.
-    4- Respuesta máxima del vehículo:
-        Cuando se controla de forma inductiva, la fase del vehículo motorizado se aplica al verde máximo.
-        Este atributo tiene prioridad sobre el atributo "Motor Auto Request" en los parámetros de fase.
+    3- Respuesta méŸ“ima del vehéŸˆulo:
+        Cuando el control es inductivo, la fase del vehéŸˆulo se aplica en verde méŸ“imo.
+        Este atributo tiene prioridad sobre el atributo "Motor Auto Request" en los paré†¡etros de fase.
+    4- Respuesta mé†²ima del vehéŸˆulo:
+        Cuando se controla de forma inductiva, la fase del vehéŸˆulo motorizado se aplica al verde mé†²imo.
+        Este atributo tiene prioridad sobre el atributo "Motor Auto Request" en los paré†¡etros de fase.
     5- Respuesta peatonal:
-        Durante el control de inducción, la fase peatonal está obligada a obtener el derecho de liberación.
-        Este atributo tiene prioridad sobre el atributo "solicitud automática de peatones" en el parámetro de fase.
-    6- Respuesta máxima de vehículos/peatones:
-        En el control de inducción, la fase de vehículos de motor está obligada a implementar el verde máximo, y la fase de peatones está obligada a obtener el derecho de liberación.
-        Esta propiedad tiene una prioridad más alta que la propiedad "solicitud automática de vehículos" y la propiedad "solicitud automática de peatones" en los parámetros de fase.
+        Durante el control de induccié«‡, la fase peatonal estï¿½ obligada a obtener el derecho de liberacié«‡.
+        Este atributo tiene prioridad sobre el atributo "solicitud automé†«ica de peatones" en el paré†¡etro de fase.
+    6- Respuesta mé†²ima de vehéŸˆulos/peatones:
+        En el control de induccié«‡, la fase de vehéŸˆulos de motor estï¿½ obligada a implementar el verde mé†²imo, y la fase de peatones estï¿½ obligada a obtener el derecho de liberacié«‡.
+        Esta propiedad tiene una prioridad mé†© alta que la propiedad "solicitud automé†«ica de vehéŸˆulos" y la propiedad "solicitud automé†«ica de peatones" en los paré†¡etros de fase.
     7- Ignorar fase
-        Esta fase se elimina del esquema en este modo de relación de señal verde.
-    3. Configuración del coordinador Coord
+        Esta fase se elimina del esquema en este modo de relacié«‡ de seé¦»l verde.
+    3. Configuracié«‡ del coordinador Coord
         bit0: 1 - Cuando el control es coordinado, esta fase se usa como una fase coordinada para coordinar con otras intersecciones.
         bit1: 1- como fase clave
         bit2: 1-como fase fija
@@ -45,34 +45,35 @@ typedef enum
 #define SC_KEY        0x02
 #define SC_FIXED      0x04
 
-//ÏàÎ»Ê±¼ä  ÏàÎ»µÄ·ÅĞĞÊ±¼ä¡£
-//°üº¬ÁË»ú¶¯³µÏàÎ»µÄÂÌµÆ¡¢ÂÌÉÁ¡¢»ÆµÆ¡¢È«ºìÊ±¼ä
-//ÒÔ¼°ĞĞÈËÏàÎ»µÄ·ÅĞĞÊ±¼äºÍÇå¿ÕÊ±¼ä¡£
+//Tiempo de fase El tiempo de liberaciÃ³n de la fase.
+//Incluyendo la luz verde, el destello verde, la luz amarilla y el tiempo rojo completo de la fase del vehÃ­culo de motor
+//Y el tiempo de liberaciÃ³n y tiempo de despeje de la fase peatonal.
 typedef struct
 {
-    uint8_t PhaseNum;           //ÏàÎ»ºÅ
-    uint8_t Time;               //ÏàÎ»Ê±¼ä
-    uint8_t Mode;               //ÏàÎ»Ä£Ê½
-    uint8_t Coord;              //Ğ­µ÷ÅäÖÃ 0-1 
-}PhaseSplitType; //ÏàÎ»ÂÌĞÅ±È¶¨Òå
+    uint8_t PhaseNum;           //nÃºmero de fase
+    uint8_t Time;               //tiempo de fase
+    uint8_t Mode;               //modo de fase
+    uint8_t Coord;              //ConfiguraciÃ³n de coordinaciÃ³n 0-1
+}PhaseSplitType; //DefiniciÃ³n de relaciÃ³n de seÃ±al de fase verde
 
 typedef struct
 {
-    uint8_t         Num;     //ÂÌĞÅ±ÈºÅ
+    uint8_t         Num;     //RelaciÃ³n de seÃ±al verde
     PhaseSplitType  Phase[PhaseMax];    //16
-}SplitType;    //ÂÌĞÅ±ÈÊı¾İ
+}SplitType;    //Datos de relaciÃ³n de letra verde
+
 
 typedef struct
 {
     uint8_t     Maximum;
     SplitType   Split[SplitMax];                //20
     uint8_t     Reserve[11];
-}SplitTable;     //ÂÌĞÅ±È±í 65 * 20 + 12 = 1312 = 82 * 16 = 0x0520 
+}SplitTable;     //Tabla de relaciÃ³n de letras verdes 65 * 20 + 12 = 1312 = 82 * 16 = 0x0520
 
 
 extern SplitType        SplitNow;
-extern SplitTable       SplitTab;  //ÂÌĞÅ±È±í 
-extern PhaseSplitType   RingSplit[RingMax];      //ÂÌĞÅ±È
+extern SplitTable       SplitTab;  //Tabla de relaciÃ³n de letras verdes
+extern PhaseSplitType   RingSplit[RingMax];      //ProporciÃ³n de letra verde
 
 uint8_t GetSplitPhaseIndex(SplitType* Split, uint8_t PhaseNum);
 
