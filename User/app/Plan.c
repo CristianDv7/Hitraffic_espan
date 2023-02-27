@@ -1,31 +1,31 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : ·½°¸Ä£¿é
-*	ÎÄ¼þÃû³Æ : Plan.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
-*	ÐÞ¸Ä¼ÇÂ¼ :
-*		°æ±¾ºÅ  ÈÕÆÚ       ×÷Õß    ËµÃ÷
-*		V1.0    2019-12-30  wcx     Ê×·¢
+*	æ¨¡å—åç§° : æ–¹æ¡ˆæ¨¡å—
+*	æ–‡ä»¶åç§° : Plan.c
+*	ç‰ˆ    æœ¬ : V1.0
+*	è¯´    æ˜Ž : 
+*	ä¿®æ”¹è®°å½• :
+*		ç‰ˆæœ¬å·  æ—¥æœŸ       ä½œè€…    è¯´æ˜Ž
+*		V1.0    2019-12-30  wcx     é¦–å‘
 *
 *********************************************************************************************************
 */
 #include "Plan.h"
 
-PeriodType       Period;     //µ±Ç°ÔËÐÐÊ±¶Î
-PlanType         Plan;       //µ±Ç°ÔËÐÐÊ±¶Î±í
-PlanTable        PlanTab;    //Ê±¶Î±í
+PeriodType       Period;     //tiempo de ejecuciÃ³n actual
+PlanType         Plan;       //Tabla de horas de funcionamiento actuales
+PlanTable        PlanTab;    //calendario
 
 
-//¼ì²éÈÕ¼Æ»®ÊÇ·ñÎª¿Õ£ºÎª¿Õ»òÕß²ÎÊý³¬¹ý PlanMax£¬·µ»Ø0£¬²»Îª¿Õ·µ»Ø1£»
+//Verifica si el plan diario estÃ¡ vacÃ­o: si estÃ¡ vacÃ­o o el parÃ¡metro excede PlanMax, devuelve 0, si no estÃ¡ vacÃ­o, devuelve 1;
 uint8_t PlanEmptyCheck(uint8_t n)
 {
     uint8_t temp;
     
     if(n>=PlanMax) return 0;
     temp = PlanTab.Plan[n].Num;
-    if(temp>0 && temp <=PlanMax)//ÈÕ¼Æ»®ºÅºÏ·¨
+    if(temp>0 && temp <=PlanMax)//El nÃºmero del plan diario es legal
     {
         temp = PlanTab.Plan[n].Period[0].ActionNum;
         if(temp>0 == temp<=ActionMax)
@@ -37,7 +37,7 @@ uint8_t PlanEmptyCheck(uint8_t n)
 }
 
 /* 
-    Ê±¶Î±í + Ê±¼ä = Ê±¶ÎË÷Òý
+    Tabla de perÃ­odos + Tiempo = Ãndice de perÃ­odos
 */
 uint8_t GetPeriodIndex(PlanType* DayPlan, TimeType* Time)
 {
@@ -47,8 +47,8 @@ uint8_t GetPeriodIndex(PlanType* DayPlan, TimeType* Time)
 	uint16_t    plan_by_mins0;
 	uint16_t    plan_by_mins1;
     
-    //µ±Ç°Ê±¼ä + Ê±¶Î±í = Ê±¶ÎºÅ
-	day_by_mins = Time->Hour*60 + Time->Minute;     //·ÖÖÓÊý
+    //hora actual + tabla de periodos = nÃºmero de periodo
+	day_by_mins = Time->Hour*60 + Time->Minute;     //minutos
     for(i=0;i<24;i++)
     {
         plan_by_mins0 = DayPlan->Period[i].Time.Hour * 60 + DayPlan->Period[i].Time.Minute;
