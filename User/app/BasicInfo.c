@@ -1,13 +1,13 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : 
-*	ÎÄ¼şÃû³Æ : BasicInfo.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
-*	ĞŞ¸Ä¼ÇÂ¼ :
-*		°æ±¾ºÅ  ÈÕÆÚ       ×÷Õß    ËµÃ÷
-*		V1.0    2019-12-30  wcx     Ê×·¢
+*	æ¨¡å—åç§° : 
+*	æ–‡ä»¶åç§° : BasicInfo.c
+*	ç‰ˆ    æœ¬ : V1.0
+*	è¯´    æ˜ : 
+*	ä¿®æ”¹è®°å½• :
+*		ç‰ˆæœ¬å·  æ—¥æœŸ       ä½œè€…    è¯´æ˜
+*		V1.0    2019-12-30  wcx     é¦–å‘
 *
 *********************************************************************************************************
 */
@@ -40,12 +40,12 @@ void DeviceInfoInit(void)
 	const uint8_t ManufacturerInfo[128] = "\0H\0I\0T\0R\0A\0F\0F\0I\0C\0 \0S\0A \0S\0e\0c\0h\0n\0o\0l\0o\0g\0y\0 \0C\0o\0.\0,\0 \0L\0t\0d\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0\0";/* 1.1 Informacion del fabricante */
     const uint8_t DeviceInfo_buf[48] = 
     {
-        0x20,0x01,0x20,0x01,                    //1.2 Éè±¸°æ±¾,4byte,¸ßÁ½Î»Ó²¼ş,µÍÁ½Î»Èí¼ş
+        0x20,0x01,0x20,0x01,                    //1.2 VersiÃ³n del dispositivo, 4 bytes, hardware alto de dos bits, software bajo de dos bits
         0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,//1.3 ³§¼Ò¶ÔĞÅºÅ»úµÄÎ¨Ò»±àºÅ16byte,²»Âú16byte,¸ß×Ö½ÚÎª0
-        0x20,0x22,0x04,0x02,0x00,0x00,          //1.4 ³ö³§ÈÕÆÚ,6byte
-        0x20,0x22,0x04,0x01,0x00,0x00,          //1.5 ÅäÖÃÈÕÆÚ,6byte
-        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,//±£Áô16×Ö½Ú
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,//1.3 El nÃºmero Ãºnico del fabricante para la mÃ¡quina de seÃ±ales es de 16 bytes, si es menor de 16 bytes, el byte alto es 0
+        0x20,0x22,0x04,0x02,0x00,0x00,          //1.4 Fecha de fabricaciÃ³n, 6 bytes
+        0x20,0x22,0x04,0x01,0x00,0x00,          //1.5 é…ç½®æ—¥æœŸ,6byte
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,//ä¿ç•™16å­—èŠ‚
     };
 
     memcpy(DeviceInfo.ManufacturerInfo, ManufacturerInfo, 128);
@@ -54,7 +54,7 @@ void DeviceInfoInit(void)
 
 void BasicInfoInit(void)
 {
-	const uint8_t IntersectionInfo[128]={0};// 2.1 °²×°Â·¿ÚĞÅÏ¢,128byte 
+	const uint8_t IntersectionInfo[128]={0};// 2.1 å®‰è£…è·¯å£ä¿¡æ¯,128byte 
     uint8_t BasicInfo_buf[48]=
     {
         192,168,  1,122,//IP,4byte
@@ -65,14 +65,14 @@ void BasicInfoInit(void)
         
         192,168,  1, 100,// 2.3.1 RemoteIP,4byte
         0x17,0x78,      // 2.3.2 RemoteSocket,2byte 6008
-          0,            // 2.3.3 Í¨ĞÅÀàĞÍ,1byte
-        0x01,0x00,0x70,0x80,    // 2.4 Ê±Çø,value -43200~43200,4byte
-        0x00,0x00,0x00,0x01,    // 2.5 ĞÅºÅ»ú±àºÅ,ÉÏ¶ËÏµÍ³ÖĞµÄÎ¨Ò»±àºÅ,4byte
-        0x01,           // 2.6 ĞÅºÅ»ú¿ØÖÆµÄÂ·¿ÚÊıÁ¿,1byte,value 1-8
-        0x00,           // 2.7 GPSÊ±ÖÓ±êÖ¾,1byte,boolÀàĞÍ,0ÎŞĞ§,1ÓĞĞ§
-        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,//±£Áô¿Õ¼ä 11×Ö½Ú
+          0,            // 2.3.3 é€šä¿¡ç±»å‹,1byte
+        0x01,0x00,0x70,0x80,    // 2.4 æ—¶åŒº,value -43200~43200,4byte
+        0x00,0x00,0x00,0x01,    // 2.5 ä¿¡å·æœºç¼–å·,ä¸Šç«¯ç³»ç»Ÿä¸­çš„å”¯ä¸€ç¼–å·,4byte
+        0x01,           // 2.6 ä¿¡å·æœºæ§åˆ¶çš„è·¯å£æ•°é‡,1byte,value 1-8
+        0x00,           // 2.7 GPSæ—¶é’Ÿæ ‡å¿—,1byte,boolç±»å‹,0æ— æ•ˆ,1æœ‰æ•ˆ
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,//ä¿ç•™ç©ºé—´ 11å­—èŠ‚
     };
-    get_cpuid(&BasicInfo_buf[17]);//MACÉèÖÃÓëcpuid¹Ò¹³,¿É±£Ö¤Î¨Ò».
+    get_cpuid(&BasicInfo_buf[17]);//MACè®¾ç½®ä¸cpuidæŒ‚é’©,å¯ä¿è¯å”¯ä¸€.
     memcpy(BasicInfo.IntersectionInfo, IntersectionInfo, 128);
     memcpy(BasicInfo.IPv4.IP, BasicInfo_buf, 48);
 }
