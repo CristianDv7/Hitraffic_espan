@@ -1,7 +1,7 @@
 /**********************************************************************************
- * ÎÄ¼şÃû  £ºW5500.c
- * ÃèÊö    £ºW5500 Çı¶¯º¯Êı¿â         
- * ¿â°æ±¾  £ºST_v3.5
+ * æ–‡ä»¶å  ï¼šW5500.c
+ * æè¿°    ï¼šW5500 é©±åŠ¨å‡½æ•°åº“         
+ * åº“ç‰ˆæœ¬  ï¼šST_v3.5
 **********************************************************************************/
 
 #include "bsp.h"		
@@ -9,43 +9,43 @@
 
 
 
-/***************----- W5500 GPIO¶¨Òå -----***************/
+/***************----- W5500 GPIOå®šä¹‰ -----***************/
 #define W5500_SCS_PORT	GPIOA
-#define W5500_SCS		GPIO_Pin_8	//¶¨ÒåW5500µÄCSÒı½Å	 
+#define W5500_SCS		GPIO_Pin_8	//Definir el pin CS de W5500		 
 #define W5500_SCS_Clr()	W5500_SCS_PORT->BRR = W5500_SCS
 #define W5500_SCS_Set()	W5500_SCS_PORT->BSRR = W5500_SCS
 
 
 #define W5500_RST_PORT	GPIOC
-#define W5500_RST		GPIO_Pin_8	//¶¨ÒåW5500µÄRSTÒı½Å
+#define W5500_RST		GPIO_Pin_8	//Definir el pin RST de W5500
 #define W5500_RST_Clr()	W5500_RST_PORT->BRR = W5500_RST
 #define W5500_RST_Set()	W5500_RST_PORT->BSRR = W5500_RST
 
 
-#define W5500_INT		GPIO_Pin_9	//¶¨ÒåW5500µÄINTÒı½Å
+#define W5500_INT		GPIO_Pin_9	//Definir el pin INT de W5500
 #define W5500_INT_PORT	GPIOC
 
 
-/***************----- ÍøÂç²ÎÊı±äÁ¿¶¨Òå -----***************/
+/***************----- DefiniciÃ³n de variable de parÃ¡metro de red -----***************/
 NET             Net;
 SOCKET_TYPE     Socket[8];
 
-/***************----- ¶Ë¿ÚÊı¾İ»º³åÇø -----***************/
-unsigned char Rx_Buffer[2048];	//¶Ë¿Ú½ÓÊÕÊı¾İ»º³åÇø 
-unsigned char Tx_Buffer[2048];	//¶Ë¿Ú·¢ËÍÊı¾İ»º³åÇø 
+/***************----- bÃºfer de datos del puerto -----***************/
+unsigned char Rx_Buffer[2048];	//BÃºfer de datos de recepciÃ³n de puerto
+unsigned char Tx_Buffer[2048];	//BÃºfer de datos de envÃ­o de puerto
 
-unsigned char W5500_Interrupt;	//W5500ÖĞ¶Ï±êÖ¾(0:ÎŞÖĞ¶Ï,1:ÓĞÖĞ¶Ï)
+unsigned char W5500_Interrupt;	//W5500ä¸­æ–­æ ‡å¿—(0:æ— ä¸­æ–­,1:æœ‰ä¸­æ–­)
 
 
 
 
 /*******************************************************************************
-* º¯ÊıÃû  : W5500_GPIO_Configuration
-* ÃèÊö    : W5500 GPIO³õÊ¼»¯ÅäÖÃ
-* ÊäÈë    : ÎŞ
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : W5500_GPIO_Configuration
+* æè¿°    : W5500 GPIOåˆå§‹åŒ–é…ç½®
+* è¾“å…¥    : Ninguno
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 void W5500_GPIO_Configuration(void)
 {
@@ -53,20 +53,20 @@ void W5500_GPIO_Configuration(void)
     
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_GPIOC | RCC_APB2Periph_AFIO, ENABLE);
 	
-	/* W5500_RSTÒı½Å³õÊ¼»¯ÅäÖÃ(PC8) */
+	/* ConfiguraciÃ³n de inicializaciÃ³n de pines W5500_RST (PC8) */
 	GPIO_InitStructure.GPIO_Pin  = W5500_RST;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_Init(W5500_RST_PORT, &GPIO_InitStructure);
-	W5500_RST_Clr();//¸´Î»Òı½ÅÀ­µÍ
+	W5500_RST_Clr();// Restablecer pin tirado bajo
 	
-	/* W5500_INTÒı½Å³õÊ¼»¯ÅäÖÃ(PC9) */
+	/* ConfiguraciÃ³n de inicializaciÃ³n de pin W5500_INT (PC9) */
 	GPIO_InitStructure.GPIO_Pin  = W5500_INT;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(W5500_INT_PORT, &GPIO_InitStructure);
     
-    /* ³õÊ¼»¯CSÒı½Å(PA8) */
+   /* Inicializar pin CS (PA8) */
 	GPIO_InitStructure.GPIO_Pin = W5500_SCS;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode=GPIO_Mode_Out_PP;
@@ -75,64 +75,64 @@ void W5500_GPIO_Configuration(void)
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Spi_Send_Short
-* ÃèÊö    : SPI1·¢ËÍ2¸ö×Ö½ÚÊı¾İ(16Î»)
-* ÊäÈë    : dat:´ı·¢ËÍµÄ16Î»Êı¾İ
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Spi_Send_Short
+* æè¿°    : SPI1 envÃ­a 2 bytes de datos (16 bits)
+* è¾“å…¥    : dat: datos de 16 bits a enviar
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 void Spi_Send_Short(unsigned short dat)
 {
-	Spi_SendByte(dat>>8);//Ğ´Êı¾İ¸ßÎ»
-	Spi_SendByte(dat);	//Ğ´Êı¾İµÍÎ»
+	Spi_SendByte(dat>>8);//escribir datos alto
+	Spi_SendByte(dat);	//escribir datos bajos
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Write_W5500_1Byte
-* ÃèÊö    : Í¨¹ıSPIÏòÖ¸¶¨µØÖ·¼Ä´æÆ÷Ğ´1¸ö×Ö½ÚÊı¾İ
-* ÊäÈë    : reg:16Î»¼Ä´æÆ÷µØÖ·,dat:´ıĞ´ÈëµÄÊı¾İ
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Write_W5500_1Byte
+* æè¿°    : Escriba 1 byte de datos en el registro de direcciÃ³n especificado a travÃ©s de SPI
+* è¾“å…¥    : reg: direcciÃ³n de registro de 16 bits, dat: datos a escribir
+* è¾“å‡º    : ninguno
+* è¿”å›å€¼  : ninguno
+* è¯´æ˜    : ninguno
 *******************************************************************************/
 void Write_W5500_1Byte(unsigned short reg, unsigned char dat)
 {
 	W5500_SCS_Clr();
 
-	Spi_Send_Short(reg);//Í¨¹ıSPIĞ´16Î»¼Ä´æÆ÷µØÖ·
-	Spi_SendByte(FDM1|RWB_WRITE|COMMON_R);//Í¨¹ıSPIĞ´¿ØÖÆ×Ö½Ú,1¸ö×Ö½ÚÊı¾İ³¤¶È,Ğ´Êı¾İ,Ñ¡ÔñÍ¨ÓÃ¼Ä´æÆ÷
-	Spi_SendByte(dat);//Ğ´1¸ö×Ö½ÚÊı¾İ
+	Spi_Send_Short(reg);//Escribir direcciÃ³n de registro de 16 bits a travÃ©s de SPI
+	Spi_SendByte(FDM1|RWB_WRITE|COMMON_R);//Escribir byte de control a travÃ©s de SPI, longitud de datos de 1 byte, escribir datos, seleccionar registro general
+	Spi_SendByte(dat);//escribir datos de 1 byte
 
 	W5500_SCS_Set();
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Write_W5500_2Byte
-* ÃèÊö    : Í¨¹ıSPIÏòÖ¸¶¨µØÖ·¼Ä´æÆ÷Ğ´2¸ö×Ö½ÚÊı¾İ
-* ÊäÈë    : reg:16Î»¼Ä´æÆ÷µØÖ·,dat:16Î»´ıĞ´ÈëµÄÊı¾İ(2¸ö×Ö½Ú)
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Write_W5500_2Byte
+* æè¿°    : Escriba 2 bytes de datos en el registro de direcciÃ³n especificado a travÃ©s de SPI
+* è¾“å…¥    : reg: direcciÃ³n de registro de 16 bits, dat: datos de 16 bits a escribir (2 bytes)
+* è¾“å‡º    : ninguno
+* è¿”å›å€¼  : ninguno
+* è¯´æ˜    : ninguno
 *******************************************************************************/
 void Write_W5500_2Byte(unsigned short reg, unsigned short dat)
 {
 	W5500_SCS_Clr();
 		
-	Spi_Send_Short(reg);//Í¨¹ıSPIĞ´16Î»¼Ä´æÆ÷µØÖ·
-	Spi_SendByte(FDM2|RWB_WRITE|COMMON_R);//Í¨¹ıSPIĞ´¿ØÖÆ×Ö½Ú,2¸ö×Ö½ÚÊı¾İ³¤¶È,Ğ´Êı¾İ,Ñ¡ÔñÍ¨ÓÃ¼Ä´æÆ÷
-	Spi_Send_Short(dat);//Ğ´16Î»Êı¾İ
+	Spi_Send_Short(reg);//Escriba una direcciÃ³n de registro de 16 bits a travÃ©s de SPI
+	Spi_SendByte(FDM2|RWB_WRITE|COMMON_R);//Escribir byte de control a travÃ©s de SPI, longitud de datos de 2 bytes, escribir datos, seleccionar registro general
+	Spi_Send_Short(dat);//å†™16ä½æ•°æ®
 
 	W5500_SCS_Set();
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Write_W5500_nByte
-* ÃèÊö    : Í¨¹ıSPIÏòÖ¸¶¨µØÖ·¼Ä´æÆ÷Ğ´n¸ö×Ö½ÚÊı¾İ
-* ÊäÈë    : reg:16Î»¼Ä´æÆ÷µØÖ·,*dat_ptr:´ıĞ´ÈëÊı¾İ»º³åÇøÖ¸Õë,size:´ıĞ´ÈëµÄÊı¾İ³¤¶È
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Write_W5500_nByte
+* æè¿°    : Escriba n bytes de datos en el registro de direcciÃ³n especificado a travÃ©s de SPI
+* è¾“å…¥    : reg: direcciÃ³n de registro de 16 bits, *dat_ptr: puntero del bÃºfer de datos que se escribirÃ¡, tamaÃ±o: longitud de los datos que se escribirÃ¡n
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 void Write_W5500_nByte(unsigned short reg, unsigned char *dat_ptr, unsigned short size)
 {
@@ -140,154 +140,154 @@ void Write_W5500_nByte(unsigned short reg, unsigned char *dat_ptr, unsigned shor
 
 	W5500_SCS_Clr();
 		
-	Spi_Send_Short(reg);//Í¨¹ıSPIĞ´16Î»¼Ä´æÆ÷µØÖ·
-	Spi_SendByte(VDM|RWB_WRITE|COMMON_R);//Í¨¹ıSPIĞ´¿ØÖÆ×Ö½Ú,N¸ö×Ö½ÚÊı¾İ³¤¶È,Ğ´Êı¾İ,Ñ¡ÔñÍ¨ÓÃ¼Ä´æÆ÷
+	Spi_Send_Short(reg);//Escriba una direcciÃ³n de registro de 16 bits a travÃ©s de SPI
+	Spi_SendByte(VDM|RWB_WRITE|COMMON_R);//Escribir byte de control a travÃ©s de SPI, longitud de datos de N bytes, escribir datos, seleccionar registro general
 
-	for(i=0;i<size;i++)//Ñ­»·½«»º³åÇøµÄsize¸ö×Ö½ÚÊı¾İĞ´ÈëW5500
+	for(i=0;i<size;i++)//Loop escribe tamaÃ±o bytes de datos en el bÃºfer a W5500
 	{
-		Spi_SendByte(*dat_ptr++);//Ğ´Ò»¸ö×Ö½ÚÊı¾İ
+		Spi_SendByte(*dat_ptr++);//escribir un byte de datos
 	}
 
     W5500_SCS_Set();
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Write_W5500_SOCK_1Byte
-* ÃèÊö    : Í¨¹ıSPI1ÏòÖ¸¶¨¶Ë¿Ú¼Ä´æÆ÷Ğ´1¸ö×Ö½ÚÊı¾İ
-* ÊäÈë    : s:¶Ë¿ÚºÅ,reg:16Î»¼Ä´æÆ÷µØÖ·,dat:´ıĞ´ÈëµÄÊı¾İ
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Write_W5500_SOCK_1Byte
+* æè¿°    : Escriba 1 byte de datos en el registro del puerto designado a travÃ©s de SPI1
+* è¾“å…¥    : s: nÃºmero de puerto, reg: direcciÃ³n de registro de 16 bits, dat: datos a escribir
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 void Write_W5500_SOCK_1Byte(SOCKET s, unsigned short reg, unsigned char dat)
 {
 	W5500_SCS_Clr();
 		
-	Spi_Send_Short(reg);//Í¨¹ıSPIĞ´16Î»¼Ä´æÆ÷µØÖ·
-	Spi_SendByte(FDM1|RWB_WRITE|(s*0x20+0x08));//Í¨¹ıSPIĞ´¿ØÖÆ×Ö½Ú,1¸ö×Ö½ÚÊı¾İ³¤¶È,Ğ´Êı¾İ,Ñ¡Ôñ¶Ë¿ÚsµÄ¼Ä´æÆ÷
-	Spi_SendByte(dat);//Ğ´1¸ö×Ö½ÚÊı¾İ
+	Spi_Send_Short(reg);//Escriba una direcciÃ³n de registro de 16 bits a travÃ©s de SPI
+	Spi_SendByte(FDM1|RWB_WRITE|(s*0x20+0x08));//Escribir byte de control a travÃ©s de SPI, longitud de datos de 1 byte, escribir datos, seleccionar el registro del puerto
+	Spi_SendByte(dat);//escribir datos de 1 byte
 
     W5500_SCS_Set();
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Write_W5500_SOCK_2Byte
-* ÃèÊö    : Í¨¹ıSPIÏòÖ¸¶¨¶Ë¿Ú¼Ä´æÆ÷Ğ´2¸ö×Ö½ÚÊı¾İ
-* ÊäÈë    : s:¶Ë¿ÚºÅ,reg:16Î»¼Ä´æÆ÷µØÖ·,dat:16Î»´ıĞ´ÈëµÄÊı¾İ(2¸ö×Ö½Ú)
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Write_W5500_SOCK_2Byte
+* æè¿°    : Escriba 2 bytes de datos en el registro del puerto designado a travÃ©s de SPI
+* è¾“å…¥    : s: nÃºmero de puerto, reg: direcciÃ³n de registro de 16 bits, dat: datos de 16 bits que se escribirÃ¡n (2 bytes)
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 void Write_W5500_SOCK_2Byte(SOCKET s, unsigned short reg, unsigned short dat)
 {
 	W5500_SCS_Clr();
 			
-	Spi_Send_Short(reg);//Í¨¹ıSPIĞ´16Î»¼Ä´æÆ÷µØÖ·
-	Spi_SendByte(FDM2|RWB_WRITE|(s*0x20+0x08));//Í¨¹ıSPIĞ´¿ØÖÆ×Ö½Ú,2¸ö×Ö½ÚÊı¾İ³¤¶È,Ğ´Êı¾İ,Ñ¡Ôñ¶Ë¿ÚsµÄ¼Ä´æÆ÷
-	Spi_Send_Short(dat);//Ğ´16Î»Êı¾İ
+	Spi_Send_Short(reg);//Escriba una direcciÃ³n de registro de 16 bits a travÃ©s de SPI
+	Spi_SendByte(FDM2|RWB_WRITE|(s*0x20+0x08));//Escribir byte de control a travÃ©s de SPI, longitud de datos de 2 bytes, escribir datos, seleccionar el registro del puerto
+	Spi_Send_Short(dat);//Escribir datos de 16 bits
 
 	W5500_SCS_Set();
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Write_W5500_SOCK_4Byte
-* ÃèÊö    : Í¨¹ıSPIÏòÖ¸¶¨¶Ë¿Ú¼Ä´æÆ÷Ğ´4¸ö×Ö½ÚÊı¾İ
-* ÊäÈë    : s:¶Ë¿ÚºÅ,reg:16Î»¼Ä´æÆ÷µØÖ·,*dat_ptr:´ıĞ´ÈëµÄ4¸ö×Ö½Ú»º³åÇøÖ¸Õë
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Write_W5500_SOCK_4Byte
+* æè¿°    : Escriba 4 bytes de datos en el registro del puerto designado a travÃ©s de SPI
+* è¾“å…¥    : s: nÃºmero de puerto, reg: direcciÃ³n de registro de 16 bits, *dat_ptr: puntero de bÃºfer de 4 bytes para escribir
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 void Write_W5500_SOCK_4Byte(SOCKET s, unsigned short reg, unsigned char *dat_ptr)
 {
-	W5500_SCS_Clr();//ÖÃW5500µÄSCSÎªµÍµçÆ½
+	W5500_SCS_Clr();//Configure el SCS de W5500 en un nivel bajo
     
-	Spi_Send_Short(reg);//Í¨¹ıSPIĞ´16Î»¼Ä´æÆ÷µØÖ·
-	Spi_SendByte(FDM4|RWB_WRITE|(s*0x20+0x08));//Í¨¹ıSPIĞ´¿ØÖÆ×Ö½Ú,4¸ö×Ö½ÚÊı¾İ³¤¶È,Ğ´Êı¾İ,Ñ¡Ôñ¶Ë¿ÚsµÄ¼Ä´æÆ÷
+	Spi_Send_Short(reg);//Escriba una direcciÃ³n de registro de 16 bits a travÃ©s de SPI
+	Spi_SendByte(FDM4|RWB_WRITE|(s*0x20+0x08));//Escribir byte de control a travÃ©s de SPI, longitud de datos de 4 bytes, escribir datos, seleccionar el registro del puerto
 
-	Spi_SendByte(*dat_ptr++);//Ğ´µÚ1¸ö×Ö½ÚÊı¾İ
-	Spi_SendByte(*dat_ptr++);//Ğ´µÚ2¸ö×Ö½ÚÊı¾İ
-	Spi_SendByte(*dat_ptr++);//Ğ´µÚ3¸ö×Ö½ÚÊı¾İ
-	Spi_SendByte(*dat_ptr++);//Ğ´µÚ4¸ö×Ö½ÚÊı¾İ
+	Spi_SendByte(*dat_ptr++);//Escribir los datos del primer byte
+	Spi_SendByte(*dat_ptr++);//Escribir los datos del segundo byte
+	Spi_SendByte(*dat_ptr++);//Escribir los datos del tercer byte
+	Spi_SendByte(*dat_ptr++);//Escribir los datos del cuarto byte
 
-	W5500_SCS_Set();//ÖÃW5500µÄSCSÎª¸ßµçÆ½
+	W5500_SCS_Set();//Configure el SCS de W5500 en un nivel alto
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Read_W5500_1Byte
-* ÃèÊö    : ¶ÁW5500Ö¸¶¨µØÖ·¼Ä´æÆ÷µÄ1¸ö×Ö½ÚÊı¾İ
-* ÊäÈë    : reg:16Î»¼Ä´æÆ÷µØÖ·
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ¶ÁÈ¡µ½¼Ä´æÆ÷µÄ1¸ö×Ö½ÚÊı¾İ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Read_W5500_1Byte
+* æè¿°    : Leer datos de 1 byte del registro de direcciÃ³n especificado W5500
+* è¾“å…¥    : reg: direcciÃ³n de registro de 16 bits
+* è¾“å‡º    : æ— 
+* è¿”å›å€¼  : è¯»å–åˆ°å¯„å­˜å™¨çš„1ä¸ªå­—èŠ‚æ•°æ®
+* è¯´æ˜    : æ— 
 *******************************************************************************/
 unsigned char Read_W5500_1Byte(unsigned short reg)
 {
 	unsigned char temp;
 
-	W5500_SCS_Clr();//ÖÃW5500µÄSCSÎªµÍµçÆ½
+	W5500_SCS_Clr();//Configure el SCS de W5500 en un nivel bajo
 			
-	Spi_Send_Short(reg);//Í¨¹ıSPIĞ´16Î»¼Ä´æÆ÷µØÖ·
-	Spi_SendByte(FDM1 | RWB_READ | COMMON_R);//Í¨¹ıSPIĞ´¿ØÖÆ×Ö½Ú,1¸ö×Ö½ÚÊı¾İ³¤¶È,¶ÁÊı¾İ,Ñ¡ÔñÍ¨ÓÃ¼Ä´æÆ÷
-	temp = Spi_SendByte(0x00);//·¢ËÍÒ»¸öÑÆÊı¾İ,¶ÁÈ¡Êı¾İ
+	Spi_Send_Short(reg);//Escriba una direcciÃ³n de registro de 16 bits a travÃ©s de SPI
+	Spi_SendByte(FDM1 | RWB_READ | COMMON_R);//Escribir byte de control a travÃ©s de SPI, longitud de datos de 1 byte, leer datos, seleccionar registro general
+	temp = Spi_SendByte(0x00);//Enviar datos ficticios, leer datos
 
-	W5500_SCS_Set();//ÖÃW5500µÄSCSÎª¸ßµçÆ½
-	return temp;//·µ»Ø¶ÁÈ¡µ½µÄ¼Ä´æÆ÷Êı¾İ
+	W5500_SCS_Set();//Configure el SCS de W5500 en un nivel alto
+	return temp;//Devolver los datos del registro de lectura
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Read_W5500_SOCK_1Byte
-* ÃèÊö    : ¶ÁW5500Ö¸¶¨¶Ë¿Ú¼Ä´æÆ÷µÄ1¸ö×Ö½ÚÊı¾İ
-* ÊäÈë    : s:¶Ë¿ÚºÅ 0-7, reg:16Î»¼Ä´æÆ÷µØÖ·
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ¶ÁÈ¡µ½¼Ä´æÆ÷µÄ1¸ö×Ö½ÚÊı¾İ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Read_W5500_SOCK_1Byte
+* æè¿°    : Leer datos de 1 byte del registro de puerto especificado W5500
+* è¾“å…¥    : s: nÃºmero de puerto 0-7, reg: direcciÃ³n de registro de 16 bits
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : 1 byte de datos leÃ­dos en el registro
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 unsigned char Read_W5500_SOCK_1Byte(SOCKET s, unsigned short reg)
 {
 	unsigned char temp;
 
-	W5500_SCS_Clr();//ÖÃW5500µÄSCSÎªµÍµçÆ½
+	W5500_SCS_Clr();//Configure el SCS de W5500 en un nivel bajo
 			
-	Spi_Send_Short(reg);//Í¨¹ıSPIĞ´16Î»¼Ä´æÆ÷µØÖ·
-	Spi_SendByte(FDM1 | RWB_READ | (s*0x20+0x08));//Í¨¹ıSPIĞ´¿ØÖÆ×Ö½Ú,1¸ö×Ö½ÚÊı¾İ³¤¶È,¶ÁÊı¾İ,Ñ¡Ôñ¶Ë¿ÚsµÄ¼Ä´æÆ÷
-	temp = Spi_SendByte(0x00);//·¢ËÍÒ»¸öÑÆÊı¾İ
+	Spi_Send_Short(reg);//Escriba una direcciÃ³n de registro de 16 bits a travÃ©s de SPI
+	Spi_SendByte(FDM1 | RWB_READ | (s*0x20+0x08));//Escribir byte de control a travÃ©s de SPI, longitud de datos de 1 byte, leer datos, seleccionar registro de puerto s
+	temp = Spi_SendByte(0x00);//enviar datos ficticios
 
-	W5500_SCS_Set();//ÖÃW5500µÄSCSÎª¸ßµçÆ½
-	return temp;//·µ»Ø¶ÁÈ¡µ½µÄ¼Ä´æÆ÷Êı¾İ
+	W5500_SCS_Set();//Configure el SCS de W5500 en un nivel alto
+	return temp;//Devolver los datos del registro de lectura
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Read_W5500_SOCK_2Byte
-* ÃèÊö    : ¶ÁW5500Ö¸¶¨¶Ë¿Ú¼Ä´æÆ÷µÄ2¸ö×Ö½ÚÊı¾İ
-* ÊäÈë    : s:¶Ë¿ÚºÅ,reg:16Î»¼Ä´æÆ÷µØÖ·
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ¶ÁÈ¡µ½¼Ä´æÆ÷µÄ2¸ö×Ö½ÚÊı¾İ(16Î»)
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Read_W5500_SOCK_2Byte
+* æè¿°    : Leer datos de 2 bytes del registro de puerto especificado W5500
+* è¾“å…¥    : s: nÃºmero de puerto, reg: direcciÃ³n de registro de 16 bits
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : 2 bytes de datos (16 bits) leÃ­dos en el registro
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 unsigned short Read_W5500_SOCK_2Byte(SOCKET s, unsigned short reg)
 {
 	unsigned short temp;
 
-	W5500_SCS_Clr();//ÖÃW5500µÄSCSÎªµÍµçÆ½
+	W5500_SCS_Clr();//Configure el SCS de W5500 en un nivel bajo
 
-	Spi_Send_Short(reg);//Í¨¹ıSPIĞ´16Î»¼Ä´æÆ÷µØÖ·
-	Spi_SendByte(FDM2|RWB_READ|(s*0x20+0x08));//Í¨¹ıSPIĞ´¿ØÖÆ×Ö½Ú,2¸ö×Ö½ÚÊı¾İ³¤¶È,¶ÁÊı¾İ,Ñ¡Ôñ¶Ë¿ÚsµÄ¼Ä´æÆ÷
+	Spi_Send_Short(reg);//Escriba una direcciÃ³n de registro de 16 bits a travÃ©s de SPI
+	Spi_SendByte(FDM2|RWB_READ|(s*0x20+0x08));//Escribir byte de control a travÃ©s de SPI, longitud de datos de 2 bytes, leer datos, seleccionar registro de puerto s
 
-	temp = Spi_SendByte(0x00);//·¢ËÍÒ»¸öÑÆÊı¾İ
+	temp = Spi_SendByte(0x00);//enviar datos ficticios
 	temp <<= 8;
-	temp |= Spi_SendByte(0x00);//¶ÁÈ¡µÍÎ»Êı¾İ
+	temp |= Spi_SendByte(0x00);//leer datos bajos
 
-	W5500_SCS_Set();//ÖÃW5500µÄSCSÎª¸ßµçÆ½
-	return temp;//·µ»Ø¶ÁÈ¡µ½µÄ¼Ä´æÆ÷Êı¾İ
+	W5500_SCS_Set();//Configure el SCS de W5500 en un nivel alto
+	return temp;//Devolver los datos del registro de lectura
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Read_SOCK_Data_Buffer
-* ÃèÊö    : ´ÓW5500½ÓÊÕÊı¾İ»º³åÇøÖĞ¶ÁÈ¡Êı¾İ
-* ÊäÈë    : s:¶Ë¿ÚºÅ,*dat_ptr:Êı¾İ±£´æ»º³åÇøÖ¸Õë
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ¶ÁÈ¡µ½µÄÊı¾İ³¤¶È,rx_size¸ö×Ö½Ú
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Read_SOCK_Data_Buffer
+* æè¿°    : Leer datos del bÃºfer de datos de recepciÃ³n W5500
+* è¾“å…¥    : s: nÃºmero de puerto, *dat_ptr: puntero del bÃºfer de almacenamiento de datos
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : La longitud de los datos leÃ­dos, rx_size bytes
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 unsigned short Read_SOCK_Data_Buffer(SOCKET s, unsigned char *dat_ptr)
 {
@@ -296,190 +296,190 @@ unsigned short Read_SOCK_Data_Buffer(SOCKET s, unsigned char *dat_ptr)
 	unsigned short i;
 
 	rx_size = Read_W5500_SOCK_2Byte(s,Sn_RX_RSR);
-	if(rx_size == 0) return 0;//Ã»½ÓÊÕµ½Êı¾İÔò·µ»Ø
+	if(rx_size == 0) return 0;//Devolver si no se reciben datos
 	if(rx_size > 1460) rx_size = 1460;
 
 	offset = Read_W5500_SOCK_2Byte(s,Sn_RX_RD);
 	offset1 = offset;
-	offset &= (S_RX_SIZE-1);//¼ÆËãÊµ¼ÊµÄÎïÀíµØÖ·
+	offset &= (S_RX_SIZE-1);//Calcular la direcciÃ³n fÃ­sica real
 
-    W5500_SCS_Clr();//ÖÃW5500µÄSCSÎªµÍµçÆ½
+    W5500_SCS_Clr();//Configure el SCS de W5500 en un nivel bajo
 
-	Spi_Send_Short(offset);//Ğ´16Î»µØÖ·
-	Spi_SendByte(VDM|RWB_READ|(s*0x20+0x18));//Ğ´¿ØÖÆ×Ö½Ú,N¸ö×Ö½ÚÊı¾İ³¤¶È,¶ÁÊı¾İ,Ñ¡Ôñ¶Ë¿ÚsµÄ¼Ä´æÆ÷
+	Spi_Send_Short(offset);//escribir direcciÃ³n de 16 bits
+	Spi_SendByte(VDM|RWB_READ|(s*0x20+0x18));//Escribir byte de control, longitud de datos de N bytes, leer datos, seleccionar el registro del puerto
 	
-	if((offset + rx_size) < S_RX_SIZE)//Èç¹û×î´óµØÖ·Î´³¬¹ıW5500½ÓÊÕ»º³åÇø¼Ä´æÆ÷µÄ×î´óµØÖ·
+	if((offset + rx_size) < S_RX_SIZE)//Si la direcciÃ³n mÃ¡xima no excede la direcciÃ³n mÃ¡xima del registro de bÃºfer de recepciÃ³n del W5500
 	{
-		for(i = 0; i < rx_size; i++)//Ñ­»·¶ÁÈ¡rx_size¸ö×Ö½ÚÊı¾İ
+		for(i = 0; i < rx_size; i++)//Bucle leer rx_size bytes de datos
 		{
-			*dat_ptr = Spi_SendByte(0x00);//·¢ËÍÒ»¸öÑÆÊı¾İ
-			dat_ptr++;//Êı¾İ±£´æ»º³åÇøÖ¸ÕëµØÖ·×ÔÔö1
+			*dat_ptr = Spi_SendByte(0x00);//Enviar un dato no vÃ¡lido
+			dat_ptr++;//La direcciÃ³n del puntero del bÃºfer de almacenamiento de datos se incrementa en 1
 		}
 	}
-	else//Èç¹û×î´óµØÖ·³¬¹ıW5500½ÓÊÕ»º³åÇø¼Ä´æÆ÷µÄ×î´óµØÖ·
+	else//Si la direcciÃ³n mÃ¡xima excede la direcciÃ³n mÃ¡xima del registro de bÃºfer de recepciÃ³n del W5500
 	{
 		offset = S_RX_SIZE - offset;
-		for(i = 0; i < offset; i++)//Ñ­»·¶ÁÈ¡³öÇ°offset¸ö×Ö½ÚÊı¾İ
+		for(i = 0; i < offset; i++)//Bucle para leer los primeros bytes compensados â€‹â€‹de datos
 		{
-			*dat_ptr = Spi_SendByte(0x00);//·¢ËÍÒ»¸öÑÆÊı¾İ
-			dat_ptr++;//Êı¾İ±£´æ»º³åÇøÖ¸ÕëµØÖ·×ÔÔö1
+			*dat_ptr = Spi_SendByte(0x00);//Enviar un dato no vÃ¡lido
+			dat_ptr++;//La direcciÃ³n del puntero del bÃºfer de almacenamiento de datos se incrementa en 1
 		}
-		W5500_SCS_Set(); //ÖÃW5500µÄSCSÎª¸ßµçÆ½
+		W5500_SCS_Set(); //Configure el SCS de W5500 en un nivel alto
 
-		W5500_SCS_Clr();//ÖÃW5500µÄSCSÎªµÍµçÆ½
+		W5500_SCS_Clr();//Configure el SCS de W5500 en un nivel bajo
 
-		Spi_Send_Short(0x00);//Ğ´16Î»µØÖ·
-		Spi_SendByte(VDM|RWB_READ|(s*0x20+0x18));//Ğ´¿ØÖÆ×Ö½Ú,N¸ö×Ö½ÚÊı¾İ³¤¶È,¶ÁÊı¾İ,Ñ¡Ôñ¶Ë¿ÚsµÄ¼Ä´æÆ÷
+		Spi_Send_Short(0x00);//escribir direcciÃ³n de 16 bits
+		Spi_SendByte(VDM|RWB_READ|(s*0x20+0x18));//Escribir byte de control, longitud de datos de N bytes, leer datos, seleccionar el registro del puerto
 
-		for( ; i < rx_size; i++)//Ñ­»·¶ÁÈ¡ºórx_size-offset¸ö×Ö½ÚÊı¾İ
+		for( ; i < rx_size; i++)//Rx_size-offset bytes de datos despuÃ©s de la lectura del bucle
 		{
-			*dat_ptr = Spi_SendByte(0x00);//·¢ËÍÒ»¸öÑÆÊı¾İ
-			dat_ptr++;//Êı¾İ±£´æ»º³åÇøÖ¸ÕëµØÖ·×ÔÔö1
+			*dat_ptr = Spi_SendByte(0x00);//Enviar un dato no vÃ¡lido
+			dat_ptr++;//La direcciÃ³n del puntero del bÃºfer de almacenamiento de datos se incrementa en 1
 		}
 	}
-	W5500_SCS_Set(); //ÖÃW5500µÄSCSÎª¸ßµçÆ½
+	W5500_SCS_Set(); //Configure el SCS de W5500 en un nivel alto
 
-	offset1 += rx_size;//¸üĞÂÊµ¼ÊÎïÀíµØÖ·,¼´ÏÂ´Î¶ÁÈ¡½ÓÊÕµ½µÄÊı¾İµÄÆğÊ¼µØÖ·
+	offset1 += rx_size;//Actualice la direcciÃ³n fÃ­sica real, es decir, la direcciÃ³n de inicio de los siguientes datos de lectura recibidos
 	Write_W5500_SOCK_2Byte(s, Sn_RX_RD, offset1);
-	Write_W5500_SOCK_1Byte(s, Sn_CR, RECV);//·¢ËÍÆô¶¯½ÓÊÕÃüÁî
-	return rx_size;//·µ»Ø½ÓÊÕµ½Êı¾İµÄ³¤¶È
+	Write_W5500_SOCK_1Byte(s, Sn_CR, RECV);//Enviar comando de inicio de recepciÃ³n
+	return rx_size;//Devuelve la longitud de los datos recibidos.
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Write_SOCK_Data_Buffer
-* ÃèÊö    : ½«Êı¾İĞ´ÈëW5500µÄÊı¾İ·¢ËÍ»º³åÇø
-* ÊäÈë    : s:¶Ë¿ÚºÅ,*dat_ptr:Êı¾İ±£´æ»º³åÇøÖ¸Õë,size:´ıĞ´ÈëÊı¾İµÄ³¤¶È
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Write_SOCK_Data_Buffer
+* æè¿°    : Escribir datos en el bÃºfer de envÃ­o de datos del W5500
+* è¾“å…¥    : s: nÃºmero de puerto, *dat_ptr: puntero del bÃºfer de almacenamiento de datos, tamaÃ±o: longitud de los datos que se escribirÃ¡n
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 void Write_SOCK_Data_Buffer(SOCKET s, unsigned char *dat_ptr, unsigned short size)
 {
 	unsigned short offset,offset1;
 	unsigned short i;
 
-	//¿ÉÒÔÔÚ´ËÉèÖÃÄ¿µÄÖ÷»úµÄIPºÍ¶Ë¿ÚºÅ
-	if((Read_W5500_SOCK_1Byte(s, Sn_MR)&0x0f) != SOCK_UDP)//Èç¹ûSocket´ò¿ªÊ§°Ü
+		//Puede configurar la IP y el nÃºmero de puerto del host de destino aquÃ­
+	if((Read_W5500_SOCK_1Byte(s, Sn_MR)&0x0f) != SOCK_UDP)// Si falla la apertura del socket
 	{
-		Write_W5500_SOCK_4Byte(s, Sn_DIPR, Socket[s].UdpDIPR);//ÉèÖÃÄ¿µÄÖ÷»úIP  		
-		Write_W5500_SOCK_2Byte(s, Sn_DPORTR, Socket[s].UdpDestPort);//ÉèÖÃÄ¿µÄÖ÷»ú¶Ë¿ÚºÅ				
+		Write_W5500_SOCK_4Byte(s, Sn_DIPR, Socket[s].UdpDIPR);//Establecer la IP del host de destino 		
+		Write_W5500_SOCK_2Byte(s, Sn_DPORTR, Socket[s].UdpDestPort);//Establecer el propÃ³sito del puerto de host			
 	}
 
 	offset  = Read_W5500_SOCK_2Byte(s,Sn_TX_WR);
 	offset1 = offset;
-	offset &= (S_TX_SIZE-1);//¼ÆËãÊµ¼ÊµÄÎïÀíµØÖ·
+	offset &= (S_TX_SIZE-1);//Calcular la direcciÃ³n fÃ­sica real
 
 	W5500_SCS_Clr();
 
-	Spi_Send_Short(offset);//Ğ´16Î»µØÖ·
-	Spi_SendByte(VDM|RWB_WRITE|(s*0x20+0x10));//Ğ´¿ØÖÆ×Ö½Ú,N¸ö×Ö½ÚÊı¾İ³¤¶È,Ğ´Êı¾İ,Ñ¡Ôñ¶Ë¿ÚsµÄ¼Ä´æÆ÷
+	Spi_Send_Short(offset);//escribir direcciÃ³n de 16 bits
+	Spi_SendByte(VDM|RWB_WRITE|(s*0x20+0x10));//Escribir byte de control, longitud de datos de N bytes, escribir datos, seleccionar el registro del puerto s
 
-	if((offset + size) < S_TX_SIZE)//Èç¹û×î´óµØÖ·Î´³¬¹ıW5500·¢ËÍ»º³åÇø¼Ä´æÆ÷µÄ×î´óµØÖ·
+	if((offset + size) < S_TX_SIZE)//Si la direcciÃ³n mÃ¡xima no supera la direcciÃ³n mÃ¡xima del registro de bÃºfer de envÃ­o del W5500
 	{
-		for(i = 0; i < size; i++)//Ñ­»·Ğ´Èësize¸ö×Ö½ÚÊı¾İ
+		for(i = 0; i < size; i++)//Escribir bytes de tamaÃ±o de datos en un bucle
 		{
-			Spi_SendByte(*dat_ptr++);//Ğ´ÈëÒ»¸ö×Ö½ÚµÄÊı¾İ		
+			Spi_SendByte(*dat_ptr++);//escribir un byte de datos		
 		}
 	}
-	else//Èç¹û×î´óµØÖ·³¬¹ıW5500·¢ËÍ»º³åÇø¼Ä´æÆ÷µÄ×î´óµØÖ·
+	else//Si la direcciÃ³n mÃ¡xima excede la direcciÃ³n mÃ¡xima del registro de bÃºfer de envÃ­o del W5500
 	{
 		offset = S_TX_SIZE - offset;
-		for(i=0;i<offset;i++)//Ñ­»·Ğ´ÈëÇ°offset¸ö×Ö½ÚÊı¾İ
+		for(i=0;i<offset;i++)//Loop escribe los primeros bytes compensados â€‹â€‹de datos
 		{
-			Spi_SendByte(*dat_ptr++);//Ğ´ÈëÒ»¸ö×Ö½ÚµÄÊı¾İ
+			Spi_SendByte(*dat_ptr++);//escribir un byte de datos
 		}
 		W5500_SCS_Set();
 
 		W5500_SCS_Clr();
 
-		Spi_Send_Short(0x00);//Ğ´16Î»µØÖ·
-		Spi_SendByte(VDM|RWB_WRITE|(s*0x20+0x10));//Ğ´¿ØÖÆ×Ö½Ú,N¸ö×Ö½ÚÊı¾İ³¤¶È,Ğ´Êı¾İ,Ñ¡Ôñ¶Ë¿ÚsµÄ¼Ä´æÆ÷
+		Spi_Send_Short(0x00);//escribir direcciÃ³n de 16 bits
+		Spi_SendByte(VDM|RWB_WRITE|(s*0x20+0x10));//Escribir byte de control, longitud de datos de N bytes, escribir datos, seleccionar el registro del puerto s
 
-		for(;i<size;i++)//Ñ­»·Ğ´Èësize-offset¸ö×Ö½ÚÊı¾İ
+		for(;i<size;i++)//Bytes de datos de desplazamiento de tamaÃ±o de escritura en bucle
 		{
-			Spi_SendByte(*dat_ptr++);//Ğ´ÈëÒ»¸ö×Ö½ÚµÄÊı¾İ
+			Spi_SendByte(*dat_ptr++);//escribir un byte de datos
 		}
 	}
 	W5500_SCS_Set();
 
-	offset1+=size;//¸üĞÂÊµ¼ÊÎïÀíµØÖ·,¼´ÏÂ´ÎĞ´´ı·¢ËÍÊı¾İµ½·¢ËÍÊı¾İ»º³åÇøµÄÆğÊ¼µØÖ·
+	offset1+=size;//Actualice la direcciÃ³n fÃ­sica real, es decir, la direcciÃ³n de inicio de los datos que se enviarÃ¡n la prÃ³xima vez que se escriban en el bÃºfer de datos de envÃ­o
 	Write_W5500_SOCK_2Byte(s, Sn_TX_WR, offset1);
-	Write_W5500_SOCK_1Byte(s, Sn_CR, SEND);//·¢ËÍÆô¶¯·¢ËÍÃüÁî
+	Write_W5500_SOCK_1Byte(s, Sn_CR, SEND);//enviar iniciar enviar comando
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : W5500_Hardware_Reset
-* ÃèÊö    : Ó²¼ş¸´Î»W5500
-* ÊäÈë    : ÎŞ
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : W5500µÄ¸´Î»Òı½Å±£³ÖµÍµçÆ½ÖÁÉÙ500usÒÔÉÏ,²ÅÄÜ¸´Î»W5500
+* å‡½æ•°å  : W5500_Hardware_Reset
+* æè¿°    : Restablecimiento de hardware W5500
+* è¾“å…¥    : Ninguno
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : El pin de reinicio de W5500 mantiene un nivel bajo durante al menos 500 us para reiniciar W5500
 *******************************************************************************/
 void W5500_Hardware_Reset(void)
 {
-	W5500_RST_Clr();//¸´Î»Òı½ÅÀ­µÍ
+	W5500_RST_Clr();//Restablecer pin bajado
 	bsp_DelayMS(50);
-	W5500_RST_Set();//¸´Î»Òı½ÅÀ­¸ß
+	W5500_RST_Set();//å¤ä½å¼•è„šRestablecer pin tirado altoæ‹‰é«˜
 	bsp_DelayMS(200);
     
-	//while((Read_W5500_1Byte(PHYCFGR) & LINK)==0);//µÈ´ıÒÔÌ«ÍøÁ¬½ÓÍê³É
+	//while((Read_W5500_1Byte(PHYCFGR) & LINK)==0);//Espere a que se complete la conexiÃ³n ethernet
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : W5500_Init
-* ÃèÊö    : ³õÊ¼»¯W5500¼Ä´æÆ÷º¯Êı
-* ÊäÈë    : ÎŞ
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÔÚÊ¹ÓÃW5500Ö®Ç°£¬ÏÈ¶ÔW5500³õÊ¼»¯
+* å‡½æ•°å  : W5500_Init
+* æè¿°    : Inicializa la funciÃ³n de registro W5500
+* è¾“å…¥    : Ninguno
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Antes de usar el W5500, primero inicialice el W5500
 *******************************************************************************/
 void W5500_Init(void)
 {
 	u8 i=0;
     
-	Write_W5500_1Byte(MR, RST);//Èí¼ş¸´Î»W5500,ÖÃ1ÓĞĞ§,¸´Î»ºó×Ô¶¯Çå0
-	bsp_DelayMS(10);//ÑÓÊ±10ms,×Ô¼º¶¨Òå¸Ãº¯Êı
+	Write_W5500_1Byte(MR, RST);//Reinicio de software W5500, establecido en 1 es vÃ¡lido, borrado automÃ¡ticamente a 0 despuÃ©s del reinicio
+	bsp_DelayMS(10);//Retraso 10ms, defina la funciÃ³n usted mismo
     
-	//ÉèÖÃÍø¹Ø(Gateway)µÄIPµØÖ·,Gateway_IPÎª4×Ö½Úunsigned charÊı×é,×Ô¼º¶¨Òå 
-	//Ê¹ÓÃÍø¹Ø¿ÉÒÔÊ¹Í¨ĞÅÍ»ÆÆ×ÓÍøµÄ¾ÖÏŞ£¬Í¨¹ıÍø¹Ø¿ÉÒÔ·ÃÎÊµ½ÆäËü×ÓÍø»ò½øÈëInternet
+// Configure la direcciÃ³n IP de la puerta de enlace (Gateway), Gateway_IP es una matriz de caracteres sin firmar de 4 bytes, defÃ­nala usted mismo 
+// El uso de la puerta de enlace puede hacer que la comunicaciÃ³n supere las limitaciones de la subred y, a travÃ©s de la puerta de enlace, puede acceder a otras subredes o ingresar a Internet
 	Write_W5500_nByte(GAR, Net.Gateway_IP, 4);
     
-	//ÉèÖÃ×ÓÍøÑÚÂë(MASK)Öµ,SUB_MASKÎª4×Ö½Úunsigned charÊı×é,×Ô¼º¶¨Òå
-	//×ÓÍøÑÚÂëÓÃÓÚ×ÓÍøÔËËã
+	// Establezca el valor de la mÃ¡scara de subred (MASK), SUB_MASK es una matriz de caracteres sin firmar de 4 bytes, defÃ­nala usted mismo
+	//La mÃ¡scara de subred se usa para operaciones de subred
 	Write_W5500_nByte(SUBR,Net.Sub_Mask,4);		
 	
-	//ÉèÖÃÎïÀíµØÖ·,PHY_ADDRÎª6×Ö½Úunsigned charÊı×é,×Ô¼º¶¨Òå,ÓÃÓÚÎ¨Ò»±êÊ¶ÍøÂçÉè±¸µÄÎïÀíµØÖ·Öµ
-	//¸ÃµØÖ·ÖµĞèÒªµ½IEEEÉêÇë£¬°´ÕÕOUIµÄ¹æ¶¨£¬Ç°3¸ö×Ö½ÚÎª³§ÉÌ´úÂë£¬ºóÈı¸ö×Ö½ÚÎª²úÆ·ĞòºÅ
-	//Èç¹û×Ô¼º¶¨ÒåÎïÀíµØÖ·£¬×¢ÒâµÚÒ»¸ö×Ö½Ú±ØĞëÎªÅ¼Êı
+	// Establezca la direcciÃ³n fÃ­sica, PHY_ADDR es una matriz de caracteres sin firmar de 6 bytes, definida por usted mismo, que se utiliza para identificar de forma Ãºnica el valor de la direcciÃ³n fÃ­sica del dispositivo de red
+	//El valor de la direcciÃ³n debe aplicarse a IEEE. De acuerdo con las regulaciones de OUI, los primeros 3 bytes son el cÃ³digo del fabricante y los Ãºltimos 3 bytes son el nÃºmero de serie del producto
+	//Si define la direcciÃ³n fÃ­sica usted mismo, tenga en cuenta que el primer byte debe ser un nÃºmero par
 	Write_W5500_nByte(SHAR,Net.Phy_Addr,6);		
 
-	//ÉèÖÃ±¾»úµÄIPµØÖ·,IP_ADDRÎª4×Ö½Úunsigned charÊı×é,×Ô¼º¶¨Òå
-	//×¢Òâ£¬Íø¹ØIP±ØĞëÓë±¾»úIPÊôÓÚÍ¬Ò»¸ö×ÓÍø£¬·ñÔò±¾»ú½«ÎŞ·¨ÕÒµ½Íø¹Ø
+	// Configure la direcciÃ³n IP de esta mÃ¡quina, IP_ADDR es una matriz de caracteres sin firmar de 4 bytes, defÃ­nala usted mismo
+	// Tenga en cuenta que la IP de la puerta de enlace debe pertenecer a la misma subred que la IP local; de lo contrario, la mÃ¡quina local no podrÃ¡ encontrar la puerta de enlace
 	Write_W5500_nByte(SIPR,Net.IP_Addr,4);		
 	
-	//ÉèÖÃ·¢ËÍ»º³åÇøºÍ½ÓÊÕ»º³åÇøµÄ´óĞ¡£¬²Î¿¼W5500Êı¾İÊÖ²á
+	// Configure el tamaÃ±o del bÃºfer de envÃ­o y el bÃºfer de recepciÃ³n, consulte el manual de datos W5500
 	for(i=0;i<8;i++)
 	{
 		Write_W5500_SOCK_1Byte(i, Sn_RXBUF_SIZE, 0x02);//Socket Rx memory size=2k
 		Write_W5500_SOCK_1Byte(i, Sn_TXBUF_SIZE, 0x02);//Socket Tx mempry size=2k
 	}
 
-	//ÉèÖÃÖØÊÔÊ±¼ä£¬Ä¬ÈÏÎª2000(200ms) 
-	//Ã¿Ò»µ¥Î»ÊıÖµÎª100Î¢Ãë,³õÊ¼»¯Ê±ÖµÉèÎª2000(0x07D0),µÈÓÚ200ºÁÃë
+	//Establezca el tiempo de reintento, el valor predeterminado es 2000 (200ms) 
+	//El valor de cada unidad es 100 microsegundos y el valor inicial se establece en 2000 (0x07D0), que es igual a 200 milisegundos
 	Write_W5500_2Byte(REG_RTR, 0x07d0);
 
-	//ÉèÖÃÖØÊÔ´ÎÊı£¬Ä¬ÈÏÎª8´Î 
-	//Èç¹ûÖØ·¢µÄ´ÎÊı³¬¹ıÉè¶¨Öµ,Ôò²úÉú³¬Ê±ÖĞ¶Ï(Ïà¹ØµÄ¶Ë¿ÚÖĞ¶Ï¼Ä´æÆ÷ÖĞµÄSn_IR ³¬Ê±Î»(TIMEOUT)ÖÃ¡°1¡±)
+	//Establecer el nÃºmero de reintentos, el valor predeterminado es 8 veces 
+	//Si el nÃºmero de retransmisiones supera el valor establecido, se generarÃ¡ una interrupciÃ³n de tiempo de espera (el bit de tiempo de espera Sn_IR (TIMEOUT) en el registro de interrupciÃ³n del puerto correspondiente se establece en "1")
 	Write_W5500_1Byte(RCR,8);
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Detect_Gateway
-* ÃèÊö    : ¼ì²éÍø¹Ø·şÎñÆ÷
-* ÊäÈë    : ÎŞ
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ³É¹¦·µ»ØTRUE(0xFF),Ê§°Ü·µ»ØFALSE(0x00)
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Detect_Gateway
+* æè¿°    : comprobar servidor de puerta de enlace
+* è¾“å…¥    : Ninguno
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Devuelve con Ã©xito VERDADERO (0xFF), el error devuelve FALSO (0x00)
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 unsigned char Detect_Gateway(SOCKET s)
 {
@@ -489,190 +489,190 @@ unsigned char Detect_Gateway(SOCKET s)
 	ip_adde[2] = Net.IP_Addr[2]+1;
 	ip_adde[3] = Net.IP_Addr[3]+1;
 
-	//¼ì²éÍø¹Ø¼°»ñÈ¡Íø¹ØµÄÎïÀíµØÖ·
-	Write_W5500_SOCK_4Byte(s,Sn_DIPR,ip_adde);  //ÏòÄ¿µÄµØÖ·¼Ä´æÆ÷Ğ´ÈëÓë±¾»úIP²»Í¬µÄIPÖµ
-	Write_W5500_SOCK_1Byte(s,Sn_MR,MR_TCP);     //ÉèÖÃsocketÎªTCPÄ£Ê½
-	Write_W5500_SOCK_1Byte(s,Sn_CR,OPEN);       //´ò¿ªSocket	
-	bsp_DelayMS(5);//ÑÓÊ±5ms 	
+	// Verifique la puerta de enlace y obtenga la direcciÃ³n fÃ­sica de la puerta de enlace
+	Write_W5500_SOCK_4Byte(s,Sn_DIPR,ip_adde);  //Escriba un valor de IP diferente de la IP local en el registro de direcciÃ³n de destino
+	Write_W5500_SOCK_1Byte(s,Sn_MR,MR_TCP);     //Establecer el socket en modo TCP
+	Write_W5500_SOCK_1Byte(s,Sn_CR,OPEN);       //abrirSocket
+	bsp_DelayMS(5);//Retraso 5ms	
 	
-	if(Read_W5500_SOCK_1Byte(s,Sn_SR) != SOCK_INIT)//Èç¹ûsocket´ò¿ªÊ§°Ü
+	if(Read_W5500_SOCK_1Byte(s,Sn_SR) != SOCK_INIT)//Si el zÃ³calo abre fallado
 	{
-		Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//´ò¿ª²»³É¹¦,¹Ø±ÕSocket
-		return FALSE;//·µ»ØFALSE(0x00)
+		Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//open fallÃ³, cierre el Socket
+		return FALSE;//devuelve FALSO (0x00)
 	}
 
-	Write_W5500_SOCK_1Byte(s,Sn_CR,CONNECT);//ÉèÖÃSocketÎªConnectÄ£Ê½						
+	Write_W5500_SOCK_1Byte(s,Sn_CR,CONNECT);//Establezca el enchufe en modo de conexiÃ³n						
 
 	do
 	{
 		u8 j=0;
-		j=Read_W5500_SOCK_1Byte(s,Sn_IR);//¶ÁÈ¡Socket0ÖĞ¶Ï±êÖ¾¼Ä´æÆ÷
+		j=Read_W5500_SOCK_1Byte(s,Sn_IR);//Leer registro de bandera de interrupciÃ³n de Socket0
 		if(j!=0)
 		Write_W5500_SOCK_1Byte(s,Sn_IR,j);
-		bsp_DelayMS(5);//ÑÓÊ±5ms 
+		bsp_DelayMS(5);//Retraso 5ms
 		if((j&IR_TIMEOUT) == IR_TIMEOUT)
 		{
 			return FALSE;	
 		}
 		else if(Read_W5500_SOCK_1Byte(s,Sn_DHAR) != 0xff)
 		{
-			Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//¹Ø±ÕSocket
+			Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//Cerrar el zÃ³calo
 			return TRUE;							
 		}
 	}while(1);
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Socket_Init
-* ÃèÊö    : Ö¸¶¨Socket(0~7)³õÊ¼»¯
-* ÊäÈë    : s:´ı³õÊ¼»¯µÄ¶Ë¿Ú
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : Socket_Init
+* æè¿°    : Especificar la inicializaciÃ³n de Socket (0~7)
+* è¾“å…¥    : s: el puerto a inicializar
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 void Socket_Init(SOCKET s)
 {    
-    //ÉèÖÃ·ÖÆ¬³¤¶È£¬²Î¿¼W5500Êı¾İÊÖ²á£¬¸ÃÖµ¿ÉÒÔ²»ĞŞ¸Ä	
-    Write_W5500_SOCK_2Byte(Socket[s].Num, Sn_MSSR, 0x05b4);//×î´ó·ÖÆ¬×Ö½ÚÊı=1460(0x5b4)
-    //ÉèÖÃ¶Ë¿Ú0µÄ¶Ë¿ÚºÅ
+    //è®¾ç½®åˆ†ç‰‡é•¿åº¦ï¼Œå‚è€ƒW5500æ•°æ®æ‰‹å†Œï¼Œè¯¥å€¼å¯ä»¥ä¸ä¿®æ”¹	
+    Write_W5500_SOCK_2Byte(Socket[s].Num, Sn_MSSR, 0x05b4);//NÃºmero mÃ¡ximo de bytes fragmentados = 1460 (0x5b4)
+    //Establecer el nÃºmero de puerto del puerto 0
     Write_W5500_SOCK_2Byte(Socket[s].Num, Sn_PORT, Socket[s].LocalPort);
     
     if(Socket->Mode == TCP_SERVER)
     {
-        //ÉèÖÃ¶Ë¿ÚÄ¿µÄ(Ô¶³Ì)¶Ë¿ÚºÅ
+        //Establecer nÃºmero de puerto de destino de puerto (remoto)
         Write_W5500_SOCK_2Byte(Socket[s].Num, Sn_DPORTR, Socket[s].DestPort);
-        //ÉèÖÃ¶Ë¿ÚÄ¿µÄ(Ô¶³Ì)IPµØÖ·
+        //Establecer la direcciÃ³n IP de destino del puerto (remoto)
         Write_W5500_SOCK_4Byte(Socket[s].Num, Sn_DIPR, Socket[s].DestIP);	
     }
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Socket_Connect
-* ÃèÊö    : ÉèÖÃÖ¸¶¨Socket(0~7)Îª¿Í»§¶ËÓëÔ¶³Ì·şÎñÆ÷Á¬½Ó
-* ÊäÈë    : s:´ıÉè¶¨µÄ¶Ë¿Ú
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ³É¹¦·µ»ØTRUE(0xFF),Ê§°Ü·µ»ØFALSE(0x00)
-* ËµÃ÷    : µ±±¾»úSocket¹¤×÷ÔÚ¿Í»§¶ËÄ£Ê½Ê±,ÒıÓÃ¸Ã³ÌĞò,ÓëÔ¶³Ì·şÎñÆ÷½¨Á¢Á¬½Ó
-*			Èç¹ûÆô¶¯Á¬½Óºó³öÏÖ³¬Ê±ÖĞ¶Ï£¬ÔòÓë·şÎñÆ÷Á¬½ÓÊ§°Ü,ĞèÒªÖØĞÂµ÷ÓÃ¸Ã³ÌĞòÁ¬½Ó
-*			¸Ã³ÌĞòÃ¿µ÷ÓÃÒ»´Î,¾ÍÓë·şÎñÆ÷²úÉúÒ»´ÎÁ¬½Ó
+* å‡½æ•°å  : Socket_Connect
+* æè¿°    : Establezca el Socket especificado (0 ~ 7) como el cliente para conectarse con el servidor remoto
+* è¾“å…¥    : s: el puerto a configurar
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Devuelve con Ã©xito VERDADERO (0xFF), el error devuelve FALSO (0x00)
+* è¯´æ˜    :Cuando el Socket local funciona en modo cliente, consulte este programa para establecer una conexiÃ³n con el servidor remoto
+*			Si hay una interrupciÃ³n del tiempo de espera despuÃ©s de que se inicia la conexiÃ³n, la conexiÃ³n con el servidor falla y se debe volver a llamar a la conexiÃ³n del programa
+*			Cada vez que se llama al programa, se establece una conexiÃ³n con el servidor.
 *******************************************************************************/
 unsigned char Socket_Connect(SOCKET s)
 {
-	Write_W5500_SOCK_1Byte(s,Sn_MR,MR_TCP);//ÉèÖÃsocketÎªTCPÄ£Ê½
-	Write_W5500_SOCK_1Byte(s,Sn_CR,OPEN);//´ò¿ªSocket
-	bsp_DelayMS(5);//ÑÓÊ±5ms
-	if(Read_W5500_SOCK_1Byte(s,Sn_SR)!=SOCK_INIT)//Èç¹ûsocket´ò¿ªÊ§°Ü
+	Write_W5500_SOCK_1Byte(s,Sn_MR,MR_TCP);//Establecer el socket en modo TCP
+	Write_W5500_SOCK_1Byte(s,Sn_CR,OPEN);//abrirSocket
+	bsp_DelayMS(5);//Retraso 5ms
+	if(Read_W5500_SOCK_1Byte(s,Sn_SR)!=SOCK_INIT)//Si el zÃ³calo abre fallado
 	{
-		Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//´ò¿ª²»³É¹¦,¹Ø±ÕSocket
-		return FALSE;//·µ»ØFALSE(0x00)
+		Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//No se pudo abrir, cierre el zÃ³calo
+		return FALSE;//devuelve FALSO (0x00)
 	}
-	Write_W5500_SOCK_1Byte(s,Sn_CR,CONNECT);//ÉèÖÃSocketÎªConnectÄ£Ê½
-	return TRUE;//·µ»ØTRUE,ÉèÖÃ³É¹¦
+	Write_W5500_SOCK_1Byte(s,Sn_CR,CONNECT);//Establezca el enchufe en modo de conexiÃ³n
+	return TRUE;//Devolver VERDADERO, establecer con Ã©xito
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Socket_Listen
-* ÃèÊö    : ÉèÖÃÖ¸¶¨Socket(0~7)×÷Îª·şÎñÆ÷µÈ´ıÔ¶³ÌÖ÷»úµÄÁ¬½Ó
-* ÊäÈë    : s:´ıÉè¶¨µÄ¶Ë¿Ú
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ³É¹¦·µ»ØTRUE(0xFF),Ê§°Ü·µ»ØFALSE(0x00)
-* ËµÃ÷    : µ±±¾»úSocket¹¤×÷ÔÚ·şÎñÆ÷Ä£Ê½Ê±,ÒıÓÃ¸Ã³ÌĞò,µÈµÈÔ¶³ÌÖ÷»úµÄÁ¬½Ó
-*			¸Ã³ÌĞòÖ»µ÷ÓÃÒ»´Î,¾ÍÊ¹W5500ÉèÖÃÎª·şÎñÆ÷Ä£Ê½
+* å‡½æ•°å  : Socket_Listen
+* æè¿°    : Establezca el Socket especificado (0 ~ 7) como el servidor para esperar la conexiÃ³n desde el host remoto
+* è¾“å…¥    : s:å¾…s: el puerto a configurarè®¾å®šçš„ç«¯å£
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Devuelve con Ã©xito VERDADERO (0xFF), el error devuelve FALSO (0x00)
+* è¯´æ˜    : Cuando el Socket local funciona en modo servidor, consulte el programa, etc. para la conexiÃ³n del host remoto.
+*			Este programa se llama solo una vez para configurar el W5500 en modo servidor
 *******************************************************************************/
 unsigned char Socket_Listen(SOCKET s)
 {
-	Write_W5500_SOCK_1Byte(s,Sn_MR,MR_TCP);//ÉèÖÃsocketÎªTCPÄ£Ê½ 
-	Write_W5500_SOCK_1Byte(s,Sn_CR,OPEN);//´ò¿ªSocket	
-	bsp_DelayMS(5);//ÑÓÊ±5ms
-	if(Read_W5500_SOCK_1Byte(s,Sn_SR)!=SOCK_INIT)//Èç¹ûsocket´ò¿ªÊ§°Ü
+	Write_W5500_SOCK_1Byte(s,Sn_MR,MR_TCP);//Establecer el socket en modo TCP
+	Write_W5500_SOCK_1Byte(s,Sn_CR,OPEN);//abrirSocket
+	bsp_DelayMS(5);//Retraso 5ms
+	if(Read_W5500_SOCK_1Byte(s,Sn_SR)!=SOCK_INIT)//Si el zÃ³calo abre fallado
 	{
-		Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//´ò¿ª²»³É¹¦,¹Ø±ÕSocket
-		return FALSE;//·µ»ØFALSE(0x00)
+		Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//No se pudo abrir, cierre el zÃ³calo
+		return FALSE;//devuelve FALSO (0x00)
 	}	
-	Write_W5500_SOCK_1Byte(s,Sn_CR,LISTEN);//ÉèÖÃSocketÎªÕìÌıÄ£Ê½	
-	bsp_DelayMS(5);//ÑÓÊ±5ms
-	if(Read_W5500_SOCK_1Byte(s,Sn_SR)!=SOCK_LISTEN)//Èç¹ûsocketÉèÖÃÊ§°Ü
+	Write_W5500_SOCK_1Byte(s,Sn_CR,LISTEN);//Establecer Socket en modo de escucha
+	bsp_DelayMS(5);//å»¶æ—¶5ms
+	if(Read_W5500_SOCK_1Byte(s,Sn_SR)!=SOCK_LISTEN)//Si la configuraciÃ³n del zÃ³calo falla
 	{
-		Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//ÉèÖÃ²»³É¹¦,¹Ø±ÕSocket
-		return FALSE;//·µ»ØFALSE(0x00)
+		Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//La configuraciÃ³n no tiene Ã©xito, cierre el Socket
+		return FALSE;//devuelve FALSO (0x00)
 	}
 
 	return TRUE;
 
-	//ÖÁ´ËÍê³ÉÁËSocketµÄ´ò¿ªºÍÉèÖÃÕìÌı¹¤×÷,ÖÁÓÚÔ¶³Ì¿Í»§¶ËÊÇ·ñÓëËü½¨Á¢Á¬½Ó,ÔòĞèÒªµÈ´ıSocketÖĞ¶Ï£¬
-	//ÒÔÅĞ¶ÏSocketµÄÁ¬½ÓÊÇ·ñ³É¹¦¡£²Î¿¼W5500Êı¾İÊÖ²áµÄSocketÖĞ¶Ï×´Ì¬
-	//ÔÚ·şÎñÆ÷ÕìÌıÄ£Ê½²»ĞèÒªÉèÖÃÄ¿µÄIPºÍÄ¿µÄ¶Ë¿ÚºÅ
+	//Hasta ahora, se ha completado la apertura del Socket y la configuraciÃ³n del trabajo de escucha. En cuanto a si el cliente remoto establece una conexiÃ³n con Ã©l, debe esperar a que se interrumpa el Socket.
+	//Para determinar si la conexiÃ³n del Socket es exitosa. Consulte el estado de interrupciÃ³n del zÃ³calo en la hoja de datos del W5500
+	//No es necesario configurar la IP de destino y el nÃºmero de puerto de destino en el modo de escucha del servidor
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Socket_UDP
-* ÃèÊö    : ÉèÖÃÖ¸¶¨Socket(0~7)ÎªUDPÄ£Ê½
-* ÊäÈë    : s:´ıÉè¶¨µÄ¶Ë¿Ú
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ³É¹¦·µ»ØTRUE(0xFF),Ê§°Ü·µ»ØFALSE(0x00)
-* ËµÃ÷    : Èç¹ûSocket¹¤×÷ÔÚUDPÄ£Ê½,ÒıÓÃ¸Ã³ÌĞò,ÔÚUDPÄ£Ê½ÏÂ,SocketÍ¨ĞÅ²»ĞèÒª½¨Á¢Á¬½Ó
-*			¸Ã³ÌĞòÖ»µ÷ÓÃÒ»´Î£¬¾ÍÊ¹W5500ÉèÖÃÎªUDPÄ£Ê½
+* å‡½æ•°å  : Socket_UDP
+* æè¿°    : Establece el Socket especificado (0~7) en modo UDP
+* è¾“å…¥    :s: el puerto a configurar
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Devuelve con Ã©xito VERDADERO (0xFF), el error devuelve FALSO (0x00)
+* è¯´æ˜    : Si el Socket funciona en modo UDP, consulte este programa En modo UDP, la comunicaciÃ³n del Socket no necesita establecer una conexiÃ³n
+*			El programa se llama solo una vez para configurar el W5500 en modo UDP
 *******************************************************************************/
 unsigned char Socket_UDP(SOCKET s)
 {
-	Write_W5500_SOCK_1Byte(s,Sn_MR,MR_UDP); //ÉèÖÃSocketÎªUDPÄ£Ê½*/
-	Write_W5500_SOCK_1Byte(s,Sn_CR,OPEN);   //´ò¿ªSocket*/
-	bsp_DelayMS(5);//ÑÓÊ±5ms
-	if(Read_W5500_SOCK_1Byte(s,Sn_SR)!=SOCK_UDP)//Èç¹ûSocket´ò¿ªÊ§°Ü
+	Write_W5500_SOCK_1Byte(s,Sn_MR,MR_UDP); //Establecer Socket en modo UDP*/
+	Write_W5500_SOCK_1Byte(s,Sn_CR,OPEN);   // abrirSocket*/
+	bsp_DelayMS(5);//å»¶æ—¶5ms
+	if(Read_W5500_SOCK_1Byte(s,Sn_SR)!=SOCK_UDP)//Si el zÃ³calo abre fallado
 	{
-		Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//´ò¿ª²»³É¹¦,¹Ø±ÕSocket
-		return FALSE;//·µ»ØFALSE(0x00)
+		Write_W5500_SOCK_1Byte(s,Sn_CR,CLOSE);//No se pudo abrir, cierre el zÃ³calo
+		return FALSE;//devuelve FALSO (0x00)
 	}
 	else
 		return TRUE;
 
-	//ÖÁ´ËÍê³ÉÁËSocketµÄ´ò¿ªºÍUDPÄ£Ê½ÉèÖÃ,ÔÚÕâÖÖÄ£Ê½ÏÂËü²»ĞèÒªÓëÔ¶³ÌÖ÷»ú½¨Á¢Á¬½Ó
-	//ÒòÎªSocket²»ĞèÒª½¨Á¢Á¬½Ó,ËùÒÔÔÚ·¢ËÍÊı¾İÇ°¶¼¿ÉÒÔÉèÖÃÄ¿µÄÖ÷»úIPºÍÄ¿µÄSocketµÄ¶Ë¿ÚºÅ
-	//Èç¹ûÄ¿µÄÖ÷»úIPºÍÄ¿µÄSocketµÄ¶Ë¿ÚºÅÊÇ¹Ì¶¨µÄ,ÔÚÔËĞĞ¹ı³ÌÖĞÃ»ÓĞ¸Ä±ä,ÄÇÃ´Ò²¿ÉÒÔÔÚÕâÀïÉèÖÃ
+	//Hasta ahora, la apertura del Socket y la configuraciÃ³n del modo UDP se han completado.En este modo, no es necesario establecer una conexiÃ³n con el host remoto
+	//Debido a que Socket no necesita establecer una conexiÃ³n, puede establecer la IP del host de destino y el nÃºmero de puerto del Socket de destino antes de enviar datos
+	//Si la IP del host de destino y el nÃºmero de puerto del socket de destino son fijos y no han cambiado durante la operaciÃ³n, tambiÃ©n puede configurarlos aquÃ­
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : W5500_Interrupt_Process
-* ÃèÊö    : W5500ÖĞ¶Ï´¦Àí³ÌĞò¿ò¼Ü
-* ÊäÈë    : ÎŞ
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : W5500_Interrupt_Process
+* æè¿°    : Estructura del controlador de interrupciones W5500
+* è¾“å…¥    : Ninguno
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 void W5500_Interrupt_Process(void)
 {
 	uint8_t SIR_REG, SnIR_REG, n;
 IntDispose:
-	SIR_REG = Read_W5500_1Byte(SIR);//¶ÁÈ¡¶Ë¿ÚÖĞ¶Ï±êÖ¾¼Ä´æÆ÷
+	SIR_REG = Read_W5500_1Byte(SIR);//Registro de bandera de interrupciÃ³n de puerto de lectura
 	if(SIR_REG == 0) return;
 	for(n=0; n<8; n++)
 	{
-		if((SIR_REG & Socket_Int(n)) == Socket_Int(n))//Socket nÊÂ¼ş´¦Àí 
+		if((SIR_REG & Socket_Int(n)) == Socket_Int(n))//Manejo de socket n case
 		{
-			SnIR_REG = Read_W5500_SOCK_1Byte(n,Sn_IR);//¶ÁÈ¡Socket nÖĞ¶Ï±êÖ¾¼Ä´æÆ÷
+			SnIR_REG = Read_W5500_SOCK_1Byte(n,Sn_IR);//readSocket n interrumpe el logo del registro
 			Write_W5500_SOCK_1Byte(n,Sn_IR, SnIR_REG);
-			if(SnIR_REG & IR_CON)//ÔÚTCPÄ£Ê½ÏÂ,Socket n³É¹¦Á¬½Ó 
+			if(SnIR_REG & IR_CON)//En el modo TCP, el Socket n se conecta con Ã©xito 
 			{
-				Socket[n].State |= S_CONN;//ÍøÂçÁ¬½Ó×´Ì¬0x02,¶Ë¿ÚÍê³ÉÁ¬½Ó£¬¿ÉÒÔÕı³£´«ÊäÊı¾İ
+				Socket[n].State |= S_CONN;//El estado de conexiÃ³n de la red es 0x02, el puerto estÃ¡ conectado y puede transmitir datos normalmente
 			}
-			if(SnIR_REG & IR_DISCON)//ÔÚTCPÄ£Ê½ÏÂSocket¶Ï¿ªÁ¬½Ó´¦Àí
+			if(SnIR_REG & IR_DISCON)//Procesamiento de desconexiÃ³n de socket en modo TCP
 			{
-				Write_W5500_SOCK_1Byte(n,Sn_CR,CLOSE);//¹Ø±Õ¶Ë¿Ú,µÈ´ıÖØĞÂ´ò¿ªÁ¬½Ó 
-                Socket_Init(n);		//Ö¸¶¨Socket(0~7)³õÊ¼»¯,³õÊ¼»¯¶Ë¿Ú0
-				Socket[n].State = 0;//ÍøÂçÁ¬½Ó×´Ì¬0x00,¶Ë¿ÚÁ¬½ÓÊ§°Ü
+				Write_W5500_SOCK_1Byte(n,Sn_CR,CLOSE);//Cierra el puerto y espera a que se vuelva a abrir la conexiÃ³n 
+                Socket_Init(n);		//Especifique la inicializaciÃ³n de Socket (0~7), inicialice el puerto 0
+				Socket[n].State = 0;//Estado de conexiÃ³n de red 0x00, error de conexiÃ³n de puerto
 			}
-			if(SnIR_REG & IR_SEND_OK)//Socket0Êı¾İ·¢ËÍÍê³É,¿ÉÒÔÔÙ´ÎÆô¶¯S_tx_process()º¯Êı·¢ËÍÊı¾İ 
+			if(SnIR_REG & IR_SEND_OK)//La transmisiÃ³n de datos Socket0 se completÃ³, puede iniciar la funciÃ³n S_tx_process () para enviar datos nuevamente
 			{
-				Socket[n].DataState |= S_TRANSMITOK;//¶Ë¿Ú·¢ËÍÒ»¸öÊı¾İ°üÍê³É 
+				Socket[n].DataState |= S_TRANSMITOK;//El puerto envÃ­a un paquete para completar
 			}
-			if(SnIR_REG & IR_RECV)//Socket½ÓÊÕµ½Êı¾İ,¿ÉÒÔÆô¶¯S_rx_process()º¯Êı 
+			if(SnIR_REG & IR_RECV)//Socket recibe datos y puede iniciar la funciÃ³n S_rx_process()
 			{
-				Socket[n].DataState |= S_RECEIVE;//¶Ë¿Ú½ÓÊÕµ½Ò»¸öÊı¾İ°ü
+				Socket[n].DataState |= S_RECEIVE;//El puerto recibe un paquete
 			}
-			if(SnIR_REG & IR_TIMEOUT)//SocketÁ¬½Ó»òÊı¾İ´«Êä³¬Ê±´¦Àí 
+			if(SnIR_REG & IR_TIMEOUT)//Procesamiento de tiempo de espera de transmisiÃ³n de datos o conexiÃ³n de socket
 			{
-				Write_W5500_SOCK_1Byte(n,Sn_CR,CLOSE);// ¹Ø±Õ¶Ë¿Ú,µÈ´ıÖØĞÂ´ò¿ªÁ¬½Ó 			
-				Socket[n].State = 0;//ÍøÂçÁ¬½Ó×´Ì¬0x00,¶Ë¿ÚÁ¬½ÓÊ§°Ü
+				Write_W5500_SOCK_1Byte(n,Sn_CR,CLOSE);// Cierra el puerto y espera a que se vuelva a abrir la conexiÃ³n 			
+				Socket[n].State = 0;//Estado de conexiÃ³n de red 0x00, error de conexiÃ³n de puerto
 			}
 		}
 	}
@@ -681,33 +681,33 @@ IntDispose:
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : W5500_Socket_Set
-* ÃèÊö    : W5500¶Ë¿Ú³õÊ¼»¯ÅäÖÃ
-* ÊäÈë    : ÎŞ
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ·Ö±ğÉèÖÃ4¸ö¶Ë¿Ú,¸ù¾İ¶Ë¿Ú¹¤×÷Ä£Ê½,½«¶Ë¿ÚÖÃÓÚTCP·şÎñÆ÷¡¢TCP¿Í»§¶Ë»òUDPÄ£Ê½.
-*			´Ó¶Ë¿Ú×´Ì¬×Ö½ÚSocket.State¿ÉÒÔÅĞ¶Ï¶Ë¿ÚµÄ¹¤×÷Çé¿ö
+* å‡½æ•°å  : W5500_Socket_Set
+* æè¿°    : ConfiguraciÃ³n de inicializaciÃ³n del puerto W5500
+* è¾“å…¥    : Ninguno
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Configure 4 puertos por separado y coloque el puerto en servidor TCP, cliente TCP o modo UDP segÃºn el modo de funcionamiento del puerto.
+*			La condiciÃ³n de funcionamiento del puerto se puede juzgar a partir del byte de estado del puerto Socket.State
 *******************************************************************************/
 void W5500_Socket_Set(SOCKET s)
 {
-	if(Socket[s].State == 0)//¶Ë¿Ú0³õÊ¼»¯ÅäÖÃ
+	if(Socket[s].State == 0)//configuraciÃ³n de inicializaciÃ³n del puerto 0
 	{
-		if(Socket[s].Mode == TCP_SERVER)//TCP·şÎñÆ÷Ä£Ê½ 
+		if(Socket[s].Mode == TCP_SERVER)//Modo de servidor TCP
 		{
 			if(Socket_Listen(s) == TRUE)
 				Socket[s].State = S_INIT;
 			else
 				Socket[s].State = 0;
 		}
-		else if(Socket[s].Mode == TCP_CLIENT)//TCP¿Í»§¶ËÄ£Ê½ 
+		else if(Socket[s].Mode == TCP_CLIENT)//Modo de cliente TCP 
 		{
 			if(Socket_Connect(s)==TRUE)
 				Socket[s].State = S_INIT;
 			else
 				Socket[s].State = 0;
 		}
-		else//UDPÄ£Ê½ 
+		else//Modo UDP
 		{
 			if(Socket_UDP(s) == TRUE)
 				Socket[s].State = S_INIT | S_CONN;
@@ -718,31 +718,31 @@ void W5500_Socket_Set(SOCKET s)
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : Load_Net_Parameters
-* ÃèÊö    : ×°ÔØÍøÂç²ÎÊı
-* ÊäÈë    : ÎŞ
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : Íø¹Ø¡¢ÑÚÂë¡¢ÎïÀíµØÖ·¡¢±¾»úIPµØÖ·¡¢¶Ë¿ÚºÅ¡¢Ä¿µÄIPµØÖ·¡¢Ä¿µÄ¶Ë¿ÚºÅ¡¢¶Ë¿Ú¹¤×÷Ä£Ê½
+* å‡½æ•°å  : Load_Net_Parameters
+* æè¿°    : cargar parÃ¡metros de red
+* è¾“å…¥    : Ninguno
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Puerta de enlace, mÃ¡scara, direcciÃ³n fÃ­sica, direcciÃ³n IP local, nÃºmero de puerto, direcciÃ³n IP de destino, nÃºmero de puerto de destino, modo de funcionamiento del puerto
 *******************************************************************************/
 void Load_Net_Parameters(void)
 {
-	Net.IP_Addr[0] = BasicInfo.IPv4.IP[0];       //¼ÓÔØ±¾»úIPµØÖ·
+	Net.IP_Addr[0] = BasicInfo.IPv4.IP[0];       //Cargue la direcciÃ³n IP local
 	Net.IP_Addr[1] = BasicInfo.IPv4.IP[1];
 	Net.IP_Addr[2] = BasicInfo.IPv4.IP[2];
 	Net.IP_Addr[3] = BasicInfo.IPv4.IP[3];
     
-	Net.Gateway_IP[0] = BasicInfo.IPv4.GetWay[0];    //¼ÓÔØÍø¹Ø²ÎÊı
+	Net.Gateway_IP[0] = BasicInfo.IPv4.GetWay[0];    //Cargar parÃ¡metros de puerta de enlace
 	Net.Gateway_IP[1] = BasicInfo.IPv4.GetWay[1];
 	Net.Gateway_IP[2] = BasicInfo.IPv4.GetWay[2];
 	Net.Gateway_IP[3] = BasicInfo.IPv4.GetWay[3];
     
-	Net.Sub_Mask[0] = BasicInfo.IPv4.SubMask[0];      //¼ÓÔØ×ÓÍøÑÚÂë
+	Net.Sub_Mask[0] = BasicInfo.IPv4.SubMask[0];      //Cargando
 	Net.Sub_Mask[1] = BasicInfo.IPv4.SubMask[1];
 	Net.Sub_Mask[2] = BasicInfo.IPv4.SubMask[2];
 	Net.Sub_Mask[3] = BasicInfo.IPv4.SubMask[3];
     
-	Net.Phy_Addr[0] = BasicInfo.IPv4.MAC[0];     //¼ÓÔØÎïÀíµØÖ·
+	Net.Phy_Addr[0] = BasicInfo.IPv4.MAC[0];     //cargar direcciÃ³n fÃ­sica
 	Net.Phy_Addr[1] = BasicInfo.IPv4.MAC[1];
 	Net.Phy_Addr[2] = BasicInfo.IPv4.MAC[2];
 	Net.Phy_Addr[3] = BasicInfo.IPv4.MAC[3];
@@ -750,8 +750,8 @@ void Load_Net_Parameters(void)
 	Net.Phy_Addr[5] = BasicInfo.IPv4.MAC[5]; 
     
     Socket[0].Num = 0;
-    Socket[0].Mode = UDP_MODE;	    //¼ÓÔØ¶Ë¿Ú0µÄ¹¤×÷Ä£Ê½,UDPÄ£Ê½
-    Socket[0].LocalPort = (BasicInfo.IPv4.Socket[0] << 8) | BasicInfo.IPv4.Socket[1];     //±¾µØ¶Ë¿Ú0µÄ¶Ë¿ÚºÅ161 
+    Socket[0].Mode = UDP_MODE;	   //Cargar el modo de trabajo del puerto 0, modo UDP
+    Socket[0].LocalPort = (BasicInfo.IPv4.Socket[0] << 8) | BasicInfo.IPv4.Socket[1];     //NÃºmero de puerto 161 para el puerto local 0
     Socket[0].DestIP[0] = BasicInfo.IPv4Remote.RemoteIP[0];
     Socket[0].DestIP[1] = BasicInfo.IPv4Remote.RemoteIP[1];
     Socket[0].DestIP[2] = BasicInfo.IPv4Remote.RemoteIP[2];
@@ -760,12 +760,12 @@ void Load_Net_Parameters(void)
     
     Socket[1].Num = 1;
     Socket[1].Mode = 3;//TCP_SERVER;             //TCP_SERVER
-    Socket[1].LocalPort = 5001;     //±¾µØ¶Ë¿Ú1µÄ¶Ë¿ÚºÅ5001 
+    Socket[1].LocalPort = 5001;     //NÃºmero de puerto 5001 del puerto local 1
     
-    //±¾µØ¶Ë¿Ú2ÉèÖÃÎª¿Í»§¶ËÄ£Ê½,ĞèÒªÅäÖÃ·şÎñÆ÷µØÖ·ºÍ¶Ë¿Ú
+    //El puerto local 2 estÃ¡ configurado en modo cliente, la direcciÃ³n del servidor y el puerto deben configurarse
     Socket[2].Num = 2;
     Socket[2].Mode = 3;//TCP_CLIENT;             //TCP_CLIENT
-    Socket[2].LocalPort = 5002;     //±¾µØ¶Ë¿Ú2µÄ¶Ë¿ÚºÅ5002 
+    Socket[2].LocalPort = 5002;    //El nÃºmero de puerto del puerto local 2 es 5002
     
     Socket[2].DestIP[0] = BasicInfo.IPv4Remote.RemoteIP[0];
     Socket[2].DestIP[1] = BasicInfo.IPv4Remote.RemoteIP[1];
@@ -791,21 +791,21 @@ void Load_Net_Parameters(void)
 }
 
 /*******************************************************************************
-* º¯ÊıÃû  : W5500_Initialization
-* ÃèÊö    : W5500³õÊ¼»õÅäÖÃ
-* ÊäÈë    : ÎŞ
-* Êä³ö    : ÎŞ
-* ·µ»ØÖµ  : ÎŞ
-* ËµÃ÷    : ÎŞ
+* å‡½æ•°å  : W5500_Initialization
+* æè¿°    : ConfiguraciÃ³n de entrega inicial W5500
+* è¾“å…¥    : Ninguno
+* è¾“å‡º    : Ninguno
+* è¿”å›å€¼  : Ninguno
+* è¯´æ˜    : Ninguno
 *******************************************************************************/
 void W5500_Initialization(void)
 {
-	W5500_Init();		//³õÊ¼»¯W5500¼Ä´æÆ÷º¯Êı
-	Detect_Gateway(0);	//¼ì²éÍø¹Ø·şÎñÆ÷ 
-	//Detect_Gateway(1);	//¼ì²éÍø¹Ø·şÎñÆ÷ 
-    //Detect_Gateway(2);	//¼ì²éÍø¹Ø·şÎñÆ÷ 
+	W5500_Init();		//Inicializa la funciÃ³n de registro W5500
+	Detect_Gateway(0);	// comprobar servidor de puerta de enlace 
+	//Detect_Gateway(1);	// comprobar servidor de puerta de enlace
+    //Detect_Gateway(2);	// comprobar servidor de puerta de enlace
     
-	Socket_Init(0);		//Ö¸¶¨Socket(0~7)³õÊ¼»¯,³õÊ¼»¯¶Ë¿Ú0
+	Socket_Init(0);		//Especifique la inicializaciÃ³n del Socket (0~7), inicialice el puerto 0
 	//Socket_Init(1);
 	//Socket_Init(2);
 }
