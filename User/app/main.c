@@ -1,19 +1,19 @@
 /*
 *********************************************************************************************************
 *
-* Module name: main program entry 
-* File name: main.c 
+* Nombre del m√≥dulo: entrada principal del programa
+* Nombre del archivo: main.c 
 * Version : V1.0 
-* illustrate : 
-* Modification record: 
-* Version Number Date Author Description 
-* V1.0 2019-03-19 wcx first launch
+* illustrado : 
+* Registro de modificaci√≥n: 
+* N√∫mero de versi√≥n Fecha Autor Descripci√≥n
+* V1.0 2019-03-19 wcx primer lanzamiento
 *
 *********************************************************************************************************
 */
 
 #include "stm32f10x_flash.h"
-#include "bsp.h"				/* Low-level hardware driver*/
+#include "bsp.h"				/* Controlador de hardware de bajo nivel*/
 
 
 
@@ -25,10 +25,10 @@ char netaddr[] = "http://www.sinowatcher.cn \r\n";
 uint8_t beep_count;
 
 
-unsigned int W5500_Send_Delay_Counter[8] = {0}; //W5500 send delay count variable (ms)
+unsigned int W5500_Send_Delay_Counter[8] = {0}; //Variable de conteo de retardo de env√≠o W5500 (ms)
 
 void Process_Socket_Data(SOCKET s);
-void SocketProcess(void);							//poll network port
+void SocketProcess(void);							// sondear puerto de red
 void ScreenProcess(void);
 static void PrintfLogo(void);
 
@@ -41,10 +41,9 @@ static void PrintfLogo(void);
 /*
 *********************************************************************************************************
 * Function name: main 
-* Function description: c program entry
+* Descripci√≥n de la funci√≥n: entrada de programa c
 *********************************************************************************************************
-Important work: 2. The file management driver must be done well
-
+Trabajo importante: 2. El controlador de administraci√≥n de archivos debe estar bien hecho
 */
 const char buf1[] = "hola";
 int main(void)
@@ -72,7 +71,7 @@ int main(void)
     OLED_ShowString(0,6,"00-01-01");
     
     StartProcess();					/*Escribe el codigo que se ha guardado por defecto en las variables del micro*/
-    //host();               //Udisk  ˝æ›∂¡»°
+    //host();               //Lectura de datos de Udisk
     RunDataInit();          //Inicializa los valores de banderas
     ReadRealTime();					/*Comunicacion y lectura del tiempo del modulo reloj por I2C*/
     
@@ -252,19 +251,19 @@ void ScreenProcess(void)
     }
 }
 
-void SocketProcess(void)//¬÷—ØÕ¯¬Á∂Àø⁄
+void SocketProcess(void)//sondear el puerto de red
 {
     SOCKET n;
-    //W5500∂Àø⁄≥ı ºªØ≈‰÷√
+    //Configuraci√≥n de inicializaci√≥n del puerto W5500
     W5500_Socket_Set(0);
     //W5500_Socket_Set(1);
     //W5500_Socket_Set(2);
-    //W5500÷–∂œ¥¶¿Ì≥Ã–ÚøÚº‹
+    //Estructura del controlador de interrupciones W5500
     W5500_Interrupt_Process();
     
     for(n=0;n<8;n++)
     {
-        if((Socket[n].DataState & S_RECEIVE) == S_RECEIVE)//»Áπ˚SocketΩ” ’µΩ ˝æ›
+        if((Socket[n].DataState & S_RECEIVE) == S_RECEIVE)//Si el Socket recibe datos
         {
             Socket[n].DataState &= ~S_RECEIVE;
             Process_Socket_Data(n);
@@ -312,7 +311,7 @@ void SocketProcess(void)//¬÷—ØÕ¯¬Á∂Àø⁄
         Socket[0].UdpDIPR[1] = BasicInfo.IPv4Remote.RemoteIP[1];
         Socket[0].UdpDIPR[2] = BasicInfo.IPv4Remote.RemoteIP[2];
         Socket[0].UdpDIPR[3] = BasicInfo.IPv4Remote.RemoteIP[3];
-        Socket[0].UdpDestPort = BasicInfo.IPv4Remote.RemoteSocket[0]<<8 | BasicInfo.IPv4Remote.RemoteSocket[1];//–≠“È’˝»∑,≤≈…Ë∂®ƒø±ÍIP∫Õ∂Àø⁄
+        Socket[0].UdpDestPort = BasicInfo.IPv4Remote.RemoteSocket[0]<<8 | BasicInfo.IPv4Remote.RemoteSocket[1];//ÂçèËÆÆÊ≠£Á°Æ,ÊâçËÆæÂÆöÁõÆÊ†áIPÂíåÁ´ØÂè£
 
         if(Socket[0].State == (S_INIT|S_CONN))
         {
@@ -339,15 +338,14 @@ void SocketProcess(void)//¬÷—ØÕ¯¬Á∂Àø⁄
 }
 
 /*******************************************************************************
-* ∫Ø ˝√˚  : Process_Socket_Data
-* √Ë ˆ    : W5500Ω” ’≤¢∑¢ÀÕΩ” ’µΩµƒ ˝æ›
-*  ‰»Î    : s:∂Àø⁄∫≈
-*  ‰≥ˆ    : Œﬁ
-* ∑µªÿ÷µ  : Œﬁ
-* Àµ√˜    : ±æπ˝≥Ãœ»µ˜”√S_rx_process()¥”W5500µƒ∂Àø⁄Ω” ’ ˝æ›ª∫≥Â«¯∂¡»° ˝æ›,
-*			»ª∫ÛΩ´∂¡»°µƒ ˝æ›¥”Rx_BufferøΩ±¥µΩTemp_Bufferª∫≥Â«¯Ω¯––¥¶¿Ì°£
-*			¥¶¿ÌÕÍ±œ£¨Ω´ ˝æ›¥”Temp_BufferøΩ±¥µΩTx_Bufferª∫≥Â«¯°£µ˜”√S_tx_process()
-*			∑¢ÀÕ ˝æ›°£
+* Nombre de la funci√≥n  : Process_Socket_Data
+* describir  : W5500 recibe y env√≠a datos recibidos
+* ingresar    : s: n√∫mero de puerto
+* producci√≥n   : ninguno
+* valor de retorno  : ninguno
+* ilustrar     :Este proceso primero llama a S_rx_process() para leer datos del puerto que recibe el b√∫fer de datos de W5500,
+* Luego, copie los datos le√≠dos de Rx_Buffer a Temp_Buffer para su procesamiento.
+* Despu√©s del procesamiento, copie los datos de Temp_Buffer al b√∫fer Tx_Buffer. Llamar a S_tx_process()* enviar datos.
 *******************************************************************************/
 void Process_Socket_Data(SOCKET s)
 {
@@ -357,14 +355,14 @@ void Process_Socket_Data(SOCKET s)
 	if(s == 0)//UDP
 	{
         //memcpy(Tx_Buffer, Rx_Buffer+8, size-8);
-        if(gb25280_Process(Rx_Buffer+8,size-8,&send)==Frame_right)//–≠“È’˝»∑£¨∑µªÿ ˝æ›
+        if(gb25280_Process(Rx_Buffer+8,size-8,&send)==Frame_right)//El protocolo es correcto, devuelve datos.
         {
             OP.ConnectFlag = 1;
             Socket[s].UdpDIPR[0] = Rx_Buffer[0];
             Socket[s].UdpDIPR[1] = Rx_Buffer[1];
             Socket[s].UdpDIPR[2] = Rx_Buffer[2];
             Socket[s].UdpDIPR[3] = Rx_Buffer[3];
-            Socket[s].UdpDestPort = Rx_Buffer[4]<<8 | Rx_Buffer[5];//–≠“È’˝»∑,≤≈…Ë∂®ƒø±ÍIP∫Õ∂Àø⁄
+            Socket[s].UdpDestPort = Rx_Buffer[4]<<8 | Rx_Buffer[5];//Acuerdo correcto, establezca la IP y el puerto de destino
             if(send.n==1)
                 Write_SOCK_Data_Buffer(s, send.pdata0, send.length0);
             else if(send.n==2){
@@ -403,11 +401,11 @@ static void PrintfLogo(void)
 {
     #if DEBUG
 	printf("*************************************************************\r\n");
-	printf("* ∑¢≤º»’∆⁄   : %s\r\n", RELEASE_DATE);	/* ¥Ú”°¿˝≥Ã»’∆⁄ */
-	printf("* πÃº˛ø‚∞Ê±æ : %d.%d.%d\r\n", __STM32F10X_STDPERIPH_VERSION_MAIN,
+	printf("* ÂèëÂ∏ÉÊó•Êúü   : %s\r\n", RELEASE_DATE);	/* imprimir fecha de rutina */
+	printf("* Âõ∫‰ª∂Â∫ìÁâàÊú¨ : %d.%d.%d\r\n", __STM32F10X_STDPERIPH_VERSION_MAIN,
 			__STM32F10X_STDPERIPH_VERSION_SUB1,__STM32F10X_STDPERIPH_VERSION_SUB2);
-	printf("* CMSIS∞Ê±æ  : %X.%02X\r\n", __CM3_CMSIS_VERSION_MAIN, __CM3_CMSIS_VERSION_SUB);
-	printf("* »¸≈µΩ‹ΩªÕ®–≈∫≈øÿ÷∆ª˙ \r\n");
+	printf("* CMSISÁâàÊú¨  : %X.%02X\r\n", __CM3_CMSIS_VERSION_MAIN, __CM3_CMSIS_VERSION_SUB);
+	printf("* Controlador de se√±ales de tr√°fico de Sanojie \r\n");
 	printf("* Email : 540917841@qq.com \r\n");
 	printf("* Copyright www.sinowatcher.cn \r\n");
 	printf("*************************************************************\r\n");    
