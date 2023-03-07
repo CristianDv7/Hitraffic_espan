@@ -10,8 +10,8 @@
 #define Unsupport_OB        0xa5
 #define DataError           0xa6
 
-//0 encabezado de trama - 1 versión - 2 enviar - 3 recibir - 4 enlace - 5 área - 6 intersección alta - 7 intersección baja - 8 operación - 9 objeto - 10 reservado - * datos * - verificación - fin de trama
-//Definición de datos del protocolo de comunicación
+//0 encabezado de trama - 1 versié«‡ - 2 enviar - 3 recibir - 4 enlace - 5 é†¨ea - 6 interseccié«‡ alta - 7 interseccié«‡ baja - 8 operacié«‡ - 9 objeto - 10 reservado - * datos * - verificacié«‡ - fin de trama
+//Definicié«‡ de datos del protocolo de comunicacié«‡
 #define frame_head  0xC0
 #define frame_tail  0xC0
 #define frame_ver   0x20
@@ -21,13 +21,13 @@
 
 
 
-//data link code Êı¾İÁ´Â·Âë
+//data link code æ•°æ®é“¾è·¯ç 
 #define DL_Com              0x01
 #define DL_BasicInfo        0x02
 #define DL_CharacPar        0x03
 #define DL_Intervention     0x04
 
-//Operation type²Ù×÷ÀàĞÍ
+//Operation typeæ“ä½œç±»å‹
 #define OT                  0x80
 #define OT_Query            0x80
 #define OT_Set              0x81
@@ -36,7 +36,7 @@
 #define OT_SetAnswer        0x84
 #define OT_ErrorAnswer      0x85
 
-//Object¶ÔÏó±êÊ¶
+//Objectå¯¹è±¡æ ‡è¯†
 #define O_Linking         0x01
 #define O_TrafficFlow     0x02
 #define O_WorkState       0x03
@@ -77,15 +77,15 @@
 #define DoorState       0x70
 
 
-//O_RemoteControlÔ¶³Ì¿ØÖÆÖ¸Áî
+//O_RemoteControlè¿œç¨‹æ§åˆ¶æŒ‡ä»¤
 #define Restart         0x24
 #define Shutdown        0x25
 #define ExtendTime      0x26
 #define ClearError      0x27
-#define Manual_auto     0x30//»Ö¸´×Ô¶¯
-#define Manual_start    0x31//ÊÖ¿Ø¿ªÊ¼
+#define Manual_auto     0x30//restaurar automÃ¡ticamente
+#define Manual_start    0x31//arranque manual
 
-//ÊÖ¿ØÄ£Ê½
+//modo manual
 #define Manual_NONE             0x00
 #define Manual_yellowflash      0x30//
 #define Manual_allred           0x31
@@ -93,7 +93,7 @@
 #define Manual_nextphase        0x33
 #define Manual_appoint          0x34
 
-//±£Áô×ÖÊı¾İ
+//datos de palabras reservadas
 #define Reserve_Data      0x01
 
 typedef struct 
