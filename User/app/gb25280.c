@@ -1,4 +1,4 @@
-#include "bsp.h" 				/* 底层硬件驱动 */
+#include "bsp.h" 				/* Controlador de hardware de bajo nivel */
 #include "gb25280.h"
 #include "PhaseStateControl.h"
 
@@ -11,7 +11,7 @@ uint8_t SearchResponse(GBMSG_TYPE *gbmsg, SEND_TYPE* send)
     uint8_t  CheckSumCalc;
     uint8_t  msgerror;
     
-    if(gbmsg->OperationType == OT_Query)//搜索操作
+    if(gbmsg->OperationType == OT_Query)// operación de búsqueda
     {
         gbtx[0] = frame_head;
         gbtx[1] = frame_ver;
@@ -24,7 +24,7 @@ uint8_t SearchResponse(GBMSG_TYPE *gbmsg, SEND_TYPE* send)
         gbtx[8] = OT_QueryAnswer;
         gbtx[9] = O_Call; 
         gbtx[10] = Reserve_Data; 
-        /* 发送信号机基本信息：型号，输出路数，支持功能， 等等*/
+       /* Envía la información básica de la máquina de señales: modelo, número de canales de salida, funciones de soporte, etc. */
         gbtx[11] = DeviceInfo.DeviceVersion[0];
         gbtx[12] = DeviceInfo.DeviceVersion[1];
         gbtx[13] = DeviceInfo.DeviceVersion[2];
@@ -56,7 +56,7 @@ uint8_t SearchResponse(GBMSG_TYPE *gbmsg, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else//不支持的操作类型
+    else// tipo de operación no compatible
         msgerror = Unsupport_OT;
     
     return msgerror;
@@ -79,7 +79,7 @@ uint8_t TimeOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_CurrentTime;
     gbtx[10] = Reserve_Data;
                     
-    if(gbmsg->OperationType == OT_Query)//查询时间
+    if(gbmsg->OperationType == OT_Query)//Tiempo de consulta
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -113,7 +113,7 @@ uint8_t TimeOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置时间
+    else if(gbmsg->OperationType == OT_Set)// fijar tiempo
     {
         RtcType rtc;
         rtc.second  = pd[11];
@@ -148,7 +148,7 @@ uint8_t TimeOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else//不支持的操作类型
+    else// tipo de operación no compatible
         msgerror = Unsupport_OT;
 
     return msgerror;
@@ -173,7 +173,7 @@ uint8_t ScheduleOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Schedule;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询调度计划
+    if(gbmsg->OperationType == OT_Query)//Consulta del plan de programación
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -222,7 +222,7 @@ uint8_t ScheduleOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置调度计划
+    else if(gbmsg->OperationType == OT_Set)// configurar el plan
     {
         if(ScheduleMax != pd[11]) msgerror = DataError;
         else
@@ -301,7 +301,7 @@ uint8_t PlanOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Plan;
     gbtx[10]= Reserve_Data;
                     
-    if(gbmsg->OperationType == OT_Query)//查询日计划
+    if(gbmsg->OperationType == OT_Query)// consulta del plan del dia
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -349,7 +349,7 @@ uint8_t PlanOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置日计划
+    else if(gbmsg->OperationType == OT_Set)// establece el plan diario
     {
         if(PlanMax != pd[11]) msgerror = DataError;
         else
@@ -427,7 +427,7 @@ uint8_t ActionOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Action;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询动作
+    if(gbmsg->OperationType == OT_Query)// acción de consulta
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -475,7 +475,7 @@ uint8_t ActionOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置日计划
+    else if(gbmsg->OperationType == OT_Set)// establece el plan diario
     {
         if(ActionMax != pd[11]) msgerror = DataError;
         else
@@ -552,7 +552,7 @@ uint8_t PatternOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Pattern;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询方案
+    if(gbmsg->OperationType == OT_Query)// plan de consulta
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -600,7 +600,7 @@ uint8_t PatternOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置方案
+    else if(gbmsg->OperationType == OT_Set)// programa de instalación
     {
         if(PatternMax != pd[11]) msgerror = DataError;
         else
@@ -678,7 +678,7 @@ uint8_t SequenceOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Sequence;
     gbtx[10]= Reserve_Data;
                     
-    if(gbmsg->OperationType == OT_Query)//查询相序
+    if(gbmsg->OperationType == OT_Query)// secuencia de fase de consulta
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -726,7 +726,7 @@ uint8_t SequenceOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置相序
+    else if(gbmsg->OperationType == OT_Set)//Establecer secuencia de fase
     {
         if(SequenceMax != pd[11]) msgerror = DataError;
         else
@@ -1061,7 +1061,7 @@ uint8_t ChannelOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Channel;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询通道
+    if(gbmsg->OperationType == OT_Query)//canal de consulta
     {
         gbtx[8] = OT_QueryAnswer;
         gbtx[11] = ChannelMax;
@@ -1111,7 +1111,7 @@ uint8_t ChannelOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置通道
+    else if(gbmsg->OperationType == OT_Set)//establecer canal
     {
         if(ChannelMax != pd[11]) msgerror = DataError;
         else
@@ -1191,7 +1191,7 @@ uint8_t UnitOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Unit;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询单元参数
+    if(gbmsg->OperationType == OT_Query)//Parámetros de la unidad de consulta
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -1240,7 +1240,7 @@ uint8_t UnitOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置单元参数
+    else if(gbmsg->OperationType == OT_Set)//establecer los parámetros de la unidad
     {
         uint8_t *pi;
         pi = &pd[11];
@@ -1316,7 +1316,7 @@ uint8_t CoordOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Coord;
     gbtx[10]= Reserve_Data;
                     
-    if(gbmsg->OperationType == OT_Query)//查询协调参数
+    if(gbmsg->OperationType == OT_Query)//Parámetros de coordinación de consultas
     {
         gbtx[8] = OT_QueryAnswer;
         
@@ -1365,7 +1365,7 @@ uint8_t CoordOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置协调参数
+    else if(gbmsg->OperationType == OT_Set)//establecer parámetros de coordinación
     {
         uint8_t *pi;
         pi = &pd[11];
@@ -1440,7 +1440,7 @@ uint8_t OverlapOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Overlap;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询跟随相位
+    if(gbmsg->OperationType == OT_Query)//Consulta fase de seguimiento
     {
         gbtx[8] = OT_QueryAnswer;
         gbtx[11] = OverlapMax;
@@ -1490,7 +1490,7 @@ uint8_t OverlapOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置跟随相位
+    else if(gbmsg->OperationType == OT_Set)//Establecer fase de seguimiento
     {
         if(OverlapMax != pd[11]) msgerror = DataError;
         else
@@ -1573,7 +1573,7 @@ uint8_t RemoteControlOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_RemoteControl;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Set)//设置
+    if(gbmsg->OperationType == OT_Set)//configuración
     {
         if(ClearError == pd[11])
         {
@@ -1584,18 +1584,18 @@ uint8_t RemoteControlOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
             {
                 if(WMR_RedGreenConflict == OP.WorkMode_Reason)
                 {
-                    OP.red_green_conflict_reg = 0;//清楚故障
-                    OP.WorkMode_Reason = WMR_Normal;//使信号机正常黄闪,而非故障黄闪
+                    OP.red_green_conflict_reg = 0;//borrar fallo
+                    OP.WorkMode_Reason = WMR_Normal;//Haga que la máquina de señal parpadee en amarillo normalmente, en lugar de parpadear en amarillo cuando ocurra una falla
                 }
                 if(WMR_GreenConflict == OP.WorkMode_Reason)
                 {
-                    OP.green_conflict_reg = 0;//清楚故障
-                    OP.WorkMode_Reason = WMR_Normal;//使信号机正常黄闪,而非故障黄闪
+                    OP.green_conflict_reg = 0;//borrar falla
+                    OP.WorkMode_Reason = WMR_Normal;//Haga que la máquina de señales parpadee en amarillo normalmente, en lugar de parpadear en amarillo cuando se produzca una falla
                 }
                 if(WMR_RedFailed == OP.WorkMode_Reason)
                 {
-                    OP.red_install_reg = red_install_fail_detect(0);//清楚故障
-                    OP.WorkMode_Reason = WMR_Normal;//使信号机正常黄闪,而非故障黄闪
+                    OP.red_install_reg = red_install_fail_detect(0);//borrar fallo
+                    OP.WorkMode_Reason = WMR_Normal;//Haga que la máquina de señales parpadee en amarillo normalmente, en lugar de parpadear en amarillo cuando se produzca una falla
                 }
             }
             
@@ -1792,7 +1792,7 @@ uint8_t VehdetOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Vehdet;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询
+    if(gbmsg->OperationType == OT_Query)//Preguntar
     {
         gbtx[8] = OT_QueryAnswer;
         gbtx[11] = VehdetMax;
@@ -1921,7 +1921,7 @@ uint8_t PeddetOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_Peddet;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询
+    if(gbmsg->OperationType == OT_Query)//Preguntar
     {
         gbtx[8] = OT_QueryAnswer;
         gbtx[11] = PeddetMax;
@@ -1971,7 +1971,7 @@ uint8_t PeddetOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置
+    else if(gbmsg->OperationType == OT_Set)//configuración
     {
         if(PeddetMax != pd[11]) msgerror = DataError;
         else
@@ -2051,7 +2051,7 @@ uint8_t PeddetStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_PeddetState;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询
+    if(gbmsg->OperationType == OT_Query)//Preguntar
     {
         gbtx[8] = OT_QueryAnswer;
         gbtx[11] = PeddetMax;
@@ -2105,7 +2105,7 @@ uint8_t PeddetStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置
+    else if(gbmsg->OperationType == OT_Set)//configuración
     {
         if(PeddetMax != pd[11]) msgerror = DataError;
         else
@@ -2165,7 +2165,7 @@ uint8_t WorkStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_WorkState;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询状态信息
+    if(gbmsg->OperationType == OT_Query)//consultar información de estado
     {
         gbtx[8] = OT_QueryAnswer;
         CheckSumCalc = 0;
@@ -2175,13 +2175,13 @@ uint8_t WorkStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         }
         num = 11;
         
-        //时段号，环号，
-        temp[0] = ScheduleNow.Num; //调度计划号
-        temp[1] = Plan.Num;     //时段表号
-        temp[2] = Action.Num;   //动作号
-        temp[3] = PatternNow.Num;  //方案号
-        temp[4] = SequenceNow.Num; //相序表
-        temp[5] = SplitNow.Num;    //绿信比
+        // número de período, número de anillo,
+        temp[0] = ScheduleNow.Num; //número del plan de programación
+        temp[1] = Plan.Num;     //número de horario
+        temp[2] = Action.Num;   //número de acción
+        temp[3] = PatternNow.Num;  //Número de esquema
+        temp[4] = SequenceNow.Num; //Tabla de secuencia de fases
+        temp[5] = SplitNow.Num;    //Proporción de letra verde
         
         temp[6] = OP.WorkMode;
         temp[7] = OP.WorkMode_Reason;
@@ -2213,17 +2213,17 @@ uint8_t WorkStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         
         temp[14] = PeddetStateTab.peddet[7].Valid;
         i = 15;
-        temp[i++] = SequenceNow.Ring[0].Phase[PhaseState.Ring[0].SeqNum];//相位号
-        temp[i++] = RingSplit[0].Time;//相位时间
+        temp[i++] = SequenceNow.Ring[0].Phase[PhaseState.Ring[0].SeqNum];// numero de fase
+        temp[i++] = RingSplit[0].Time;//Tiempo de fase
         temp[i++] = PhaseState.Ring[0].SecondRemain;//剩余时间
-        temp[i++] = SequenceNow.Ring[1].Phase[PhaseState.Ring[1].SeqNum];//相位号
-        temp[i++] = RingSplit[1].Time;//相位时间
+        temp[i++] = SequenceNow.Ring[1].Phase[PhaseState.Ring[1].SeqNum];// numero de fase
+        temp[i++] = RingSplit[1].Time;//Tiempo de fase
         temp[i++] = PhaseState.Ring[1].SecondRemain;//剩余时间
-        temp[i++] = SequenceNow.Ring[2].Phase[PhaseState.Ring[2].SeqNum];//相位号
-        temp[i++] = RingSplit[2].Time;//相位时间
+        temp[i++] = SequenceNow.Ring[2].Phase[PhaseState.Ring[2].SeqNum];// numero de fase
+        temp[i++] = RingSplit[2].Time;//Tiempo de fase
         temp[i++] = PhaseState.Ring[2].SecondRemain;//剩余时间
-        temp[i++] = SequenceNow.Ring[3].Phase[PhaseState.Ring[3].SeqNum];//相位号
-        temp[i++] = RingSplit[3].Time;//相位时间
+        temp[i++] = SequenceNow.Ring[3].Phase[PhaseState.Ring[3].SeqNum];// numero de fase
+        temp[i++] = RingSplit[3].Time;//Tiempo de fase
         temp[i++] = PhaseState.Ring[3].SecondRemain;//剩余时间
         
         DataLength = 27;
@@ -2277,13 +2277,13 @@ uint8_t SignalState(uint8_t* temp)
     uint8_t i = 0;
     uint32_t Statustemp = 0;
     
-    //时段号，环号，10 byte
-    temp[i++] = ScheduleNow.Num; //调度计划号
-    temp[i++] = Plan.Num;     //时段表号
-    temp[i++] = Action.Num;   //动作号
-    temp[i++] = PatternNow.Num;  //方案号
-    temp[i++] = SequenceNow.Num; //相序表
-    temp[i++] = SplitNow.Num;    //绿信比
+   // número de período, número de anillo, 10 bytes
+    temp[i++] = ScheduleNow.Num; //número del plan de programación
+    temp[i++] = Plan.Num;     // numero de horario
+    temp[i++] = Action.Num;   // número de acción
+    temp[i++] = PatternNow.Num;  //Número de programa
+    temp[i++] = SequenceNow.Num; //Tabla de secuencia de fases
+    temp[i++] = SplitNow.Num;    //Proporción de letras verdes
 
     temp[i++] = OP.WorkMode;
     temp[i++] = OP.WorkMode_Reason;
@@ -2313,23 +2313,23 @@ uint8_t SignalState(uint8_t* temp)
         temp[i++] = 0;
     }
     
-    //12 byte 环相位数据
-    temp[i++] = SequenceNow.Ring[0].Phase[PhaseState.Ring[0].SeqNum];//相位号
-    temp[i++] = RingSplit[0].Time;//相位时间
-    temp[i++] = PhaseState.Ring[0].SecondRemain;//剩余时间
-    temp[i++] = SequenceNow.Ring[1].Phase[PhaseState.Ring[1].SeqNum];//相位号
-    temp[i++] = RingSplit[1].Time;//相位时间
-    temp[i++] = PhaseState.Ring[1].SecondRemain;//剩余时间
-    temp[i++] = SequenceNow.Ring[2].Phase[PhaseState.Ring[2].SeqNum];//相位号
-    temp[i++] = RingSplit[2].Time;//相位时间
-    temp[i++] = PhaseState.Ring[2].SecondRemain;//剩余时间
-    temp[i++] = SequenceNow.Ring[3].Phase[PhaseState.Ring[3].SeqNum];//相位号
-    temp[i++] = RingSplit[3].Time;//相位时间
-    temp[i++] = PhaseState.Ring[3].SecondRemain;//剩余时间
+    //Datos de fase de anillo de 12 bytes
+    temp[i++] = SequenceNow.Ring[0].Phase[PhaseState.Ring[0].SeqNum];// numero de fase
+    temp[i++] = RingSplit[0].Time;//Tiempo de fase
+    temp[i++] = PhaseState.Ring[0].SecondRemain;//tiempo restante
+    temp[i++] = SequenceNow.Ring[1].Phase[PhaseState.Ring[1].SeqNum];// numero de fase
+    temp[i++] = RingSplit[1].Time;//Tiempo de fase
+    temp[i++] = PhaseState.Ring[1].SecondRemain;//tiempo restante
+    temp[i++] = SequenceNow.Ring[2].Phase[PhaseState.Ring[2].SeqNum];// numero de fase
+    temp[i++] = RingSplit[2].Time;//Tiempo de fase
+    temp[i++] = PhaseState.Ring[2].SecondRemain;//tiempo restante
+    temp[i++] = SequenceNow.Ring[3].Phase[PhaseState.Ring[3].SeqNum];// numero de fase
+    temp[i++] = RingSplit[3].Time;//Tiempo de fase
+    temp[i++] = PhaseState.Ring[3].SecondRemain;//tiempo restante
     
 
     
-    //12 byte 通道状态
+    // estado del canal de 12 bytes
     if(PhaseState.Phase10msCount < 50) Statustemp = (~(ChannelStatus.Reds&ChannelStatus.Flash))&ChannelStatus.Reds;
     else Statustemp = ChannelStatus.Reds;
     temp[i++] = (Statustemp>>24);
@@ -2349,12 +2349,12 @@ uint8_t SignalState(uint8_t* temp)
     temp[i++] = (Statustemp>>8);
     temp[i++] = (Statustemp&0xff);
     
-    //系统持续运行时间
+    // tiempo de ejecución del sistema
     temp[i++] = OP.Reg1sCount&0xff;
     temp[i++] = OP.Reg1sCount>>8;
     temp[i++] = OP.Reg1sCount>>16;
     temp[i++] = OP.Reg1sCount>>24;
-    //行人检测器8作为开门状态标志
+    //El detector de peatones 8 se utiliza como indicador de estado de puerta abierta
     temp[i++] = PeddetStateTab.peddet[7].Valid;
     return i;
 }
@@ -2368,7 +2368,7 @@ uint8_t SignalStateOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     uint16_t DataLength;
     uint8_t temp[64];
     
-    if(gbmsg->OperationType == OT_Query)//查询状态信息
+    if(gbmsg->OperationType == OT_Query)//consultar información de estado
     {
         if(gbmsg->Reserve == 0x02) OP.SendWorkModeAutoFlag = 1; else OP.SendWorkModeAutoFlag = 0;
         
@@ -2595,7 +2595,7 @@ uint8_t BasicInfoOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_BasicInfo;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询基础信息
+    if(gbmsg->OperationType == OT_Query)//Consulta información básica
     {
         gbtx[8] = OT_QueryAnswer;
         CheckSumCalc = 0;
@@ -2643,7 +2643,7 @@ uint8_t BasicInfoOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置设备信息
+    else if(gbmsg->OperationType == OT_Set)//configurar la información del dispositivo
     {
         uint8_t *pi;
         pi = &pd[11];
@@ -2720,7 +2720,7 @@ uint8_t DeviceInfoOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
     gbtx[9] = O_DeviceInfo;
     gbtx[10]= Reserve_Data;
     
-    if(gbmsg->OperationType == OT_Query)//查询设备信息
+    if(gbmsg->OperationType == OT_Query)//Consultar información del dispositivo
     {
         gbtx[8] = OT_QueryAnswer;
         CheckSumCalc = 0;
@@ -2768,7 +2768,7 @@ uint8_t DeviceInfoOperate(GBMSG_TYPE *gbmsg, uint8_t *pd, SEND_TYPE* send)
         send->pdata0 = gbtx;
         msgerror = Frame_right;
     }
-    else if(gbmsg->OperationType == OT_Set)//设置设备信息
+    else if(gbmsg->OperationType == OT_Set)// establece la información del dispositivo
     {
         uint8_t *pi;
         pi = &pd[11];
@@ -2860,23 +2860,23 @@ uint8_t gb25280_Process(uint8_t *pd, uint16_t size, SEND_TYPE* send)
             CheckSumCalc += pd[i];
         }
     }
-    if(CheckSumCalc != CheckSumReceive) return CheckSum_failed;//校验错误
+    if(CheckSumCalc != CheckSumReceive) return CheckSum_failed;//error de paridad
     
-    if(gbmsg->DataLinkCode == DL_BasicInfo)//基本信息
+    if(gbmsg->DataLinkCode == DL_BasicInfo)//Información básica
     {
-        if(gbmsg->ObjectCode == O_CurrentTime)//时间操作
+        if(gbmsg->ObjectCode == O_CurrentTime)//manipulación del tiempo
         {
             msgerror = TimeOperate(gbmsg, pd, send);
         }
-        else if(gbmsg->ObjectCode == O_DeviceInfo)//基本信息操作
+        else if(gbmsg->ObjectCode == O_DeviceInfo)//Operación de información básica
         {
             msgerror = DeviceInfoOperate(gbmsg, pd, send);
         }
-        else if(gbmsg->ObjectCode == O_BasicInfo)//基本信息操作
+        else if(gbmsg->ObjectCode == O_BasicInfo)//Operación de información básica
         {
             msgerror = BasicInfoOperate(gbmsg, pd, send);
         }
-        else if(gbmsg->ObjectCode == O_WorkState)//基本信息操作
+        else if(gbmsg->ObjectCode == O_WorkState)//Operación de información básica
         {
             msgerror = SignalStateOperate(gbmsg, pd, send);
         }
@@ -2885,9 +2885,9 @@ uint8_t gb25280_Process(uint8_t *pd, uint16_t size, SEND_TYPE* send)
             msgerror = Unsupport_OB;
         }
     }
-    else if(gbmsg->DataLinkCode == DL_Com)//通信链路
+    else if(gbmsg->DataLinkCode == DL_Com)//Enlace de comunicación
     {
-        if(gbmsg->ObjectCode == O_Call)//搜索操作
+        if(gbmsg->ObjectCode == O_Call)//operación de búsqueda
         {
             msgerror = SearchResponse(gbmsg, send);
         }
@@ -2896,27 +2896,27 @@ uint8_t gb25280_Process(uint8_t *pd, uint16_t size, SEND_TYPE* send)
     {
         switch(gbmsg->ObjectCode)
         {
-            case O_Schedule:    msgerror = ScheduleOperate(gbmsg, pd, send);    break;  //调度计划操作
-            case O_Plan:        msgerror = PlanOperate(gbmsg, pd, send);        break;  //日计划操作
-            case O_Action:      msgerror = ActionOperate(gbmsg, pd, send);      break;  //动作操作
-            case O_Pattern:     msgerror = PatternOperate(gbmsg, pd, send);     break;  //方案操作
-            case O_Sequence:    msgerror = SequenceOperate(gbmsg, pd, send);    break;  //相序操作
-            case O_Split:       msgerror = SplitOperate(gbmsg, pd, send);       break;  //绿信比操作
-            case O_Phase:       msgerror = PhaseOperate(gbmsg, pd, send);       break;  //相位操作
-            case O_Channel:     msgerror = ChannelOperate(gbmsg, pd, send);     break;  //通道操作
-            case O_Unit:        msgerror = UnitOperate(gbmsg, pd, send);        break;  //单元参数操作
-            case O_Coord:       msgerror = CoordOperate(gbmsg, pd, send);       break;  //协调操作
-            case O_Overlap:     msgerror = OverlapOperate(gbmsg, pd, send);     break;  //跟随相位操作
+            case O_Schedule:    msgerror = ScheduleOperate(gbmsg, pd, send);    break;  //programar operación
+            case O_Plan:        msgerror = PlanOperate(gbmsg, pd, send);        break;  //operación del plan diario
+            case O_Action:      msgerror = ActionOperate(gbmsg, pd, send);      break;  //operación de acción
+            case O_Pattern:     msgerror = PatternOperate(gbmsg, pd, send);     break;  //Operación del programa
+            case O_Sequence:    msgerror = SequenceOperate(gbmsg, pd, send);    break;  //Operación de secuencia de fase
+            case O_Split:       msgerror = SplitOperate(gbmsg, pd, send);       break;  //Operación de relación de letra verde
+            case O_Phase:       msgerror = PhaseOperate(gbmsg, pd, send);       break;  //manipulación de fase
+            case O_Channel:     msgerror = ChannelOperate(gbmsg, pd, send);     break;  //funcionamiento del canal
+            case O_Unit:        msgerror = UnitOperate(gbmsg, pd, send);        break;  //Manipulación de parámetros de unidad
+            case O_Coord:       msgerror = CoordOperate(gbmsg, pd, send);       break;  //operaciones de coordenadas
+            case O_Overlap:     msgerror = OverlapOperate(gbmsg, pd, send);     break;  //Sigue la operación
             default:            msgerror = Unsupport_OB;                        break;
         }
     }
     else if(gbmsg->DataLinkCode == DL_Intervention)
     {
-        if(gbmsg->ObjectCode == O_Vehdet)//行人检测器操作
+        if(gbmsg->ObjectCode == O_Vehdet)//Funcionamiento del detector de peatones
         {
             msgerror = VehdetOperate(gbmsg, pd, send);
         }
-        else if(gbmsg->ObjectCode == O_Peddet)//行人检测器操作
+        else if(gbmsg->ObjectCode == O_Peddet)//teléfono móvil para peatones
         {
             msgerror = PeddetOperate(gbmsg, pd, send);
         }
