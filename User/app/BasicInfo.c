@@ -1,13 +1,13 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : 
-*	文件名称 : BasicInfo.c
-*	版    本 : V1.0
-*	说    明 : 
-*	修改记录 :
-*		版本号  日期       作者    说明
-*		V1.0    2019-12-30  wcx     首发
+*	Nombre del módulo: 
+*	Nombre del archivo: BasicInfo.c
+*	libro de versiones : V1.0
+*	ilustrar : 
+*	Registro de modificación:
+*		Número de versión Fecha Autor Descripción
+*		V1.0 2019-12-30 wcx primer lanzamiento
 *
 *********************************************************************************************************
 */
@@ -44,7 +44,7 @@ void DeviceInfoInit(void)
         0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
         0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,//1.3 El número único del fabricante para la máquina de señales es de 16 bytes, si es menor de 16 bytes, el byte alto es 0
         0x20,0x22,0x04,0x02,0x00,0x00,          //1.4 Fecha de fabricación, 6 bytes
-        0x20,0x22,0x04,0x01,0x00,0x00,          //1.5 配置日期,6byte
+        0x20,0x22,0x04,0x01,0x00,0x00,          //1.5 Fecha de configuración, 6 bytes
         0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,//保留16字节
     };
 
@@ -54,7 +54,7 @@ void DeviceInfoInit(void)
 
 void BasicInfoInit(void)
 {
-	const uint8_t IntersectionInfo[128]={0};// 2.1 安装路口信息,128byte 
+	const uint8_t IntersectionInfo[128]={0};// 2.1 Instalar información de intersección, 128 bytes
     uint8_t BasicInfo_buf[48]=
     {
         192,168,  1,122,//IP,4byte
@@ -65,14 +65,14 @@ void BasicInfoInit(void)
         
         192,168,  1, 100,// 2.3.1 RemoteIP,4byte
         0x17,0x78,      // 2.3.2 RemoteSocket,2byte 6008
-          0,            // 2.3.3 通信类型,1byte
-        0x01,0x00,0x70,0x80,    // 2.4 时区,value -43200~43200,4byte
-        0x00,0x00,0x00,0x01,    // 2.5 信号机编号,上端系统中的唯一编号,4byte
-        0x01,           // 2.6 信号机控制的路口数量,1byte,value 1-8
-        0x00,           // 2.7 GPS时钟标志,1byte,bool类型,0无效,1有效
-        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,//保留空间 11字节
+          0,            // 2.3.3 Tipo de comunicación, 1 byte
+        0x01,0x00,0x70,0x80,    // 2.4 Zona horaria, valor -43200~43200, 4 bytes
+        0x00,0x00,0x00,0x01,    // 2.5 Número de máquina de señal, el número único en el sistema de gama alta, 4 bytes
+        0x01,           // 2.6 El número de intersecciones controladas por la máquina de señales, 1 byte, valor 1-8
+        0x00,           // 2.7 Indicador de reloj GPS, 1 byte, tipo bool, 0 no es válido, 1 es válido
+        0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,//espacio reservado 11 bytes
     };
-    get_cpuid(&BasicInfo_buf[17]);//MAC设置与cpuid挂钩,可保证唯一.
+    get_cpuid(&BasicInfo_buf[17]);//La configuración de MAC está vinculada al cpuid, que se puede garantizar que es único.
     memcpy(BasicInfo.IntersectionInfo, IntersectionInfo, 128);
     memcpy(BasicInfo.IPv4.IP, BasicInfo_buf, 48);
 }
