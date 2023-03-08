@@ -1,12 +1,12 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : SPI×ÜÏßÇı¶¯
-*	ÎÄ¼şÃû³Æ : bsp_spi_bus.h
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : SPI×ÜÏßµ×²ãÇı¶¯¡£Ìá¹©SPIÅäÖÃ¡¢ÊÕ·¢Êı¾İ¡¢¶àÉè±¸¹²ÏíSPIÖ§³Ö¡£
-*	ĞŞ¸Ä¼ÇÂ¼ :
-*		°æ±¾ºÅ  ÈÕÆÚ        ×÷Õß    ËµÃ÷
+*	æ¨¡å—åç§° : Conductor de autobÃºs SPI
+*	æ–‡ä»¶åç§° : bsp_spi_bus.h
+*	ç‰ˆ    æœ¬ : V1.0
+*	è¯´    æ˜ :El controlador subyacente del bus SPI. Proporciona configuraciÃ³n de SPI, envÃ­o y recepciÃ³n de datos y compatibilidad con SPI para compartir varios dispositivos.
+*	ä¿®æ”¹è®°å½• :
+*		ç‰ˆæœ¬å·  æ—¥æœŸ        ä½œè€…    è¯´æ˜
 *   v1.0    2014-10-24      wcx     
 *
 *********************************************************************************************************
@@ -20,32 +20,32 @@
 
 
 /*
-	SPI1 ¿ÚÏß·ÖÅä
+	asignaciÃ³n de puerto SPI1
 	PA5	SPI1_SCK
 	PA6	SPI1_MISO
 	PA7	SPI1_MOSI
 */
 
-uint8_t g_spi_busy = 0;		/* SPI ×ÜÏß¹²Ïí±êÖ¾ */
+uint8_t g_spi_busy = 0;		/* Indicador de uso compartido de bus SPI */
 
 static void bsp_InitSpi1GPIO(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	/* Ê¹ÄÜGPIO Ê±ÖÓ */
+	/* Habilitar reloj GPIO */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA, ENABLE);
 	/* PA5-SCK PA6-MISO PA7-MOSI */
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* IO¿Ú×î´óËÙ¶È */
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;		/* ÉèÎªÊä³ö¿Ú */
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* Velocidad mÃ¡xima del puerto IO */
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;		/* establecer salida */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_5 | GPIO_Pin_6 | GPIO_Pin_7;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_InitSPIBus
-*	¹¦ÄÜËµÃ÷: ÅäÖÃSTM32ÄÚ²¿SPIÓ²¼şµÄ¹¤×÷Ä£Ê½¡¢ËÙ¶ÈµÈ²ÎÊı£¬ÓÃÓÚ·ÃÎÊSPI½Ó¿ÚµÄ´®ĞĞFlash¡£Ö»°üÀ¨ SCK¡¢ MOSI¡¢ MISO¿ÚÏßµÄÅäÖÃ¡£²»°üÀ¨Æ¬Ñ¡CS£¬Ò²²»°üÀ¨ÍâÉèĞ¾Æ¬ÌØÓĞµÄINT¡¢BUSYµÈ
-*	ĞÎ    ²Î: ÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	å‡½ æ•° å: bsp_InitSPIBus
+*	åŠŸèƒ½è¯´æ˜: ç‰‡é€‰CSï¼ŒConfigure parÃ¡metros como el modo de trabajo y la velocidad del hardware SPI interno del STM32 para acceder al Flash serial de la interfaz SPI. Solo incluye la configuraciÃ³n de lÃ­neas de puertos SCK, MOSI y MISO. No incluye chip select CS, ni incluye INT, BUSY, etc. especÃ­ficos para chips perifÃ©ricos
+*	å½¢    å‚: Ninguno
+*	è¿” å› å€¼: Ninguno
 *********************************************************************************************************
 */
 void bsp_InitSpiBus(void)
@@ -54,50 +54,50 @@ void bsp_InitSpiBus(void)
 	
 	bsp_InitSpi1GPIO();
 	
-	/* ´ò¿ªSPIÊ±ÖÓ */
+	/* Enciende el reloj SPI */
 	//ENABLE_SPI_RCC();
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, DISABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_SPI1, ENABLE);
 	
-	/* ÅäÖÃSPIÓ²¼ş²ÎÊı */
-	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;	/* Êı¾İ·½Ïò£º2ÏßÈ«Ë«¹¤ */
-	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;		/* STM32µÄSPI¹¤×÷Ä£Ê½ £ºÖ÷»úÄ£Ê½ */
-	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;	/* Êı¾İÎ»³¤¶È £º 8Î» */
-	/* SPI_CPOLºÍSPI_CPHA½áºÏÊ¹ÓÃ¾ö¶¨Ê±ÖÓºÍÊı¾İ²ÉÑùµãµÄÏàÎ»¹ØÏµ¡¢
-	   ÅäÖÃ: ×ÜÏß¿ÕÏĞÊÇ¸ßµçÆ½,µÚ2¸ö±ßÑØ£¨ÉÏÉıÑØ²ÉÑùÊı¾İ)
+	/* Configurar parÃ¡metros de hardware SPI */
+	SPI_InitStructure.SPI_Direction = SPI_Direction_2Lines_FullDuplex;	/* direcciÃ³n de datos: dÃºplex completo de 2 hilos */
+	SPI_InitStructure.SPI_Mode = SPI_Mode_Master;		/* Modo de trabajo SPI de STM32: modo host */
+	SPI_InitStructure.SPI_DataSize = SPI_DataSize_8b;	/* longitud de datos: 8 bytes */
+	/* SPI_CPOL y SPI_CPHA se usan en combinaciÃ³n para determinar la relaciÃ³n de fase entre el reloj y los puntos de muestreo de datos,
+	  ConfiguraciÃ³n: Bus inactivo es de alto nivel, el segundo borde (datos de muestreo de borde ascendente)
 	*/
-	SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;			/* Ê±ÖÓÉÏÉıÑØ²ÉÑùÊı¾İ */
-	SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;		/* Ê±ÖÓµÄµÚ2¸ö±ßÑØ²ÉÑùÊı¾İ */
-	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;			/* Æ¬Ñ¡¿ØÖÆ·½Ê½£ºÈí¼ş¿ØÖÆ */
+	SPI_InitStructure.SPI_CPOL = SPI_CPOL_High;			/* Datos de muestra del flanco ascendente del reloj */
+	SPI_InitStructure.SPI_CPHA = SPI_CPHA_2Edge;		/* Datos de muestra en el segundo borde del reloj */
+	SPI_InitStructure.SPI_NSS = SPI_NSS_Soft;			/* MÃ©todo de control de selecciÃ³n de chips: control de software */
 
-	/* ÉèÖÃ²¨ÌØÂÊÔ¤·ÖÆµÏµÊı */
+	/* Establecer el factor del preescalador de velocidad en baudios */
 	SPI_InitStructure.SPI_BaudRatePrescaler = SPI_BAUD;
-	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;	/* Êı¾İÎ»´«Êä´ÎĞò£º¸ßÎ»ÏÈ´« */
-	SPI_InitStructure.SPI_CRCPolynomial = 7;			/* CRC¶àÏîÊ½¼Ä´æÆ÷£¬¸´Î»ºóÎª7 */
+	SPI_InitStructure.SPI_FirstBit = SPI_FirstBit_MSB;	/* Orden de transmisiÃ³n de bits de datos: orden superior primero */
+	SPI_InitStructure.SPI_CRCPolynomial = 7;			/* Registro polinomial CRC, 7 despues de resetear */
 	SPI_Init(SPI_peripheral, &SPI_InitStructure);
 
-	SPI_Cmd(SPI_peripheral, DISABLE);			/* ÏÈ½ûÖ¹SPI  */
-	SPI_Cmd(SPI_peripheral, ENABLE);			/* Ê¹ÄÜSPI  */
+	SPI_Cmd(SPI_peripheral, DISABLE);			/* Deshabilitar SPI primero */
+	SPI_Cmd(SPI_peripheral, ENABLE);			/* Habilitar SPI */
 }
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: Spi_SendByte
-*	¹¦ÄÜËµÃ÷: ÏòÆ÷¼ş·¢ËÍÒ»¸ö×Ö½Ú£¬Í¬Ê±´ÓMISO¿ÚÏß²ÉÑùÆ÷¼ş·µ»ØµÄÊı¾İ
-*	ĞÎ    ²Î:  _ucByte : ·¢ËÍµÄ×Ö½ÚÖµ
-*	·µ »Ø Öµ: ´ÓMISO¿ÚÏß²ÉÑùÆ÷¼ş·µ»ØµÄÊı¾İ
+*	å‡½ æ•° å: Spi_SendByte
+*	åŠŸèƒ½è¯´æ˜: EnvÃ­e un byte al dispositivo mientras muestrea los datos devueltos por el dispositivo en la lÃ­nea MISO
+*	parÃ¡metro formal: _ucByte: valor del byte enviado
+*	valor de retorno: Datos devueltos por el dispositivo de muestreo de lÃ­nea MISO
 *********************************************************************************************************
 */
 uint8_t Spi_SendByte(uint8_t _ucValue)
 {
-	/* µÈ´ıÉÏ¸öÊı¾İÎ´·¢ËÍÍê±Ï */
+	/* Esperar a que se envÃ­en los Ãºltimos datos */
 	while(SPI_I2S_GetFlagStatus(SPI_peripheral, SPI_I2S_FLAG_TXE) == RESET);
 
-	/* Í¨¹ıSPIÓ²¼ş·¢ËÍ1¸ö×Ö½Ú */
+	/* Enviar 1 byte a travÃ©s del hardware SPI */
 	SPI_I2S_SendData(SPI_peripheral, _ucValue);
 
-	/* µÈ´ı½ÓÊÕÒ»¸ö×Ö½ÚÈÎÎñÍê³É */
+	/* Esperar a que se complete la tarea de recibir un byte */
 	while(SPI_I2S_GetFlagStatus(SPI_peripheral, SPI_I2S_FLAG_RXNE) == RESET);
 
-	/* ·µ»Ø´ÓSPI×ÜÏß¶Áµ½µÄÊı¾İ */
+	/* Devuelve los datos leÃ­dos desde el bus SPI */
 	return SPI_I2S_ReceiveData(SPI_peripheral);
 }
