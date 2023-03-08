@@ -13,117 +13,118 @@ enum LampDrive_Type
     LD_ALL          = 0x0007,
 };
 
-//¿ØÖÆÀàĞÍCHANNEL_CONTROL_TYPE
+//Tipo de control CHANNEL_CONTROL_TYPE
+
 typedef enum 
 {
-    CCT_OTHER = 1,      //ÆäËû
-    CCT_VEHICLE,        //»ú¶¯
-    CCT_PEDESTRIAN,     //ĞĞÈË
-    CCT_OVERLAP,        //¸úËæ
+    CCT_OTHER = 1,      //otro
+    CCT_VEHICLE,        // maniobra
+    CCT_PEDESTRIAN,     //peatonal
+    CCT_OVERLAP,        //seguir
     CCT_FLASH,
     CCT_GREEN,
     CCT_RED,
-}CHANNEL_CONTROL_TYPE;  //Í¨µÀ¿ØÖÆÀàĞÍ
+}CHANNEL_CONTROL_TYPE;  //tipo de control de canal
 
-//ÉÁ¹âÄ£Ê½CHANNEL_FLASH_MODE
-#define CFM_Yellow      ((uint8_t)0x02)     //»ÆÉÁ
-#define CFM_Red         ((uint8_t)0x04)     //ºìÉÁ
-#define CFM_Alternate   ((uint8_t)0x08)     //½»ÌæÉÁ
+//é—ªå…‰æ¨¡å¼CHANNEL_FLASH_MODE
+#define CFM_Yellow      ((uint8_t)0x02)     //luz amarilla
+#define CFM_Red         ((uint8_t)0x04)     // destello rojo
+#define CFM_Alternate   ((uint8_t)0x08)     // parpadea alternativamente
 
-//»Ô¶ÈÄ£Ê½CHANNEL_DIM_MODE
-#define CDM_Green       ((uint8_t)0x01)     //ÂÌµÆ
-#define CDM_Yellow      ((uint8_t)0x02)     //»ÆµÆ
-#define CDM_Red         ((uint8_t)0x04)     //ºìµÆ
-#define CDM_Alternate   ((uint8_t)0x08)     //½»Ìæ
+//è¾‰åº¦æ¨¡å¼CHANNEL_DIM_MODE
+#define CDM_Green       ((uint8_t)0x01)     //luz verde
+#define CDM_Yellow      ((uint8_t)0x02)     //luz amarillo
+#define CDM_Red         ((uint8_t)0x04)     //luz roja
+#define CDM_Alternate   ((uint8_t)0x08)     //alternativamente
 
-//Í¨µÀ¿ØÖÆ·½Î»CHANNEL_POSITION_MODE
-#define POS_Other       ((uint8_t)0x00)     //ÆäËû
-#define POS_East        ((uint8_t)0x01)     //¶«
-#define POS_South       ((uint8_t)0x02)     //ÄÏ
-#define POS_West        ((uint8_t)0x03)     //Î÷
-#define POS_North       ((uint8_t)0x04)     //±±
-#define POS_NorthEast   ((uint8_t)0x05)     //¶«±±
-#define POS_SouthEast   ((uint8_t)0x06)     //¶«ÄÏ
-#define POS_SouthWest   ((uint8_t)0x07)     //Î÷ÄÏ
-#define POS_NorthWest   ((uint8_t)0x08)     //Î÷±±
+//é€šé“æ§åˆ¶æ–¹ä½CHANNEL_POSITION_MODE
+#define POS_Other       ((uint8_t)0x00)     //otro
+#define POS_East        ((uint8_t)0x01)     //este
+#define POS_South       ((uint8_t)0x02)     //sur
+#define POS_West        ((uint8_t)0x03)     //Oeste
+#define POS_North       ((uint8_t)0x04)     //Norte
+#define POS_NorthEast   ((uint8_t)0x05)     //Noreste
+#define POS_SouthEast   ((uint8_t)0x06)     //Sureste
+#define POS_SouthWest   ((uint8_t)0x07)     //SurOeste
+#define POS_NorthWest   ((uint8_t)0x08)     //NorOeste
 
-//Í¨µÀ¿ØÖÆ·½ÏòCHANNEL_DIRECTION_MODE
-#define DIR_Other       ((uint8_t)0x00)     //ÆäËû
-#define DIR_Left        ((uint8_t)0x01)     //×ó×ª
-#define DIR_Straight    ((uint8_t)0x02)     //Ö±ĞĞ
-#define DIR_Right       ((uint8_t)0x03)     //ÓÒ×ª
-#define DIR_Pedestrian  ((uint8_t)0x04)     //ÈËĞĞ
-#define DIR_Turn        ((uint8_t)0x05)     //µôÍ·
-#define DIR_Bicycle     ((uint8_t)0x06)     //×ÔĞĞ³µ
+//é€šé“æ§åˆ¶æ–¹å‘CHANNEL_DIRECTION_MODE
+#define DIR_Other       ((uint8_t)0x00)     //Otro
+#define DIR_Left        ((uint8_t)0x01)     //Gire a la izquierda
+#define DIR_Straight    ((uint8_t)0x02)     //Siga derecho
+#define DIR_Right       ((uint8_t)0x03)     //Gire a la derecha
+#define DIR_Pedestrian  ((uint8_t)0x04)     //peatonal
+#define DIR_Turn        ((uint8_t)0x05)     //Giro de vuelta
+#define DIR_Bicycle     ((uint8_t)0x06)     //bicicleta
 //Left Straight Right Turn Pedestrian Bicycle
 
 
-//ÊÖ¿Ø·½Î»
-#define MANUAL_POS_Other       ((uint8_t)0x00)     //ÆäËû
-#define MANUAL_POS_East        ((uint8_t)0x01)     //¶«
-#define MANUAL_POS_South       ((uint8_t)0x02)     //ÄÏ
-#define MANUAL_POS_West        ((uint8_t)0x04)     //Î÷
-#define MANUAL_POS_North       ((uint8_t)0x08)     //±±
-#define MANUAL_POS_NorthEast   ((uint8_t)0x10)     //¶«±±
-#define MANUAL_POS_SouthEast   ((uint8_t)0x20)     //¶«ÄÏ
-#define MANUAL_POS_SouthWest   ((uint8_t)0x40)     //Î÷ÄÏ
-#define MANUAL_POS_NorthWest   ((uint8_t)0x80)     //Î÷±±
+//æ‰‹æ§æ–¹ä½
+#define MANUAL_POS_Other       ((uint8_t)0x00)     //Otro
+#define MANUAL_POS_East        ((uint8_t)0x01)     //Este
+#define MANUAL_POS_South       ((uint8_t)0x02)     //Sur
+#define MANUAL_POS_West        ((uint8_t)0x04)     //Oeste
+#define MANUAL_POS_North       ((uint8_t)0x08)     //Norte
+#define MANUAL_POS_NorthEast   ((uint8_t)0x10)     //Noreste
+#define MANUAL_POS_SouthEast   ((uint8_t)0x20)     //Sureste
+#define MANUAL_POS_SouthWest   ((uint8_t)0x40)     //SurOeste
+#define MANUAL_POS_NorthWest   ((uint8_t)0x80)     //NorOeste
 
-//ÊÖ¿Ø·½Ïò
-#define MANUAL_DIR_Other       ((uint8_t)0x00)     //ÆäËû
-#define MANUAL_DIR_Left        ((uint8_t)0x01)     //×ó×ª
-#define MANUAL_DIR_Straight    ((uint8_t)0x02)     //Ö±ĞĞ
-#define MANUAL_DIR_Right       ((uint8_t)0x04)     //ÓÒ×ª
-#define MANUAL_DIR_Pedestrian  ((uint8_t)0x08)     //ÈËĞĞ
-#define MANUAL_DIR_Turn        ((uint8_t)0x10)     //µôÍ·
-#define MANUAL_DIR_Bicycle     ((uint8_t)0x20)     //×ÔĞĞ³µ
+//æ‰‹æ§æ–¹å‘
+#define MANUAL_DIR_Other       ((uint8_t)0x00)     //å…¶ä»–
+#define MANUAL_DIR_Left        ((uint8_t)0x01)     //å·¦è½¬
+#define MANUAL_DIR_Straight    ((uint8_t)0x02)     //ç›´è¡Œ
+#define MANUAL_DIR_Right       ((uint8_t)0x04)     //å³è½¬
+#define MANUAL_DIR_Pedestrian  ((uint8_t)0x08)     //äººè¡Œ
+#define MANUAL_DIR_Turn        ((uint8_t)0x10)     //æ‰å¤´
+#define MANUAL_DIR_Bicycle     ((uint8_t)0x20)     //è‡ªè¡Œè½¦
 
 
 typedef struct
 {
-    uint8_t Num;            //Í¨µÀºÅ
-    uint8_t ControlSource;  //¿ØÖÆÔ´
-    uint8_t ControlType;    //¿ØÖÆÀàĞÍ
-    uint8_t Flash;          //ÉÁ¹âÄ£Ê½
-    uint8_t Dim;            //»Ô¶ÈÄ£Ê½
+    uint8_t Num;            //numero de canal
+    uint8_t ControlSource;  //fuente de control
+    uint8_t ControlType;    //tipo de control
+    uint8_t Flash;          //modo destello
+    uint8_t Dim;            //Modo de brillo
     uint8_t Position;       //
     uint8_t Direction;      //
-    uint8_t CountdownID;    //¡­¡­¿¼ÂÇ¶ÀÁ¢Ò»ÕÅµ¹¼ÆÊ±ÅäÖÃ±í
-}ChannelType; //Í¨µÀÊı¾İ¶¨Òå
+    uint8_t CountdownID;    //... Considere una tabla de configuraciÃ³n de cuenta regresiva separada
+}ChannelType; //DefiniciÃ³n de datos de canal
 
 typedef struct
 {
-    uint8_t Maximum;//×î´óÍ¨µÀÉè¼ÆÊıÁ¿32
+    uint8_t Maximum;//El nÃºmero mÃ¡ximo de diseÃ±os de canales es 32
     ChannelType Channel[32];
     uint8_t Reserve[15];
 }ChannelTable;   //1+8*32+15 = 272 = 0x0110
 
 
 /********************************************************/
-typedef struct//Ã¿bit´ú±íÒ»¸öÍ¨µÀµÄ¶ÔÓ¦ÑÕÉ«×´Ì¬
+typedef struct//Cada bit representa el estado de color correspondiente de un canal
 {
     uint32_t     Reds;
     uint32_t     Yellows;
     uint32_t     Greens;
-    uint32_t     Flash;     //1ÉÁ£¬0²»ÉÁ
+    uint32_t     Flash;     //1 parpadea, 0 no parpadea
 }ChannelStatusType;
 /********************************************************/
-typedef struct//Ã¿bit´ú±íÒ»¸öÍ¨µÀµÄ¶ÔÓ¦ÑÕÉ«×´Ì¬
+typedef struct//Cada bit representa el estado de color correspondiente de un canal
 {
     uint32_t     Reds;
     uint32_t     Yellows;
     uint32_t     Greens;
 }ChannelReadStatusType;
 
-//×Ô¶¨ÒåÍ¨µÀ×´Ì¬²ÎÊı±í
+//Tabla de parÃ¡metros de estado de canal personalizado
 typedef enum 
 {
     BLACK = 0,
     GREEN,
     YELLOW,
     RED,
-    RED_YELLOW,         //ºì»ÆÍ¬ÁÁ
-    RED_YELLOW_FLASH,   //ºì»Æ½»ÌæÉÁ
+    RED_YELLOW,         //rojo brillante y amarillo
+    RED_YELLOW_FLASH,   //Rojo y amarillo parpadeando alternativamente
     GREEN_FLASH,
     YELLOW_FLASH,
     RED_FLASH,
@@ -131,8 +132,8 @@ typedef enum
 /********************************************************/
 
 
-extern ChannelTable             ChannelTab;         //Í¨µÀ±í
-extern ChannelStatusType        ChannelStatus;      //Í¨µÀ×´Ì¬±í
+extern ChannelTable             ChannelTab;         //tabla de canales
+extern ChannelStatusType        ChannelStatus;      //Tabla de estado de canales
 extern ChannelReadStatusType    ChannelReadStatus;
 
 
