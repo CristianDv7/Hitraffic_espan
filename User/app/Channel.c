@@ -1,13 +1,13 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : Í¨µÀÄ£¿é
-*	ÎÄ¼şÃû³Æ : Channel.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
-*	ĞŞ¸Ä¼ÇÂ¼ :
-*		°æ±¾ºÅ  ÈÕÆÚ       ×÷Õß    ËµÃ÷
-*		V1.0    2019-12-30  wcx     Ê×·¢
+*	æ¨¡å—åç§° : é€šé“æ¨¡å—
+*	æ–‡ä»¶åç§° : Channel.c
+*	ç‰ˆ    æœ¬ : V1.0
+*	è¯´    æ˜ : 
+*	ä¿®æ”¹è®°å½• :
+*		ç‰ˆæœ¬å·  æ—¥æœŸ       ä½œè€…    è¯´æ˜
+*		V1.0    2019-12-30  wcx     é¦–å‘
 *
 *********************************************************************************************************
 */
@@ -15,15 +15,15 @@
 #include "bsp_io.h"
 #include "public.h"
 
-ChannelTable            ChannelTab;     //Í¨µÀ±í
-ChannelStatusType       ChannelStatus;  //Í¨µÀ×´Ì¬±í     Öğ²½ÉáÆú×Ô¼º¶¨ChannelStateTab
+ChannelTable            ChannelTab;     //tabla de canales
+ChannelStatusType       ChannelStatus;  //Channel State Table Abandone gradualmente ChannelStateTab
 ChannelReadStatusType   ChannelReadStatus;
 
-//Ä¬ÈÏµÄÍ¨µÀÅäÖÃ
+//configuraciÃ³n de canales por defecto
 void ChannelInit(void)
 {
     uint8_t i,groupNum,boardNum;
-    ChannelTab.Maximum = ChannelMax;       //×î´óÍ¨µÀÉè¼ÆÊıÁ¿32
+    ChannelTab.Maximum = ChannelMax;       //El nÃºmero mÃ¡ximo de diseÃ±os de canales es 32
     for(i = 0; i < ChannelTab.Maximum; i++)
     {
         ChannelTab.Channel[i].Num = i + 1;
@@ -31,17 +31,17 @@ void ChannelInit(void)
         boardNum = i/4;
         if(groupNum <= 2)
         {
-            ChannelTab.Channel[i].ControlSource = boardNum + 1;   //ÏàÎ»ºÅ
-            ChannelTab.Channel[i].ControlType = CCT_VEHICLE;      //¿ØÖÆÀàĞÍ
-            ChannelTab.Channel[i].Flash = CFM_Yellow;             //ÉÁ¹âÄ£Ê½
-            ChannelTab.Channel[i].Dim = CDM_Green;                //»Ô¶ÈÄ£Ê½
+            ChannelTab.Channel[i].ControlSource = boardNum + 1;   //nÃºmero de fase
+            ChannelTab.Channel[i].ControlType = CCT_VEHICLE;      //tipo de control
+            ChannelTab.Channel[i].Flash = CFM_Yellow;             //modo destello
+            ChannelTab.Channel[i].Dim = CDM_Green;                //Modo de brillo
         }
         else
         {
-            ChannelTab.Channel[i].ControlSource = 5;              //ÏàÎ»ºÅ
-            ChannelTab.Channel[i].ControlType = CCT_PEDESTRIAN;   //¿ØÖÆÀàĞÍ
-            ChannelTab.Channel[i].Flash = CFM_Red;                //ÉÁ¹âÄ£Ê½
-            ChannelTab.Channel[i].Dim = CDM_Green;                //»Ô¶ÈÄ£Ê½
+            ChannelTab.Channel[i].ControlSource = 5;              //nÃºmero de fase
+            ChannelTab.Channel[i].ControlType = CCT_PEDESTRIAN;   //tipo de control
+            ChannelTab.Channel[i].Flash = CFM_Red;                //modo destello
+            ChannelTab.Channel[i].Dim = CDM_Green;                //Modo de brillo
         }
         ChannelTab.Channel[i].Position = boardNum + 1;
         ChannelTab.Channel[i].Direction = groupNum + 1;
@@ -54,7 +54,7 @@ uint8_t isPedPhase(uint8_t phaseNum)
     uint8_t i;
     for(i = 0; i < ChannelTab.Maximum; i++)
     {
-        //¿ØÖÆÔ´ÏàÍ¬ÇÒÎªĞĞÈËÏàÎ»
+        //La fuente de control es la misma y es la fase peatonal
         if(ChannelTab.Channel[i].ControlSource == phaseNum && 
            ChannelTab.Channel[i].ControlType == CCT_PEDESTRIAN)
         {
@@ -69,7 +69,7 @@ uint8_t isVehPhase(uint8_t phaseNum)
     uint8_t i;
     for(i = 0; i < ChannelTab.Maximum; i++)
     {
-        //¿ØÖÆÔ´ÏàÍ¬ÇÒÎªĞĞÈËÏàÎ»
+        //La fuente de control es la misma y es la fase peatonal
         if(ChannelTab.Channel[i].ControlSource == phaseNum && 
            ChannelTab.Channel[i].ControlType == CCT_VEHICLE)
         {
@@ -98,11 +98,11 @@ uint32_t GetAppointChannel(uint8_t Pos, uint8_t Dir)
 
     for(i = 0; i < ChannelTab.Maximum; i++)
     {
-        if(ChannelTab.Channel[i].ControlSource != 0)//Í¨µÀÆôÓÃ
+        if(ChannelTab.Channel[i].ControlSource != 0)//canal habilitado
         {
             if(ChannelTab.Channel[i].Position > 0 && ChannelTab.Channel[i].Direction > 0)
             {
-                if(((0x01 << (ChannelTab.Channel[i].Position-1))&Pos) && ((0x01 << (ChannelTab.Channel[i].Direction-1))&Dir))//ÓëÖ¸¶¨·ÅĞĞÏàÍ¬
+                if(((0x01 << (ChannelTab.Channel[i].Position-1))&Pos) && ((0x01 << (ChannelTab.Channel[i].Direction-1))&Dir))//ä¸æŒ‡å®šæ”¾è¡Œç›¸åŒ
                 {
                     AppointChannel |= ChannelMask;
                 }
@@ -116,7 +116,7 @@ uint32_t GetAppointChannel(uint8_t Pos, uint8_t Dir)
 
 
 
-//ÉÁ¹âÄ£Ê½Êä³ö
+// salida en modo flash
 void AutoFlashMode(void)
 {
     uint8_t i;
@@ -129,15 +129,15 @@ void AutoFlashMode(void)
     {
         if(ChannelTab.Channel[i].ControlSource != 0)
         {
-            if(ChannelTab.Channel[i].Flash == CFM_Yellow)          //»ÆÉÁ
+            if(ChannelTab.Channel[i].Flash == CFM_Yellow)          //luz amarilla
             {
                 ChannelStatus.Yellows |= ChannelMask;
             }
-            else if(ChannelTab.Channel[i].Flash == CFM_Red)        //ºìÉÁ
+            else if(ChannelTab.Channel[i].Flash == CFM_Red)        // destello rojo
             {
                 ChannelStatus.Reds |= ChannelMask;
             }
-            else if(ChannelTab.Channel[i].Flash == CFM_Alternate)  //½»Ìæ
+            else if(ChannelTab.Channel[i].Flash == CFM_Alternate)  // intercambio
             {
                 ChannelStatus.Reds |= ChannelMask;
                 ChannelStatus.Yellows |= ChannelMask;
@@ -175,7 +175,7 @@ void AutoLampOffMode(void)
 }
 
 
-//Í¨µÀ×´Ì¬Ë¢ĞÂµ½Çı¶¯¶Ë
+//El estado del canal se actualiza en el controlador
 enum LampDrive_Type ChannelStatusToDrivereg(uint32_t ChannelMask, uint8_t tick10msCount)
 {
     enum LampDrive_Type temp;
@@ -202,7 +202,7 @@ enum LampDrive_Type ChannelStatusToDrivereg(uint32_t ChannelMask, uint8_t tick10
             else
                 temp = LD_RED;
         }
-        else //if(ChannelStatus.Yellows & ChannelMask)//ÓĞÉÁµÆ±êÖ¾,Î´Ö°Î»µÆÉ«,Ä¬ÈÏ»ÆµÆ
+        else //if(ChannelStatus.Yellows & ChannelMask)//Hay una seÃ±al de luz intermitente, sin color de luz de posiciÃ³n, luz amarilla predeterminada
         {
             if(tick10msCount < 50)
                 temp = LD_BLACK;
@@ -230,13 +230,13 @@ enum LampDrive_Type ChannelStatusToDrivereg(uint32_t ChannelMask, uint8_t tick10
     return temp;
 }
 
-void LampControl(uint8_t tick10msCount)//10msË¢ĞÂÒ»´Î
+void LampControl(uint8_t tick10msCount)//Actualizar cada 10ms
 {
     uint8_t i;
     uint32_t ChannelMask = 0X1;
     enum LampDrive_Type temp[4];
     
-    for(i = 0; i < ChannelMax/4; i++)//±éÀúËùÓĞÍ¨µÀ¿ØÖÆÔ´
+    for(i = 0; i < ChannelMax/4; i++)//Atraviesa todas las fuentes de control de canales
     {
         temp[0] = ChannelStatusToDrivereg(ChannelMask, tick10msCount);
         ChannelMask <<= 1;
