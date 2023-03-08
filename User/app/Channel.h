@@ -26,18 +26,18 @@ typedef enum
     CCT_RED,
 }CHANNEL_CONTROL_TYPE;  //tipo de control de canal
 
-//闪光模式CHANNEL_FLASH_MODE
+//Modo de parpadeo CHANNEL_FLASH_MODE
 #define CFM_Yellow      ((uint8_t)0x02)     //luz amarilla
 #define CFM_Red         ((uint8_t)0x04)     // destello rojo
 #define CFM_Alternate   ((uint8_t)0x08)     // parpadea alternativamente
 
-//辉度模式CHANNEL_DIM_MODE
+//Modo atenuado CHANNEL_DIM_MODE
 #define CDM_Green       ((uint8_t)0x01)     //luz verde
 #define CDM_Yellow      ((uint8_t)0x02)     //luz amarillo
 #define CDM_Red         ((uint8_t)0x04)     //luz roja
 #define CDM_Alternate   ((uint8_t)0x08)     //alternativamente
 
-//通道控制方位CHANNEL_POSITION_MODE
+//Posición de control de canal CHANNEL_POSITION_MODE
 #define POS_Other       ((uint8_t)0x00)     //otro
 #define POS_East        ((uint8_t)0x01)     //este
 #define POS_South       ((uint8_t)0x02)     //sur
@@ -48,7 +48,7 @@ typedef enum
 #define POS_SouthWest   ((uint8_t)0x07)     //SurOeste
 #define POS_NorthWest   ((uint8_t)0x08)     //NorOeste
 
-//通道控制方向CHANNEL_DIRECTION_MODE
+//Dirección de control de canal CHANNEL_DIRECTION_MODE
 #define DIR_Other       ((uint8_t)0x00)     //Otro
 #define DIR_Left        ((uint8_t)0x01)     //Gire a la izquierda
 #define DIR_Straight    ((uint8_t)0x02)     //Siga derecho
@@ -59,7 +59,7 @@ typedef enum
 //Left Straight Right Turn Pedestrian Bicycle
 
 
-//手控方位
+//Orientación manual
 #define MANUAL_POS_Other       ((uint8_t)0x00)     //Otro
 #define MANUAL_POS_East        ((uint8_t)0x01)     //Este
 #define MANUAL_POS_South       ((uint8_t)0x02)     //Sur
@@ -70,7 +70,7 @@ typedef enum
 #define MANUAL_POS_SouthWest   ((uint8_t)0x40)     //SurOeste
 #define MANUAL_POS_NorthWest   ((uint8_t)0x80)     //NorOeste
 
-//手控方向
+//Dirección manual
 #define MANUAL_DIR_Other       ((uint8_t)0x00)     //其他
 #define MANUAL_DIR_Left        ((uint8_t)0x01)     //左转
 #define MANUAL_DIR_Straight    ((uint8_t)0x02)     //直行
