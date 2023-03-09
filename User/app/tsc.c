@@ -1,7 +1,7 @@
 /*
 *********************************************************************************************************
 *
-* Module name: signal machine operation control 
+* Module name: control de operaci√≥n de la m√°quina de se√±ales
 * File name: tsc.c 
 * Version : V1.0 
 * illustrate : 
@@ -12,7 +12,7 @@
 *********************************************************************************************************
 */
 
-#include "bsp.h" 				/* Low-level hardware driver */
+#include "bsp.h" 				/* Controlador de hardware de bajo nivel */
 #include "public.h"
 #include "SchedulePlanMange.h"
 #include "PhaseStateControl.h"
@@ -20,40 +20,40 @@
 /*
      Analisis de enlace de datos:
      Horario de programacion + fecha numero de franja horaria
-     Horario de franjas horarias + tiempo °˙ n®≤mero de acci®Æn
-     Lista de Acciones °˙ N®≤mero de Esquema + Auxiliar + Especial
-     Tabla de esquemas °˙ n®≤mero de fase + n®≤mero de relaci®Æn de se?al verde + diferencia de fase + (ciclo calculado) + (+ ?modo?)
-     Tabla de secuencia de fases °˙ anillo en ejecuci®Æn + secuencia de fase en ejecuci®Æn (no realice una clasificaci®Æn obligatoria, realice una selecci®Æn de fase ®≤nica)
-     Tabla de relaci®Æn de letras verdes °˙ cada fase tiempo + modo + coordinaci®Æn
-     Tabla de fases °˙ L®™mite de tiempo de fase + Par®¢metros de detecci®Æn + Estrategia para peatones + Opciones de configuraci®Æn
-     Tabla de canales °˙ Tipo de grupo de luces + Fuente de control + Flash + Brillo
+     Horario de franjas horarias + tiempo ‚Üí n√∫mero de acci√≥n
+     Lista de Acciones ‚Üí N√∫mero de Esquema + Auxiliar + Especial
+     Tabla de esquemas ‚Üí n√∫mero de fase + n√∫mero de relaci√≥n de se?al verde + diferencia de fase + (ciclo calculado) + (+ ?modo?)
+     Tabla de secuencia de fases ‚Üí anillo en ejecuci√≥n + secuencia de fase en ejecuci√≥n (no realice una clasificaci√≥n obligatoria, realice una selecci√≥n de fase √∫nica)
+     Tabla de relaci√≥n de letras verdes ‚Üí cada fase tiempo + modo + coordinaci√≥n
+     Tabla de fases ‚Üí L√≠mite de tiempo de fase + Par√°metros de detecci√≥n + Estrategia para peatones + Opciones de configuraci√≥n
+     Tabla de canales ‚Üí Tipo de grupo de luces + Fuente de control + Flash + Brillo
     
-     An®¢lisis de cambio de datos:
-     1. Cambio de fecha: analiza si el n®≤mero de horario ha cambiado °˙ se?al de cambio de horario
-     2. Cambio de hora y minutos: analiza si el n®≤mero de acci®Æn ha cambiado °˙ signo de cambio de acci®Æn
-     3. Cambio de acci®Æn: determina si el contenido de la acci®Æn ha cambiado °˙
+     An√°lisis de cambio de datos:
+     1. Cambio de fecha: analiza si el n√∫mero de horario ha cambiado ‚Üí se?al de cambio de horario
+     2. Cambio de hora y minutos: analiza si el n√∫mero de acci√≥n ha cambiado ‚Üí signo de cambio de acci√≥n
+     3. Cambio de acci√≥n: determina si el contenido de la acci√≥n ha cambiado ‚Üí
     
-     4. Si hay un cambio en los datos de la tabla de fecha y hora, los nuevos datos se aplican directamente, porque estos cambios de datos no causar®¢n un cambio repentino en el control de la se?al;
-     5. Los cambios de par®¢metros del canal surten efecto inmediatamente
+     4. Si hay un cambio en los datos de la tabla de fecha y hora, los nuevos datos se aplican directamente, porque estos cambios de datos no causar√°n un cambio repentino en el control de la se?al;
+     5. Los cambios de par√°metros del canal surten efecto inmediatamente
     
-     An®¢lisis de la informacion almacenada en la memoria de la m®¢quina de se?ales:
+     An√°lisis de la informacion almacenada en la memoria de la m√°quina de se?ales:
      1. Horario de programacion Todo
      2. Horario 1
      3. Mesa de accion 1
      4. Una tabla de programas
      5. Tabla de secuencia de fases 1
-     6. Relaci®Æn de letras verdes 1
+     6. Relaci√≥n de letras verdes 1
      7. Tabla de fases Todo
      8. Tabla de canales Todos
     
-     An®¢lisis del proceso de operaci®Æn de la m®¢quina de se?ales:
-     1. Al comienzo de cada d®™a y cuando la m®¢quina de se?ales se reinicie, lea la fecha, juzgue la precisi®Æn de la fecha, verifique el cronograma de env®™o, juzgue la prioridad y obtenga el n®≤mero de la tabla de intervalos de tiempo;
+     An√°lisis del proceso de operaci√≥n de la m√°quina de se?ales:
+     1. Al comienzo de cada d√≠a y cuando la m√°quina de se?ales se reinicie, lea la fecha, juzgue la precisi√≥n de la fecha, verifique el cronograma de env√≠o, juzgue la prioridad y obtenga el n√∫mero de la tabla de intervalos de tiempo;
      2. Obtener datos del horario
 */
 
-/* Basic data structure definition */
+* Definici√≥n de estructura de datos b√°sica */
 OPType              OP;
-RtcType             Rtc;        //Current RTC time
+RtcType             Rtc;        //Hora actual de RTC
 DateType            Date;       //Fecha NTCIP actual
 TimeType            Time;       //Hora actual de NTCIP
 SeqTimeType         SeqTime;
@@ -84,12 +84,12 @@ void RtcIrqCallback(void)
 void ReadRealTime(void)
 {
     static RtcType rtc;
-    memcpy(&rtc, &Rtc, sizeof(rtc));	//backup one second ago
+    memcpy(&rtc, &Rtc, sizeof(rtc));	// copia de seguridad hace un segundo
     
     Rtc.second++;
     if(OP.RtcIrqFlag == 1 || OP.StartFlag == 1 || OP.TimeChangeFlag == 1)
     {
-        RtcReadTime();  //Read RTC time
+        RtcReadTime();  //Leer tiempo RTC
         OP.Seconds = (Time.Hour * 3600) + (Time.Minute * 60) + Rtc.second;
         if(OP.StartFlag) OP.StartFlag = 0;
         if(OP.RtcIrqFlag) OP.RtcIrqFlag = 0;
@@ -97,15 +97,16 @@ void ReadRealTime(void)
     }
     
     OP.ShowTimeFlag = 1;
-    if(Rtc.day != rtc.day)          //Date carry, refresh once
-        OP.PlanRefreshFlag = 1;     //Period table number refresh restart and every day, refresh once
+    if(Rtc.day != rtc.day)          //Date carry, refresh once // Llevar fecha, actualizar una vez
+
+        OP.PlanRefreshFlag = 1;    //Reinicio de actualizaci√≥n de n√∫mero de tabla de per√≠odos y todos los d√≠as, actualizaci√≥n una vez
     if(Rtc.minute != rtc.minute)
-        OP.ActionRefreshFlag = 1;   //Action Refresh Every minute, refresh once
+        OP.ActionRefreshFlag = 1;   //Acci√≥n Actualizar cada minuto, actualizar una vez
 }
 
 /********************************************************/
-//Function: Obtain the schedule number by querying the scheduling schedule, and determine whether the schedule needs to be updated 
-//Boot and run once a day at zero
+//Funci√≥n: obtenga el n√∫mero de horario consultando el horario de programaci√≥n y determine si es necesario actualizar el horario
+// Arrancar y ejecutar una vez al d√≠a a cero
 void RunPlanRefresh(void)
 {
     if(OP.PlanRefreshFlag)
@@ -115,28 +116,28 @@ void RunPlanRefresh(void)
         printf("Plan Refresh \r\n");
         #endif
         if(SchedulePlanRefresh(&ScheduleTab, &Date))
-            OP.ActionRefreshFlag = 1; //After the period table is updated, the period needs to be refreshed
+            OP.ActionRefreshFlag = 1; //Despu√©s de actualizar la tabla de per√≠odos, el per√≠odo debe actualizarse
     }
 }
 
-/* After starting up, the program runs directly without judging the changes of operating parameters */
+/* Despu√©s de iniciar, el programa se ejecuta directamente sin juzgar los cambios de los par√°metros operativos */
 void NewPeriodApply(PlanType* DayPlan, TimeType* Time)
 {
     uint8_t ActionNum, ActionIndex, PatternIndex;
-    uint8_t temp = GetPeriodIndex(DayPlan, Time); //time + period table = period index
-    if(temp < PeriodMax)//time period index
+    uint8_t temp = GetPeriodIndex(DayPlan, Time); // tabla de tiempo + periodo = √≠ndice de periodo
+    if(temp < PeriodMax)//√≠ndice de per√≠odo de tiempo
     {
         ActionNum = DayPlan->Period[temp].ActionNum;
-        //Update period information
+        //Actualizar la informaci√≥n del per√≠odo
         Period.Time.Hour = DayPlan->Period[temp].Time.Hour;
         Period.Time.Minute = DayPlan->Period[temp].Time.Minute;
         Period.ActionNum = ActionNum;
         ActionIndex = GetActionIndex(&ActionTab, ActionNum);
         
-        if(ActionIndex < ActionMax)//non-empty action
+        if(ActionIndex < ActionMax)// acci√≥n no vac√≠a
         {
             //Copy action data;
-            //Special Features, Accessibility Features, Direct Updates
+           //Funciones especiales, funciones de accesibilidad, actualizaciones directas
             memcpy(&Action, &ActionTab.Action[ActionIndex], sizeof(Action));
             
             PatternIndex = GetPatternIndex(&PatternTab, Action.Pattern);
@@ -146,7 +147,7 @@ void NewPeriodApply(PlanType* DayPlan, TimeType* Time)
                 
                 memcpy(&SequenceNow, &SeqTab.Seq[PatternNow.SequenceNum - 1], sizeof(SequenceNow));
                 memcpy(&SplitNow, &SplitTab.Split[PatternNow.SplitNum - 1], sizeof(SplitNow));
-                OP.NewPatternFlag = 1;//The new solution is ready, the cycle is complete, and it can be implemented
+                OP.NewPatternFlag = 1;//La nueva soluci√≥n est√° lista, el ciclo est√° completo y se puede implementar
             }
         }
     }
@@ -180,16 +181,16 @@ void RunPlanActionRefresh(void)
     }
 }
 
-//Function: Query the time period table and get the action number of the current time 
-//Pass parameters: period table + time
+// Funci√≥n: consultar la tabla de per√≠odos de tiempo y obtener el n√∫mero de acci√≥n de la hora actual
+//Pasar par√°metros: tabla de periodos + tiempo
 void PlanActionRefresh(PlanType* DayPlan, TimeType* Time)
 {
     uint8_t ActionIndex, PatternIndex;
-    //time + period table = period index
+    // tabla de tiempo + periodo = √≠ndice de periodo
     uint8_t PeriodIndex = GetPeriodIndex(DayPlan, Time);
     if(PeriodIndex < PeriodMax)
     {
-        //If the time period parameter changes, update the time period parameter
+        //Si el par√°metro del per√≠odo de tiempo cambia, actualice el par√°metro del per√≠odo de tiempo
         if(memcmp(&Period, &DayPlan->Period[PeriodIndex], sizeof(Period)) != 0)
         {
             #if DEBUG 
@@ -199,7 +200,7 @@ void PlanActionRefresh(PlanType* DayPlan, TimeType* Time)
         }
         
         ActionIndex = GetActionIndex(&ActionTab, Period.ActionNum);
-        if(ActionIndex < ActionMax)//non-empty action
+        if(ActionIndex < ActionMax)// acci√≥n no vac√≠a
         {
             if(memcmp(&Action, &ActionTab.Action[ActionIndex], sizeof(Action)) != 0)
             {
@@ -213,8 +214,8 @@ void PlanActionRefresh(PlanType* DayPlan, TimeType* Time)
         PatternIndex = GetPatternIndex(&PatternTab, Action.Pattern);
         if(PatternIndex < PatternMax)
         {
-            //If the phase sequence and green signal ratio parameters are changed, it will not be updated here
-            //Therefore, if the phase sequence and green signal ratio parameters are changed, change the Pattern sequence and green signal ratio to update the operating parameters
+            //Si se cambian los par√°metros de secuencia de fase y relaci√≥n de se√±al verde, no se actualizar√° aqu√≠
+            //Por lo tanto, si se cambian los par√°metros de secuencia de fase y relaci√≥n de se√±al verde, cambie la secuencia de patr√≥n y la relaci√≥n de se√±al verde para actualizar los par√°metros operativos
             #if DEBUG
             printf_fifo_dec(&PatternNow.Num, sizeof(PatternNow));
             printf_fifo_dec(&PatternTab.Pattern[PatternIndex].Num, sizeof(PatternNow));
@@ -251,17 +252,17 @@ void NewPatternApply(void)
     else if(OP.WorkMode == LampOff)AutoLampOffMode();
     else if(OP.WorkMode == FixedTime || OP.WorkMode == LineCtrl)
     {
-        GetPhaseStateSeqMax();//Obtain the maximum phase number of each ring, as well as the maximum value of the phase number and the corresponding ring number through the continuity table
-        GetSeqTime();//Obtain phase sequence time and cycle through phase sequence table and green signal ratio
+        GetPhaseStateSeqMax();//Obtener el n√∫mero de fase m√°ximo de cada anillo, as√≠ como el valor m√°ximo del n√∫mero de fase y el n√∫mero de anillo correspondiente a trav√©s de la tabla de continuidad
+        GetSeqTime();//Obtenga el tiempo de secuencia de fase y recorra la tabla de secuencia de fase y la relaci√≥n de se√±al verde
         
         if(OP.WorkMode == LineCtrl) GreenWaveTimeControl();//LineCtrl
         RunPhaseInit(&SequenceNow,  &SplitNow);
         GetPhaseStatusMap();
     }
-    else if(OP.WorkMode == VehicleSense)//induction mode
+    else if(OP.WorkMode == VehicleSense)//modo de inducci√≥n
     {
-        GetPhaseStateSeqMax();  //Obtain the maximum phase number of each ring, as well as the maximum value of the phase number and the corresponding ring number through the continuity table
-        GetSeqTime();           //Obtain phase sequence time and cycle through phase sequence table and green signal ratio
+        GetPhaseStateSeqMax(); //Obtener el n√∫mero de fase m√°ximo de cada anillo, as√≠ como el valor m√°ximo del n√∫mero de fase y el n√∫mero de anillo correspondiente a trav√©s de la tabla de continuidad
+        GetSeqTime();           // Obtenga el tiempo de secuencia de fase y recorra la tabla de secuencia de fase y la relaci√≥n de se√±al verde
         
         RunPhaseInit(&SequenceNow,  &SplitNow);
         GetPhaseStatusMap();
@@ -282,7 +283,7 @@ void RunGetVehDetState(void)
 void RunModeProcess(void)
 {
     uint8_t temp;
-    if(OP.ScheduleDataChangeFlag)//Scheduling plan parameters have changed
+    if(OP.ScheduleDataChangeFlag)//Los par√°metros del plan de programaci√≥n han cambiado
     {
         OP.ScheduleDataChangeFlag = 0;
         OP.PlanRefreshFlag = 1;
@@ -295,7 +296,7 @@ void RunModeProcess(void)
         #endif
         temp = ScheduleNow.PlanNum - 1;
         memcpy(&Plan, &PlanTab.Plan[temp], sizeof(Plan));
-        //After the period table is updated, the period needs to be refreshed
+        //Despu√©s de actualizar la tabla de per√≠odos, el per√≠odo debe actualizarse
         OP.ActionRefreshFlag = 1;
     }
     if(OP.ActionDataChangeFlag)
@@ -324,7 +325,7 @@ void RunModeProcess(void)
     RunPlanActionRefresh();
 }
 
-void manual_mange(void)//Run once in 10ms
+void manual_mange(void)//Ejecutar una vez en 10ms
 {
     static uint8_t Value = 0xff, Count = 0;
     uint8_t cmd;
@@ -336,14 +337,14 @@ void manual_mange(void)//Run once in 10ms
             Count = 0;
             cmd = Value^temp;
             Value = temp;
-            if(cmd & Value)//button release
+            if(cmd & Value)// soltar el boton
             {
-                if(cmd == 0x01)//close manually
+                if(cmd == 0x01)// cerrar manualmente
                 {
                     ManualCtrl.KeyCmd = 0;
                 }
             }
-            else//button pressed
+            else//bot√≥n presionado
             {
                 ManualCtrl.KeyCmd = cmd;
             }
@@ -361,13 +362,13 @@ void manual_mange(void)//Run once in 10ms
 void manual_control(void)
 {
     //ManualCtrl.KeyCmd
-    //bit0 is the manual switch, 0 turns on the manual, 1 turns off the manual
-    //bit1 yellow flash
-    if(ManualCtrl.KeyCmd < 0xff)//Hand control has action
+    //bit0 es el interruptor manual, 0 enciende el manual, 1 apaga el manual
+    //bit1 parpadeo amarillo
+    if(ManualCtrl.KeyCmd < 0xff)//El control manual tiene acci√≥n.
     {
-        if(ManualCtrl.LocalCtrlFlag == 0) //non-manual mode
+        if(ManualCtrl.LocalCtrlFlag == 0) //modo no manual
         {
-            if(ManualCtrl.KeyCmd == MANUAL_ON)//Toggle switch, from automatic to manual
+            if(ManualCtrl.KeyCmd == MANUAL_ON)//TInterruptor de palanca, de autom√°tico a manual
             {
                 ManualCtrl.LocalCtrlFlag = 1;
                 //if(OP.WorkMode < SPECIAL_MODE) OP.WorkModeBK = OP.WorkMode;
@@ -379,24 +380,24 @@ void manual_control(void)
                 }
                 OP.WorkMode_Reason = WMR_LocalManual;
             }
-            else if(ManualCtrl.KeyCmd == MANUAL_ClearError)//Manually clear the fault
+            else if(ManualCtrl.KeyCmd == MANUAL_ClearError)//Borrar manualmente la falla
             {
                 if(OP.WorkMode_Reason)
                 {
                     if(WMR_RedGreenConflict == OP.WorkMode_Reason)
                     {
-                        OP.red_green_conflict_reg = 0;//clear fault
-                        OP.WorkMode_Reason = WMR_Normal;//Make the signal machine flash yellow normally instead of flashing yellow when fault occurs
+                        OP.red_green_conflict_reg = 0;//borrar falla
+                        OP.WorkMode_Reason = WMR_Normal;//Haga que la m√°quina de se√±ales parpadee en amarillo normalmente en lugar de parpadear en amarillo cuando ocurra una falla
                     }
                     if(WMR_GreenConflict == OP.WorkMode_Reason)
                     {
-                        OP.green_conflict_reg = 0;//clear fault
-                        OP.WorkMode_Reason = WMR_Normal;//Make the signal machine flash yellow normally instead of flashing yellow when fault occurs
+                        OP.green_conflict_reg = 0;//borrar fallo
+                        OP.WorkMode_Reason = WMR_Normal;//Haga que la m√°quina de se√±ales parpadee en amarillo normalmente en lugar de parpadear en amarillo cuando ocurra una falla
                     }
                     if(WMR_RedFailed == OP.WorkMode_Reason)
                     {
                         OP.red_install_reg = red_install_fail_detect(0);//borrar falla
-                        OP.WorkMode_Reason = WMR_Normal;//Make the signal machine flash yellow normally instead of flashing yellow when fault occurs
+                        OP.WorkMode_Reason = WMR_Normal;//Haga que la m√°quina de se√±ales parpadee en amarillo normalmente en lugar de parpadear en amarillo cuando ocurra una falla
                     }
                 }
                 #if DEBUG
@@ -455,11 +456,11 @@ void manual_control(void)
             }
 */
         }
-        else //manual mode
+        else //modo manual
         {
             if(ManualCtrl.KeyCmd)
             {
-                if(ManualCtrl.KeyCmd == MANUAL_FLASH)//yellow flash
+                if(ManualCtrl.KeyCmd == MANUAL_FLASH)//luz amarilla
                 {
                     OP.WorkMode = ManualFlashing;
                     OP.WorkMode_Reason = WMR_LocalManual;
@@ -468,7 +469,7 @@ void manual_control(void)
                     printf("ManualFlashing\r\n");
                     #endif
                 }
-                else if(ManualCtrl.KeyCmd == MANUAL_AllRed)//all red
+                else if(ManualCtrl.KeyCmd == MANUAL_AllRed)//todo rojo
                 {
                     OP.WorkMode = ManualAllRead;
                     OP.WorkMode_Reason = WMR_LocalManual;
@@ -477,7 +478,7 @@ void manual_control(void)
                     printf("ManualAllRead\r\n");
                     #endif
                 }
-                else if(ManualCtrl.KeyCmd == MANUAL_NextStep)//Next step
+                else if(ManualCtrl.KeyCmd == MANUAL_NextStep)//Pr√≥ximo paso
                 {
                     OP.WorkMode = ManualStep;
                     OP.WorkMode_Reason = WMR_LocalManual;
@@ -487,7 +488,7 @@ void manual_control(void)
                     printf("ManualNextStep\r\n");
                     #endif
                 }
-//                else if(ManualCtrl.KeyCmd == MANUAL_LampOff)//turn off the lights
+//                else if(ManualCtrl.KeyCmd == MANUAL_LampOff)//apagar las luces
 //                {
 //                    OP.WorkMode = ManualLampOff;
 //                    OP.WorkMode_Reason = WMR_LocalManual;
@@ -584,7 +585,7 @@ void manual_control(void)
                     #endif
                 }
             }
-            else//Toggle switch, from manual to automatic
+            else//Interruptor de palanca, de manual a autom√°tico
             {
                 if(OP.WorkMode == ManualAppoint)
                 {
@@ -631,8 +632,8 @@ void rf315m_mange(void)
     }
 }
 
-//In the same light group, the detection of red and green conflicts 
-//Return: 0-15 bit corresponds to a conflict in the light group, 0 has no conflict
+//En el mismo grupo de luces, la detecci√≥n de conflictos rojos y verdes 
+//Regreso: 0-15 bit corresponde a un conflicto en el grupo de luces, 0 no tiene conflicto
 uint16_t Red_Green_conflict_detect(uint16_t red_state, uint16_t green_state)//200ms
 {
     static uint8_t c200ms[16] = {0};
@@ -644,7 +645,7 @@ uint16_t Red_Green_conflict_detect(uint16_t red_state, uint16_t green_state)//20
     {
         if((lamp_state & temp_var) == temp_var)
         {
-            if(++c200ms[i] >= 10)//lasts more than 2 seconds
+            if(++c200ms[i] >= 10)//dura mas de 2 segundos
             {
                 c200ms[i] = 0;
                 conflict_reg |= temp_group;
@@ -673,7 +674,7 @@ uint16_t Green_conflict_detect(void)
 
     for(i = 0; i < 16;i++)
     {
-        if(PhaseStatus.Greens & temp_phase)//The light group has been released
+        if(PhaseStatus.Greens & temp_phase)//El grupo de luz ha sido liberado.
         {
             temp_release = PhaseStatus.Greens & (~temp_phase);
             phaseindex = GetPhaseIndex(&PhaseTab, i+1);
@@ -681,7 +682,7 @@ uint16_t Green_conflict_detect(void)
             temp_concurrency = (~temp_concurrency)&0xffff;
             if(temp_concurrency & temp_release)
             {
-                if(++c200ms[i] >= 10)//lasts more than 2 seconds
+                if(++c200ms[i] >= 10)//dura mas de 2 segundos
                 {
                     c200ms[i] = 0;
                     conflict_reg |= temp_phase;
@@ -713,11 +714,11 @@ uint16_t red_install_fail_detect(uint16_t installs)
     if(installs == 0) { red_install_reg = 0; OP.red_failed_reg = 0; return 0;}
     for(i = 0; i < 16; i++)
     {
-        if(red_state & temp_var)//A red light on a road has an output
+        if(red_state & temp_var)//Una luz roja en una carretera tiene una salida
         {
-            if(current_stab & temp_var)//and there is current
+            if(current_stab & temp_var)//y hay corriente
             {
-                if(++c200ms[i] >= 10)//lasts more than 2 seconds
+                if(++c200ms[i] >= 10)//dura mas de 2 segundos
                 {
                     c200ms[i] = 0;
                     red_install_reg |= temp_group;
@@ -725,7 +726,7 @@ uint16_t red_install_fail_detect(uint16_t installs)
             }
             else if(red_install_reg & temp_group)//sin corriente e instalado
             {
-                if(++c200ms[i] >= 10)//Failure lasts longer than 2 seconds
+                if(++c200ms[i] >= 10)//La falla dura m√°s de 2 segundos
                 {
                     c200ms[i] = 0;
                     OP.red_failed_reg |= temp_group;
@@ -808,7 +809,7 @@ void Input_mange(void)
     static uint8_t reg10ms = 10;
     static uint8_t reg200ms = 20;
     
-    if(reg1ms_flag) //1ms information processing
+    if(reg1ms_flag) //Procesamiento de informaci√≥n de 1ms
     {
         reg1ms_flag = 0;
         lamp_state_detect();//1ms
@@ -816,8 +817,8 @@ void Input_mange(void)
         {
             reg10ms = 0;
             OP.GetVehDetStaFlag = 1;
-            peddet_scan(&peddet_hw);    //8-way button input status detection
-            rf315m_scan();              //rf315M manual input
+            peddet_scan(&peddet_hw);    //Detecci√≥n de estado de entrada de bot√≥n de 8 v√≠as
+            rf315m_scan();              //entrada manual rf315M
             rf315m_mange();
             manual_mange();
 
@@ -828,7 +829,7 @@ void Input_mange(void)
                 if(++reg1s >= 5)//1s
                 {
                     reg1s = 0;
-                    PeddetStateGet();//Detector de pedestrian
+                    PeddetStateGet();//Detector de peatones
                 }
             }
         }
@@ -850,7 +851,7 @@ void Auto_adjust_time(void)
 
 void LampControlProcess(void)
 {
-    if(OP.Run10ms_flag) //10ms information processing
+    if(OP.Run10ms_flag) //Procesamiento de informaci√≥n de 10ms
     {
         OP.Run10ms_flag = 0;
         RunPhaseTimeCalc();
@@ -868,10 +869,10 @@ void LampControlProcess(void)
     LampStateControl();
 }
 
-//Green wave control, phase difference time calculation and control
+//Control de onda verde, c√°lculo y control de tiempo de diferencia de fase
 void GreenWaveTimeControl(void)
 {
-    OP.OffsetTimeModifier.OffsetTime = ((OP.Seconds + NowCycleTime - PatternNow.OffsetTime)%NowCycleTime);//œ‡Œª∆´≤Ó ±º‰
+    OP.OffsetTimeModifier.OffsetTime = ((OP.Seconds + NowCycleTime - PatternNow.OffsetTime)%NowCycleTime);//Tiempo de desviaci√≥n de fase
     if(OP.OffsetTimeModifier.OffsetTime==0)
     {
         OP.OffsetTimeModifier.ModifierFlag = 0;
@@ -973,8 +974,8 @@ void GreenWaveTimeChange(void)
 }
 
 /*
- * µ±«∞‘À––µƒœ‡Œª∏ƒ±‰
- * ÷ÿ–¬∏≥÷µœ‡Œª ∫Õ ¬Ã–≈±»  ˝æ›
+ * La fase actualmente en ejecuci√≥n cambia
+ * Reasignar datos de relaci√≥n de fase y se√±al verde
  */
 uint8_t RingPhaseChange(uint8_t ring)
 {
@@ -984,7 +985,7 @@ uint8_t RingPhaseChange(uint8_t ring)
         PhaseState.Ring[ring].PhaseChangeFlag = 0;
         SeqNum = PhaseState.Ring[ring].SeqNum;
         
-        //¥À¥¶∏˘æ›œ‡Œª∫≈£¨≤È±ÌªÒ»°œ‡ŒªÀ˜“˝ ∫Õ ¬Ã–≈±»œ‡ŒªÀ˜“˝
+        //Aqu√≠, seg√∫n el n√∫mero de fase, busque en la tabla para obtener el √≠ndice de fase y el √≠ndice de fase de relaci√≥n de se√±al verde
         PhaseNum = SequenceNow.Ring[ring].Phase[SeqNum];
         if(SeqNum+1 < PhaseState.Ring[ring].SeqMax)
             PhaseNext = SequenceNow.Ring[ring].Phase[SeqNum+1];
@@ -995,7 +996,7 @@ uint8_t RingPhaseChange(uint8_t ring)
         RingPhase[ring].PhaseNextIndex = GetPhaseIndex(&PhaseTab, PhaseNext);
         PhaseIndex = RingPhase[ring].PhaseIndex;
         
-        //Õ®π˝À˜“˝£¨∏¥÷∆‘À––µƒœ‡Œª∫Õ¬Ã–≈±»
+       //Por √≠ndice, copia la fase de ejecuci√≥n y la relaci√≥n de la se√±al verde
         RingPhase[ring].PhaseNum = PhaseNum;
         RingPhase[ring].PhaseNext = PhaseNext;
         
@@ -1021,7 +1022,7 @@ uint8_t RingPhaseChange(uint8_t ring)
     return ChangeFlag;
 }
 
-//“™∞— PhaseState µ±÷–µƒ“ª–©≤Œ ˝∞˛¿Î≥ˆ»•, œ‡”¶µƒπ¶ƒ‹∫Ø ˝∑÷¿Î≥ˆ»• wcx
+//Separar algunos par√°metros de PhaseState y separar las funciones correspondientes wcx
 void GetPhaseStateSeqMax(void)
 {
     uint8_t ring;
@@ -1029,7 +1030,7 @@ void GetPhaseStateSeqMax(void)
     PhaseState.CycleStepMax = 0;
     for(ring = 0; ring < RingMax; ring++)
     {
-        PhaseState.Ring[ring].SeqMax = GetSeqMax(&SequenceNow.Ring[ring]);//ªÒ»°¥Àª∑µƒœ‡Œª ˝¡ø
+        PhaseState.Ring[ring].SeqMax = GetSeqMax(&SequenceNow.Ring[ring]);//Obtener el n√∫mero de fases de este anillo
         if(PhaseState.Ring[ring].SeqMax)
         {
             PhaseState.ValidRings++;
@@ -1047,7 +1048,7 @@ void GetPhaseStateSeqMax(void)
 }
 
 /*
-    ‘À––µƒœ‡Œª ˝æ›≥ı ºªØ£¨¥”œ‡–Ú∫Õ¬Ã–≈±» ˝æ›÷–ªÒ»°‘À––µƒ4∏ˆª∑µƒœ‡Œª ˝æ›∫Õ¬Ã–≈±»
+   Los datos de fase de la operaci√≥n se inicializan, y los datos de fase y la relaci√≥n de se√±al verde de los cuatro anillos en funcionamiento se obtienen a partir de los datos de secuencia de fase y relaci√≥n de se√±al verde
 */
 void RunPhaseInit(SequenceType* Sequence, SplitType* SplitX)
 {
@@ -1056,7 +1057,7 @@ void RunPhaseInit(SequenceType* Sequence, SplitType* SplitX)
     for(ring = 0; ring < RingMax; ring++)
     {
         PhaseState.Ring[ring].SeqNum = 0;
-        if(PhaseState.Ring[ring].SeqMax > 0)//∑«ø’ª∑
+        if(PhaseState.Ring[ring].SeqMax > 0)//ÈùûÁ©∫ÁéØ
         {
             PhaseState.Ring[ring].PhaseChangeFlag = 1;
             if(RingPhaseChange(ring)) ChangeFlag = 1;
@@ -1076,7 +1077,7 @@ void RunPhaseInit(SequenceType* Sequence, SplitType* SplitX)
 
 
 /*
-    ¥¥◊˜≤ªª˘”⁄»Œ∫Œ”≤º˛µƒ»Ìº˛œµÕ≥
+    Autor de sistemas de software que no se basan en ning√∫n hardware.
 */
 void RunDataInit(void)
 {
@@ -1093,12 +1094,12 @@ void RunDataInit(void)
     OP.SendDoorAlarm = 0;
     OP.sync_with_gps_flag = 0;
 
-    LampDriveDataInit();//≥ı ºªØµ»«˝∂Ø ˝æ›º∞13H
+    LampDriveDataInit();//Inicializaci√≥n y otros datos de la unidad y 13H
 }
 
 
 /*
- * ∆Ù∂Ø≤Ω–Úµƒ PhaseState ∏≥÷µ
+ * Asignaci√≥n PhaseState para iniciar la secuencia
  */
 void RunPhaseStateStartup(void)
 {
@@ -1126,7 +1127,7 @@ void RunPhaseStateStartup(void)
     #endif
 }
 
-void StartupProcess(void)//∆Ù∂Øƒ£ Ω
+void StartupProcess(void)//El modo de inicio
 {
     if(PhaseState.Ring[0].SecondRemain) PhaseState.Ring[0].SecondRemain--;
     if(PhaseState.Ring[0].SecondRemain == 0)
@@ -1149,13 +1150,13 @@ void StartupProcess(void)//∆Ù∂Øƒ£ Ω
                     PhaseState.Ring[0].SecondRemain = Unit.StartupAllRed;
                     AutoAllRedMode(); 
                 }
-                else//∑Ò‘ÚŒﬁ‘À––∑Ω∞∏
+                else//De lo contrario, no hay esquema de ejecuci√≥n.
                 {
                     #if DEBUG
                     printf("Startup No Pattern\r\n");
                     #endif
                     PhaseState.Ring[0].SeqNum = 0;
-                    OP.PlanRefreshFlag = 1;//÷ÿ–¬ºÏ≤È”–Œﬁ∑Ω∞∏
+                    OP.PlanRefreshFlag = 1;//Vuelva a consultar los planes
                     OLED_ShowString(48,0,"NP");
                 }
             }
@@ -1176,7 +1177,7 @@ uint8_t FindMiniTransitionRing(void)
     uint8_t i, ring = 0, MiniSecondRemainTime = 0xff;
     for(i = 0; i<RingMax; i++)
     {
-        if(PhaseState.Ring[i].SeqMax > 0 && PhaseState.Ring[i].SecondRemain > 0)//∑«ø’ª∑
+        if(PhaseState.Ring[i].SeqMax > 0 && PhaseState.Ring[i].SecondRemain > 0)//ÈùûÁ©∫ÁéØ
         {
             if(MiniSecondRemainTime > PhaseState.Ring[i].SecondRemain)
             {
@@ -1190,21 +1191,21 @@ uint8_t FindMiniTransitionRing(void)
 
 uint8_t isInTransitionStep(void)
 {
-    //’“µΩ◊Ó–° £”‡ ±º‰µƒª∑
+    // encuentra el ciclo con el m√≠nimo tiempo restante
     uint8_t MiniRemainTimeRing = FindMiniTransitionRing();
-    // £”‡ ±º‰–°”⁄ª˙∂Ø◊™ªª ±º‰,◊‘∂Ø«–ªªµΩœ¬“ªœ‡Œª◊¥Ã¨
+   //El tiempo restante es menor que el tiempo de transici√≥n de maniobra, cambia autom√°ticamente al siguiente estado de fase
     if(PhaseState.Ring[MiniRemainTimeRing].SecondRemain <= PhaseState.Ring[MiniRemainTimeRing].VehicleTransitionTime) return PhaseState.Ring[MiniRemainTimeRing].SecondRemain;
     return 0;
 }
 
-//∑µªÿ0-Œﬁ–Ë«–ªª  ∑µªÿ1-’˝‘⁄«–ªªªÚ’ﬂ“—«–ªª–≈∫≈
-uint8_t ManualStepProcess(void)// ÷∂Øƒ£ Ω
+//regresar 0-no es necesario cambiar regresar 1-conmutaci√≥n o se√±al conmutada
+uint8_t ManualStepProcess(void)//modo manual
 {
     uint8_t i, k=0, PhaseChangeBit = 0, MiniRemainTimeRing;
     
-    //’“µΩ◊Ó–° £”‡ ±º‰µƒª∑
+    //Encuentre el ciclo con el menor tiempo restante
     MiniRemainTimeRing = FindMiniTransitionRing();
-    // £”‡ ±º‰–°”⁄ª˙∂Ø◊™ªª ±º‰,◊‘∂Ø«–ªªµΩœ¬“ªœ‡Œª◊¥Ã¨
+    //Si el tiempo restante es menor que el tiempo de transici√≥n de maniobra, autom√°ticamente cambiar√° al siguiente estado de fase
     if(PhaseState.Ring[MiniRemainTimeRing].SecondRemain <= PhaseState.Ring[MiniRemainTimeRing].VehicleTransitionTime) ManualCtrl.NextStepFlag = 1;
     if(ManualCtrl.NextStepFlag == 0)return 0;
     
@@ -1262,12 +1263,12 @@ uint8_t ManualStepProcess(void)// ÷∂Øƒ£ Ω
     if( PhaseState.Ring[0].CycleOverFlag & \
         PhaseState.Ring[1].CycleOverFlag & \
         PhaseState.Ring[2].CycleOverFlag & \
-        PhaseState.Ring[3].CycleOverFlag)  //4∏ˆª∑œ‡Œª∂º‘À––ÕÍ±œ
+        PhaseState.Ring[3].CycleOverFlag)  //Se han ejecutado las 4 fases de anillo
     {
-        PhaseState.NewCycleFlag = 1; //–¬µƒ÷‹∆⁄
+        PhaseState.NewCycleFlag = 1; //nuevo ciclo
     }
 
-    if(PhaseState.NewCycleFlag)//÷ÿ–¬‘À––∑Ω∞∏
+    if(PhaseState.NewCycleFlag)//escenario de repetici√≥n
     {
         PhaseState.NewCycleFlag = 0;
         for(i = 0; i < RingMax; i++)
@@ -1286,7 +1287,7 @@ uint8_t ManualStepProcess(void)// ÷∂Øƒ£ Ω
 }
 
 
-//‘›∂®£∫÷∏∂®∑≈––÷ªøº¬«ª˙∂Ø≥µµƒ◊Ó¥Û◊™ªª ±º‰,“‘∫Û‘Ÿøº¬«––»Àµƒ∞≤»´π˝∂… ±º‰
+//Tentativo: solo se considera el tiempo de transici√≥n m√°ximo de los veh√≠culos motorizados para el espacio libre designado, y el tiempo de transici√≥n de seguridad de los peatones se considerar√° m√°s adelante
 void GetMaxiTransitionTime(uint32_t ChannelOns)
 {
     uint8_t i;
@@ -1298,7 +1299,7 @@ void GetMaxiTransitionTime(uint32_t ChannelOns)
 
     for(i = 0; i < ChannelTab.Maximum; i++)
     {
-        if(ChannelOns & ChannelMask)//Õ®µ¿∆Ù”√
+        if(ChannelOns & ChannelMask)//canal habilitado
         {
             uint8_t phaseNum, phaseIndex;
             phaseNum = ChannelTab.Channel[i].ControlSource;
@@ -1343,9 +1344,9 @@ void RemoteChannelStatusCtrl(void)
     {
         if(ChannelTab.Channel[i].ControlSource)
         {
-            if(ManualCtrl.ChannelOnsNow & ChannelMask)//œ÷‘⁄ «¬Ãµ∆◊¥Ã¨
+            if(ManualCtrl.ChannelOnsNow & ChannelMask)//Es una luz verde ahora
             {
-                if((ManualCtrl.ChannelOnsNext & ChannelMask)==0)//œ¬“ª≤Ω÷Ë√µ∆
+                if((ManualCtrl.ChannelOnsNext & ChannelMask)==0)//siguiente paso luz apagada
                 {
                     uint8_t phaseNum, phaseIndex;
                     phaseNum = ChannelTab.Channel[i].ControlSource;
@@ -1367,7 +1368,7 @@ void RemoteChannelStatusCtrl(void)
                             ChannelStatus.Yellows   &=~ChannelMask; 
                             ChannelStatus.Flash     |= ChannelMask;
                         }
-                        else//»´∫Ïπ˝∂…
+                        else//transici√≥n roja completa
                         {
                             ChannelStatus.Reds      |= ChannelMask;
                             ChannelStatus.Yellows   &=~ChannelMask;
@@ -1375,7 +1376,7 @@ void RemoteChannelStatusCtrl(void)
                             ChannelStatus.Flash     &=~ChannelMask;
                         }
                     }
-                    else //if(ChannelTab.Channel[i].ControlType == CCT_VEHICLE)//∆‰À˚øÿ÷∆¿‡–Õ»´∞¥’’ª˙∂Øµ∆¿¥øÿ÷∆
+                    else //if(ChannelTab.Channel[i].ControlType == CCT_VEHICLE)//Otros tipos de control se controlan de acuerdo con las luces del motor
                     {
                         if(ManualCtrl.Time > PhaseTab.Phase[phaseIndex].VehicleClear + PhaseTab.Phase[phaseIndex].YellowChange + PhaseTab.Phase[phaseIndex].RedClear)
                         {
@@ -1398,7 +1399,7 @@ void RemoteChannelStatusCtrl(void)
                             ChannelStatus.Greens    &=~ChannelMask;
                             ChannelStatus.Flash     &=~ChannelMask;
                         }
-                        else//»´∫Ïπ˝∂…
+                        else//transici√≥n roja completa
                         {
                             ChannelStatus.Reds      |= ChannelMask;
                             ChannelStatus.Yellows   &=~ChannelMask;
@@ -1407,7 +1408,7 @@ void RemoteChannelStatusCtrl(void)
                         }
                     }
                 }
-                else//œ¬“ª≤Ω÷ËºÃ–¯¡¡µ∆
+                else//El siguiente paso sigue ilumin√°ndose.
                 {
                     ChannelStatus.Greens    |= ChannelMask;
                     ChannelStatus.Reds      &=~ChannelMask;
@@ -1415,7 +1416,7 @@ void RemoteChannelStatusCtrl(void)
                     ChannelStatus.Flash     &=~ChannelMask;
                 }
             }
-            else//∫Ïµ∆
+            else//luz roja
             {
                 ChannelStatus.Reds      |= ChannelMask;
                 ChannelStatus.Yellows   &=~ChannelMask;
@@ -1423,7 +1424,7 @@ void RemoteChannelStatusCtrl(void)
                 ChannelStatus.Flash     &=~ChannelMask;
             }
         }
-        else//Œ¥∆Ù”√∫⁄µ∆
+        else//Luz negra no habilitada
         {
             ChannelStatus.Greens    &=~ChannelMask;
             ChannelStatus.Reds      &=~ChannelMask;
@@ -1436,13 +1437,13 @@ void RemoteChannelStatusCtrl(void)
 
 /*
 20220728: WorkPoint
-1°¢ºÏ≤ÈÀ˘”–µ±«∞‘À––œ‡Œª
-2°¢ºÏ≤È÷∏∂®∑≈––∂‘”¶µƒœ‡Œª
+1„ÄÅVerifique todas las fases actualmente en ejecuci√≥n
+2„ÄÅVerifique la fase correspondiente al lanzamiento especificado
 
-÷Æ«∞Àº¬∑£¨∏˘æ›Õ®µ¿µƒ∑ΩŒª’“œ‡Œª£¨‘Ÿ∏˘æ›œ‡Œª∑≈Õ®µ¿£¨æÕª·≤˙…˙œ‡Õ¨œ‡Œª≤ªÕ¨∑ΩŒªµƒµ∆“≤∑≈––¡À£¨À˘“‘Àº¬∑”–ŒÛ°£
-±‰∏¸Œ™£∫∏˘æ›Õ®µ¿µƒ∑ΩŒª’“Õ®µ¿£¨÷Æ∫Û«–ªªÕ®µ¿°£
+La idea anterior era buscar la fase seg√∫n el acimut del canal, y luego soltar el canal seg√∫n la fase, y tambi√©n se soltar√≠an las luces con la misma fase y diferentes acimutes, as√≠ que la idea estaba mal.
+Cambiar a: busque el canal de acuerdo con la direcci√≥n del canal y luego cambie el canal.
 */
-void AppointCtrlProcess(void)//÷∏∂®∑≈––ƒ£ Ω
+void AppointCtrlProcess(void)//Especificar el modo de liberaci√≥n
 {
     #if DEBUG
     printf("ManualCtrl.ManualCtrlTFlag = %d\n",ManualCtrl.RemoteCtrlFlag);
@@ -1454,25 +1455,25 @@ void AppointCtrlProcess(void)//÷∏∂®∑≈––ƒ£ Ω
     
     if(ManualCtrl.EnforceFlag == 0)//
     {
-        if(ManualCtrl.StartFlag == 1)//∏’ø™ º÷∏∂®∑≈––,Œﬁ÷¥––÷∏¡Ó
+        if(ManualCtrl.StartFlag == 1)//Al comienzo del lanzamiento especificado, no hay orden de ejecuci√≥n.
         {
             ManualCtrl.Time = ManualCtrl.AutoTime;
             ManualCtrl.NextStepFlag = 0;
-            if(ManualStepProcess() == 0)//π˝∂… ±º‰÷Æ«∞,æÕ«–ªªµΩœ¬“ª≤Ω,≤¢µ»¥˝÷∏¡Ó
+            if(ManualStepProcess() == 0)//Antes del tiempo de transici√≥n, cambie al siguiente paso y espere las instrucciones
             {
                 ManualCtrl.StartFlag = 0;
                 ManualCtrl.ChannelOnsNow = ChannelStatus.Greens;
                 ManualCtrl.ChannelOnsBackup = ChannelStatus.Greens;
             }
-            else//’˝¥¶”⁄∞≤»´π˝∂… ±º‰
+            else//iempo de transici√≥n seguro
             {
-                OP.LampStateRefreshFlag = 1; //√ø1sÀ¢–¬“ª¥ŒÕ®µ¿◊¥Ã¨
+                OP.LampStateRefreshFlag = 1; //Actualizar el estado del canal cada 1s
                 return;
             }
         }
         else
         {
-            if(ManualCtrl.Time == ManualCtrl.MaxiChannelTransitionTime + 1)//Œﬁ÷¥––÷∏¡Ó,◊‘∂Øµ›ºıµΩπ˝∂…≤Ω÷Ë,æÕ◊‘∂ØÕÀ≥ˆ ÷∂Ø◊¥Ã¨
+            if(ManualCtrl.Time == ManualCtrl.MaxiChannelTransitionTime + 1)//Si no hay una instrucci√≥n de ejecuci√≥n, se reducir√° autom√°ticamente al paso de transici√≥n y luego saldr√° autom√°ticamente del estado manual.
             {
                 ManualCtrl.ChannelOnsNext = ManualCtrl.ChannelOnsBackup;
             }
@@ -1485,7 +1486,7 @@ void AppointCtrlProcess(void)//÷∏∂®∑≈––ƒ£ Ω
                 OP.WorkMode_Reason = WMR_Normal;
                 for(i = 0; i<RingMax; i++)
                 {
-                    if(PhaseState.Ring[i].SeqMax > 0)//∑«ø’ª∑
+                    if(PhaseState.Ring[i].SeqMax > 0)//anillo no vac√≠o
                     {
                         PhaseState.Ring[i].SecondRemain += 20;
                     }
@@ -1493,18 +1494,18 @@ void AppointCtrlProcess(void)//÷∏∂®∑≈––ƒ£ Ω
             }
         }
     }
-    else//÷¥––÷∏∂®∑≈––÷∏¡Ó
+    else//Ejecutar la orden de liberaci√≥n especificada
     {
-        if(ManualCtrl.StartFlag == 1)//∏’ø™ º÷∏∂®∑≈––,”–÷¥––÷∏¡Ó°™°™°™°™÷±Ω”¥”◊‘∂Ø‘À––◊™µΩ÷∏∂®∑≈––
+        if(ManualCtrl.StartFlag == 1)//Al comienzo de la liberaci√≥n designada, hay una instrucci√≥n de ejecuci√≥n --- directamente desde la operaci√≥n autom√°tica hasta la liberaci√≥n designada
         {
             ManualCtrl.StartFlag = 0;
             ManualCtrl.Time = isInTransitionStep();
-            if(ManualCtrl.Time==0)//∑«π˝∂…ƒ£ Ω
+            if(ManualCtrl.Time==0)//modo sin transici√≥n
             {
                 ManualCtrl.ChannelOnsBackup = ChannelStatus.Greens;
                 ManualCtrl.Time = ManualCtrl.AutoTime;
             }
-            else //π˝∂…ƒ£ Ω
+            else //modo de transici√≥n
             {
                 ManualCtrl.ChannelOnsBackup = ChannelStatus.Greens | ChannelStatus.Yellows;
             }
@@ -1527,7 +1528,7 @@ void AppointCtrlProcess(void)//÷∏∂®∑≈––ƒ£ Ω
         
         if(ManualCtrl.Time == 0)
         {
-            ManualCtrl.Time = ManualCtrl.AutoTime;// ±º‰µΩ0
+            ManualCtrl.Time = ManualCtrl.AutoTime;//tiempo a 0
             ManualCtrl.EnforceFlag = 0;
             ManualCtrl.ChannelOnsNow = ManualCtrl.ChannelOnsNext;
         }
@@ -1553,12 +1554,12 @@ void AppointCtrlProcess(void)//÷∏∂®∑≈––ƒ£ Ω
     RemoteChannelStatusCtrl();  
 }
 
-void FixedTimeProcess(void)//∂®÷‹∆⁄ƒ£ Ω
+void FixedTimeProcess(void)//Modo peri√≥dico
 {
     uint8_t i, PhaseChangeBit = 0;
-    //ºÏ≤È∏˜ª∑µƒœ‡Œª «∑Ò‘À––Ω· ¯£¨Ω· ¯÷√Œªª∑µƒ PhaseChangeFlag
-    //ºÏ≤È∏˜ª∑ «∑Ò‘À––Ω· ¯£¨µ•∏ˆª∑Ω· ¯÷√Œªª∑µƒ CycleOverFlag 
-    //Ω¯“ª≤ΩºÏ≤È À˘”–ª∑µƒCycleOverFlag£¨¿¥≈–∂œ «∑Ò‘À–––¬µƒ÷‹∆⁄
+    //Compruebe si la fase de cada anillo ha terminado y establezca PhaseChangeFlag del anillo al final
+    //Verifique si la operaci√≥n de cada ciclo se complet√≥ y el CycleOverFlag del ciclo se establece al final de un solo ciclo
+    //Verifique m√°s el CycleOverFlag de todos los anillos para determinar si se debe ejecutar un nuevo ciclo
     for(i = 0; i < RingMax; i++)
     {
         if(PhaseState.Ring[i].SeqMax)
@@ -1592,22 +1593,22 @@ void FixedTimeProcess(void)//∂®÷‹∆⁄ƒ£ Ω
     if( PhaseState.Ring[0].CycleOverFlag & \
         PhaseState.Ring[1].CycleOverFlag & \
         PhaseState.Ring[2].CycleOverFlag & \
-        PhaseState.Ring[3].CycleOverFlag)  //4∏ˆª∑œ‡Œª∂º‘À––ÕÍ±œ
+        PhaseState.Ring[3].CycleOverFlag)  //Se han ejecutado las 4 fases de anillo
     {
-        PhaseState.NewCycleFlag = 1; //–¬µƒ÷‹∆⁄
+        PhaseState.NewCycleFlag = 1; //nuevo ciclo
     }
 
-    if(PhaseState.NewCycleFlag)//÷ÿ–¬‘À––∑Ω∞∏
+    if(PhaseState.NewCycleFlag)//escenario de repetici√≥n
     {
         PhaseState.NewCycleFlag = 0;
-        RunModeProcess();//–¬µƒ÷‹∆⁄≈–∂œ∑Ω∞∏ «∑Ò∏ƒ±‰
+        RunModeProcess();//Si el nuevo ciclo juzga si el plan ha cambiado
         
-        if(OP.NewPatternFlag) //–¬µƒ∑Ω∞∏
+        if(OP.NewPatternFlag) //Nuevo plan
         {
             OP.NewPatternFlag = 0;
             NewPatternApply();
         }
-        else //≤ª «–¬µƒ∑Ω∞∏
+        else //no es una nueva soluci√≥n
         {
             for(i = 0; i < RingMax; i++)
             {
@@ -1624,12 +1625,12 @@ void FixedTimeProcess(void)//∂®÷‹∆⁄ƒ£ Ω
     }
 }
 
-void LineCtrlProcess(void)//∂®÷‹∆⁄ƒ£ Ω
+void LineCtrlProcess(void)//Modo peri√≥dico
 {
     uint8_t i, PhaseChangeBit = 0, ChangeFlag = 0;
-    //ºÏ≤È∏˜ª∑µƒœ‡Œª «∑Ò‘À––Ω· ¯£¨Ω· ¯÷√Œªª∑µƒ PhaseChangeFlag
-    //ºÏ≤È∏˜ª∑ «∑Ò‘À––Ω· ¯£¨µ•∏ˆª∑Ω· ¯÷√Œªª∑µƒ CycleOverFlag 
-    //Ω¯“ª≤ΩºÏ≤È À˘”–ª∑µƒCycleOverFlag£¨¿¥≈–∂œ «∑Ò‘À–––¬µƒ÷‹∆⁄
+  //Compruebe si la fase de cada anillo ha terminado y establezca PhaseChangeFlag del anillo al final
+    //Compruebe si cada ciclo ha terminado y establezca el CycleOverFlag del ciclo al final de un solo ciclo
+    // Verifique m√°s el CycleOverFlag de todos los anillos para determinar si se debe ejecutar un nuevo ciclo
     for(i = 0; i < RingMax; i++)
     {
         if(PhaseState.Ring[i].SeqMax)
@@ -1662,22 +1663,22 @@ void LineCtrlProcess(void)//∂®÷‹∆⁄ƒ£ Ω
     if(PhaseChangeBit) PhaseState.StateNum++;
     
     if(PhaseState.Ring[0].CycleOverFlag&PhaseState.Ring[1].CycleOverFlag&
-       PhaseState.Ring[2].CycleOverFlag&PhaseState.Ring[3].CycleOverFlag)  //4∏ˆª∑œ‡Œª∂º‘À––ÕÍ±œ
+       PhaseState.Ring[2].CycleOverFlag&PhaseState.Ring[3].CycleOverFlag)  //Se han ejecutado las 4 fases de anillo
     {
-        PhaseState.NewCycleFlag = 1; //–¬µƒ÷‹∆⁄
+        PhaseState.NewCycleFlag = 1; //nuevo ciclo
     }
 
-    if(PhaseState.NewCycleFlag)//÷ÿ–¬‘À––∑Ω∞∏
+    if(PhaseState.NewCycleFlag)//escenario de repetici√≥n
     {
         PhaseState.NewCycleFlag = 0;
-        RunModeProcess();//–¬µƒ÷‹∆⁄≈–∂œ∑Ω∞∏ «∑Ò∏ƒ±‰
+        RunModeProcess();//Si el nuevo ciclo juzga si el plan ha cambiado
         
-        if(OP.NewPatternFlag) //–¬µƒ∑Ω∞∏
+        if(OP.NewPatternFlag) //Nuevo plan
         {
             OP.NewPatternFlag = 0;
             NewPatternApply();
         }
-        else //≤ª «–¬µƒ∑Ω∞∏
+        else //no es una nueva soluci√≥n
         {
             for(i = 0; i < RingMax; i++)
             {
@@ -1691,21 +1692,21 @@ void LineCtrlProcess(void)//∂®÷‹∆⁄ƒ£ Ω
                 }
             }
             if(ChangeFlag) GreenWaveTimeChange();
-            else GreenWaveTimeControl(); //≤ª–Ëµ˜’˚,æÕ÷ÿ–¬º∆À„ «∑Ò∆•≈‰œ‡Œª≤Ó
+            else GreenWaveTimeControl(); //Recalcular si hacer coincidir la diferencia de fase sin ajuste
         }
     }
 }
 
-void FlashingProcess(void)//…¡π‚ƒ£ Ω
+void FlashingProcess(void)//modo destello
 {
     PhaseState.NewCycleFlag = 0;
-    //’‚¿ÔµƒÀ„∑® πµ√≥ÂÕªª∆…¡∫Û,–≈∫≈ª˙◊‘∂Øª÷∏¥.
-    //∏ƒ±‰À„∑®,“ÚŒ™≥ÂÕª∫Û,–≈∫≈ª˙ª∆…¡,≥ÂÕªæÕ≤ª¥Ê‘⁄¡À.
+    //El algoritmo aqu√≠ hace que la se√±al se recupere autom√°ticamente despu√©s de que el conflicto parpadee en amarillo.
+    //Cambie el algoritmo, porque despu√©s del conflicto, la m√°quina de se√±ales parpadea en amarillo y el conflicto no existe.
     if(OP.WorkMode_Reason == WMR_Normal)
     {
-        RunModeProcess();//–¬µƒ÷‹∆⁄≈–∂œ∑Ω∞∏ «∑Ò∏ƒ±‰
+        RunModeProcess();//Si el nuevo ciclo juzga si el plan ha cambiado
         if(OP.WorkMode != PatternNow.WorkMode) OP.NewPatternFlag = 1;
-        if(OP.NewPatternFlag) //–¬µƒ∑Ω∞∏
+        if(OP.NewPatternFlag) //Nuevo plan
         {
             OP.NewPatternFlag = 0;
             NewPatternApply();
@@ -1714,11 +1715,11 @@ void FlashingProcess(void)//…¡π‚ƒ£ Ω
     AutoFlashMode();
 }
 
-void AllRedProcess(void)//»´∫Ïƒ£ Ω
+void AllRedProcess(void)//modo rojo completo
 {
     PhaseState.NewCycleFlag = 0;
-    RunModeProcess();//–¬µƒ÷‹∆⁄≈–∂œ∑Ω∞∏ «∑Ò∏ƒ±‰
-    if(OP.NewPatternFlag) //–¬µƒ∑Ω∞∏
+    RunModeProcess();//Si el nuevo ciclo juzga si el plan ha cambiado
+    if(OP.NewPatternFlag) //Nuevo plan
     {
         OP.NewPatternFlag = 0;
         NewPatternApply();
@@ -1726,11 +1727,11 @@ void AllRedProcess(void)//»´∫Ïƒ£ Ω
     AutoAllRedMode();
 }
 
-void LampOffProcess(void)//πÿµ∆ƒ£ Ω
+void LampOffProcess(void)//modo de luz apagada
 {
     PhaseState.NewCycleFlag = 0;
-    RunModeProcess();//–¬µƒ÷‹∆⁄≈–∂œ∑Ω∞∏ «∑Ò∏ƒ±‰
-    if(OP.NewPatternFlag) //–¬µƒ∑Ω∞∏
+    RunModeProcess();//Si el nuevo ciclo juzga si el plan ha cambiado
+    if(OP.NewPatternFlag) //Nuevo plan
     {
         OP.NewPatternFlag = 0;
         NewPatternApply();
@@ -1738,30 +1739,30 @@ void LampOffProcess(void)//πÿµ∆ƒ£ Ω
     AutoLampOffMode();
 }
 
-void SplitModeManage(void)//∏–”¶ƒ£ Ωœ¬¬Ã–≈±»ƒ£ Ωπ‹¿Ì
+void SplitModeManage(void)//Gesti√≥n del modo relaci√≥n se√±al verde en modo inducci√≥n
 {
     uint8_t i, OmittedFlag;
     for(i = 0; i < RingMax; i++)
     {
-        if((RingSplit[i].Coord & SC_FIXED) == 0)//∑«πÃ∂®œ‡Œª
+        if((RingSplit[i].Coord & SC_FIXED) == 0)//fase no fija
         {
-            if(RingSplit[i].Mode == SM_MinVehRecall)//◊Ó–°œÏ”¶
+            if(RingSplit[i].Mode == SM_MinVehRecall)//respuesta m√≠nima
             {
                 RingSplit[i].Time = PhaseTab.Phase[RingPhase[i].PhaseIndex].MinimumGreen;
             }
-            else if(RingSplit[i].Mode == SM_MaxVehRecall)//◊Ó¥ÛœÏ”¶
+            else if(RingSplit[i].Mode == SM_MaxVehRecall)//respuesta m√°xima
             {
                 RingSplit[i].Time = PhaseTab.Phase[RingPhase[i].PhaseIndex].Maximum1;
             }
-            else if(RingSplit[i].Mode == SM_MaxVehPedRecall)//◊Ó–°œÏ”¶
+            else if(RingSplit[i].Mode == SM_MaxVehPedRecall)//Respuesta m√≠nima
             {
                 RingSplit[i].Time = PhaseTab.Phase[RingPhase[i].PhaseIndex].Maximum1;
             }
-            else if(RingSplit[i].Mode == SM_Omitted)//◊Ó–°œÏ”¶
+            else if(RingSplit[i].Mode == SM_Omitted)//respuesta m√≠nima
             {
                 RingSplit[i].Time = PhaseTab.Phase[RingPhase[i].PhaseIndex].Maximum1;
             }
-            else if(RingSplit[i].Mode == SM_PedRecall)//––»ÀœÏ”¶
+            else if(RingSplit[i].Mode == SM_PedRecall)//respuesta peatonal
             {
                 RingSplit[i].Time = PhaseTab.Phase[RingPhase[i].PhaseIndex].Maximum1;
             }
@@ -1769,19 +1770,18 @@ void SplitModeManage(void)//∏–”¶ƒ£ Ωœ¬¬Ã–≈±»ƒ£ Ωπ‹¿Ì
     }
 }
 
-//∏–”¶ƒ£ Ωœ¬£∫
-//ª˙∂Ø≤ﬂ¬‘
-//1°¢ £”‡ ±º‰–°”⁄[µ•Œª—”≥§¬Ã+∞≤»´ ±º‰]£¨ƒ«√¥ £”‡ ±º‰[‘ˆº”µΩ][µ•Œª—”≥§¬Ã+∞≤»´ ±º‰],≤ª «[‘ˆº”][µ•Œª—”≥§¬Ã]+[∞≤»´ ±º‰]
-//2°¢»Áπ˚≈‰÷√¡À[±£≥÷––»À∑≈––]£¨ƒ«√¥––»À¬Ã…¡ ±º‰ ”¶µ»”⁄ ª˙∂Ø∞≤»´ ±º‰
-//3°¢
+//En modo de detecci√≥n:  
+// estrategia de maniobra  
+// 1. El tiempo restante es menor que [extensi√≥n de la unidad verde + tiempo de seguridad], luego el tiempo restante [aumenta a] [extensi√≥n de la unidad verde + tiempo de seguridad], no [aumenta] [extensi√≥n de la unidad verde] + [tiempo de seguridad] 
+// 2. Si se configura [Mantener peatones despejados], el tiempo de parpadeo verde de los peatones debe ser igual al tiempo de seguridad de maniobra 
+//3,
 
-//––»À≤ﬂ¬‘
-//1°¢œ» µœ÷µ•ª∑ƒ£ Ωœ¬µƒøÿ÷∆¬ﬂº≠£∫”–––»À«Î«Û£¨≤≈÷¥––£¨Œﬁ«Î«Û£¨≤ª÷¥––°£
-//2°¢Àºøº∂‡ª∑øÿ÷∆ƒ£ Ωœ¬£¨∏˜ª∑ ±º‰”Îœ‡Œª≥ÂÕªµƒ÷¥––≤ﬂ¬‘
-//
+//Estrategia peatonal 
+// 1. Primero implemente la l√≥gica de control en el modo de bucle √∫nico: solo ejecute si hay una solicitud de peatones, y no ejecute si no hay solicitud. 
+// 2. Piense en la estrategia de implementaci√≥n de los conflictos de tiempo y fase de cada anillo en el modo de control de bucle m√∫ltiple//
 
-//’“≥ˆ”–«Î«ÛµƒIOµƒ–Ú∫≈£¨»ª∫Û≤È––»ÀºÏ≤‚∆˜±Ì∂‘”¶µƒºÏ≤‚∆˜∫≈£¨ªÒ»°«Î«Ûµƒœ‡Œª∫≈°£
-//‘Ÿ≈–∂œœ‡Œª∫≈ «∑Ò‘⁄ª∑µ±÷–£¨«“œ‡Œª≤Óƒ£ ΩŒ™––»À«Î«Ûƒ£ Ω°£»Áπ˚¬˙◊„Ãıº˛º¥÷√Œª«Î«Û±Í÷æ°£
+// Averig√ºe el n√∫mero de serie del IO solicitado, luego verifique el n√∫mero de detector correspondiente a la tabla de detectores de peatones y obtenga el n√∫mero de fase solicitado„ÄÇ
+// Luego juzgue si el n√∫mero de fase est√° en el anillo, y el modo de diferencia de fase es el modo de solicitud de peatones. El indicador de solicitud se establece si se cumple la condici√≥n.
 //
 //PhaseStatus.PhaseNexts
 //
@@ -1789,24 +1789,25 @@ void SplitModeManage(void)//∏–”¶ƒ£ Ωœ¬¬Ã–≈±»ƒ£ Ωπ‹¿Ì
 //
 //
 //
-//1°¢’˝‘⁄÷¥––µƒœ‡Œª ±º‰ÕÍ≥…£¨ºÏ≤Èœ¬“ªœ‡Œª «∑ÒŒ™––»À«Î«Ûœ‡Œª
-//2°¢≈–∂œ∏√œ‡Œª «∑Òøÿ÷∆¡Àª˙∂Øµ∆◊È,øÿ÷∆¡Àª˙∂Øµ∆◊È‘Ú∞¥’’ª˙∂Øµ∆◊È÷¥––,√ª”–,‘ÚºÏ≤È∞¥≈•…˙–ß«Èøˆ.
-//2°¢≈–∂œœ¬œ‡Œªµ±÷–––»Àœ‡Œª∂‘”¶µƒ∞¥≈• «∑Ò”––ß
-//3°¢∞¥≈•”––ß£¨÷¥––œ‡Œª£¨Œﬁ–ß£¨Ã¯π˝∏√œ‡Œª°£
+// 1. El tiempo de la fase que se est√° ejecutando se completa, verifique si la siguiente fase es una fase de solicitud peatonal 
+//2 Determinar si la fase controla el grupo de luces motorizado, si se controla el grupo de luces motorizado se ejecutar√° de acuerdo al
+// grupo de luces motorizado, en caso contrario verificar el efecto del pulsador.
+//2.Determinar si es valido el boton correspondiente a la fase peatonal en la fase inferior
+// 3. El bot√≥n es v√°lido, ejecuta la fase, inv√°lido, salta la fase.
 //
 
-uint8_t CheckNextPhaseSplitMode(uint8_t ring)//ºÏ≤È∂‘”¶ª∑œ¬œ‡Œªµƒ¬Ã–≈±»ƒ£ Ω
+uint8_t CheckNextPhaseSplitMode(uint8_t ring)//Verifique el modo de relaci√≥n de se√±al verde correspondiente a la fase debajo del anillo
 {
 
     return 0;
 }
 
-//0’˝≥£÷¥––,1Ã¯π˝œ¬œ‡Œª
+//0 se ejecuta normalmente, 1 salta a la siguiente fase
 uint8_t peddet_Control(uint8_t ring)
 {
     uint8_t i, temp;
 
-    //œ¬œ‡Œª «∑Ò≈‰÷√¡À pedestrianRecall
+    //Si la fase inferior est√° configurada con peatonalRecall
     #if DEBUG
     printf("Num = %d, Next = %d, Index = %d, NextIndex = %d, SplitIndex = %d, SplitNextIndex = %d\n",
             RingPhase[ring].PhaseNum,
@@ -1821,11 +1822,11 @@ uint8_t peddet_Control(uint8_t ring)
     #endif
 
     if(SplitNow.Phase[RingPhase[ring].SplitNextIndex].Mode != SM_PedRecall) return 0;
-    //œ¬œ‡Œª «∑Ò≤ªŒ™»À––œ‡ŒªªÚ’ﬂŒ™ª˙∂Øœ‡Œª
+  //Si la fase inferior no es una fase peatonal o una fase de maniobra
     if(isVehPhase(RingPhase[ring].PhaseNext) == 1 || isPedPhase(RingPhase[ring].PhaseNext) == 0) return 0;
-    //÷¡¥À,Àµ√˜œ¬œ‡ŒªŒ™»À––œ‡Œª(Œﬁª˙∂Øchannel),«“…Ë÷√¡À pedestrianRecall
+    //Hasta ahora, muestra que la siguiente fase es la fase peatonal (sin canal de motor) y se ha configurado la llamada peatonal.
     
-    if(peddet_hw.rising & 0x7f)//µ⁄8∫≈ ‰»Î”√”⁄ø™√≈ºÏ≤‚
+    if(peddet_hw.rising & 0x7f)//La entrada No. 8 se utiliza para la detecci√≥n de puerta abierta
     {
         temp = 0x01;
         for(i = 0; i < 8; i++)
@@ -1848,12 +1849,12 @@ uint8_t peddet_Control(uint8_t ring)
             temp <<= 1;
         }
     }
-    //÷¡¥À,Àµ√˜œ¬œ‡Œª∂‘”¶∞¥≈•Œﬁ∂Ø◊˜
+    //Hasta ahora se nota que el boton correspondiente a la fase inferior no tiene accion
     return 1;
 }
 
 
-void VehicleSenseProcess(void)//∏–”¶ƒ£ Ω
+void VehicleSenseProcess(void)//modo de inducci√≥n
 {
     uint8_t i, PhaseChangeBit = 0;
     uint8_t VehicleClear, YellowChange, RedClear;
@@ -1868,7 +1869,7 @@ void VehicleSenseProcess(void)//∏–”¶ƒ£ Ω
             {
                 while(PhaseState.Ring[i].SeqNum + 1 < PhaseState.Ring[i].SeqMax)
                 {
-                    if(peddet_Control(i) == 1)//1Ã¯π˝œ¬œ‡Œª
+                    if(peddet_Control(i) == 1)//1 salta la siguiente fase
                     {
                         PhaseState.Ring[i].SeqNum++;
                         PhaseState.Ring[i].PhaseChangeFlag = 1;
@@ -1905,21 +1906,21 @@ void VehicleSenseProcess(void)//∏–”¶ƒ£ Ω
                 PedestrianClear = PhaseTab.Phase[RingPhase[i].PhaseIndex].PedestrianClear;
                 
                 RemainTime = PhaseState.Ring[i].SecondRemain;
-                if((RingSplit[i].Coord & SC_FIXED) == 0)//∑«πÃ∂®œ‡Œª
+                if((RingSplit[i].Coord & SC_FIXED) == 0)//fase no fija
                 {
-                    if(RingSplit[i].Mode == SM_MinVehRecall)//◊Ó–°œÏ”¶
+                    if(RingSplit[i].Mode == SM_MinVehRecall)//respuesta m√≠nima
                     {
                         RingSplit[i].Time = PhaseTab.Phase[RingPhase[i].PhaseIndex].MinimumGreen;
                     }
-                    else if(RingSplit[i].Mode == SM_MaxVehRecall)//◊Ó¥ÛœÏ”¶
+                    else if(RingSplit[i].Mode == SM_MaxVehRecall)//respuesta m√°xima
                     {
                         RingSplit[i].Time = PhaseTab.Phase[RingPhase[i].PhaseIndex].Maximum1;
                     }
-                    else if(RingSplit[i].Mode == SM_MaxVehRecall)//◊Ó–°œÏ”¶
+                    else if(RingSplit[i].Mode == SM_MaxVehRecall)//respuesta m√≠nima
                     {
                         RingSplit[i].Time = PhaseTab.Phase[RingPhase[i].PhaseIndex].Maximum1;
                     }
-                    else if(RingSplit[i].Mode == SM_PedRecall)//––»ÀœÏ”¶
+                    else if(RingSplit[i].Mode == SM_PedRecall)//respuesta peatonal
                     {
                         RingSplit[i].Time = PhaseTab.Phase[RingPhase[i].PhaseIndex].Maximum1;
                     }
@@ -1934,24 +1935,24 @@ void VehicleSenseProcess(void)//∏–”¶ƒ£ Ω
     if( PhaseState.Ring[0].CycleOverFlag & \
         PhaseState.Ring[1].CycleOverFlag & \
         PhaseState.Ring[2].CycleOverFlag & \
-        PhaseState.Ring[3].CycleOverFlag)  //4∏ˆª∑œ‡Œª∂º‘À––ÕÍ±œ
+        PhaseState.Ring[3].CycleOverFlag)  //Se han ejecutado las 4 fases de anillo
     {
-        PhaseState.NewCycleFlag = 1; //–¬µƒ÷‹∆⁄
+        PhaseState.NewCycleFlag = 1; //nuevo ciclo
     }
     
-    if(PhaseState.NewCycleFlag)//÷ÿ–¬‘À––∑Ω∞∏
+    if(PhaseState.NewCycleFlag)//escenario de repetici√≥n
     {
         PhaseState.NewCycleFlag = 0;
-        RunModeProcess();//–¬µƒ÷‹∆⁄≈–∂œ∑Ω∞∏ «∑Ò∏ƒ±‰
+        RunModeProcess();//Si el nuevo ciclo juzga si el plan ha cambiado
         #if DEBUG
         printf("NewCycle\n");
         #endif
-        if(OP.NewPatternFlag) //–¬µƒ∑Ω∞∏
+        if(OP.NewPatternFlag) //Nuevo plan
         {
             OP.NewPatternFlag = 0;
             NewPatternApply();
         }
-        else //≤ª «–¬µƒ∑Ω∞∏
+        else //no es una nueva soluci√≥n
         {
             for(i = 0; i < RingMax; i++)
             {
@@ -1963,7 +1964,7 @@ void VehicleSenseProcess(void)//∏–”¶ƒ£ Ω
                     //printf("SeqNum = %d\n", PhaseState.Ring[i].SeqNum);
                     while(1)
                     {
-                        if(peddet_Control(i) == 1)//1Ã¯π˝œ¬œ‡Œª
+                        if(peddet_Control(i) == 1)//1 salta la siguiente fase
                         {
                             if(++PhaseState.Ring[i].SeqNum >= PhaseState.Ring[i].SeqMax)PhaseState.Ring[i].SeqNum = 0;
                             PhaseState.Ring[i].PhaseChangeFlag = 1;
@@ -1985,9 +1986,9 @@ void VehicleSenseProcess(void)//∏–”¶ƒ£ Ω
 }
 
 /*
-ErrorProcess: œµÕ≥¥ÌŒÛ¥¶¿Ì≥Ã–Ú
-»Áπ˚œµÕ≥¥¶”⁄Ωµº∂ª∆…¡ƒ£ Ω,ƒ«√¥≈–∂œΩµº∂µƒ‘≠“Ú,,
-
+ErrorProcess: controlador de errores del sistema
+Si el sistema est√° en el modo de parpadeo amarillo degradado, determine
+el motivo de la degradaci√≥n,,
 */
 void ErrorProcess(void)
 {
@@ -1997,12 +1998,12 @@ void ErrorProcess(void)
 
 
 /*
-    –Ë“™≈–∂œœ‡Œªµƒ¬Ã–≈±»ƒ£ Ω£¨≈–∂œ «∑Ò—”≥§, «∑Ò«–ªªµ»
+    Es necesario juzgar el modo de relaci√≥n de se√±al verde de la fase, juzgar si extender, si cambiar, etc.
 */
-void RunPhaseTimeCalc(void)//10ms‘À––“ª¥Œ
+void RunPhaseTimeCalc(void)//Ejecutar una vez en 10ms
 {
     PhaseState.Phase10msCount++;
-    if(OP.SendWorkModeAutoFlag == 1)//“—¡™ª˙
+    if(OP.SendWorkModeAutoFlag == 1)//en l√≠nea
     {
         if(PhaseState.Phase10msCount == 1)
         {
@@ -2018,32 +2019,32 @@ void RunPhaseTimeCalc(void)//10ms‘À––“ª¥Œ
     {
         PhaseState.Phase1sFlag = 0;
         PhaseState.Phase10msCount = 0;
-        manual_control();// ÷∂Øøÿ÷∆π¶ƒ‹
-//        if(ManualCtrl.LocalCtrlFlag)// ÷∂Øƒ£ Ω
+        manual_control();//Funci√≥n de control manual
+//        if(ManualCtrl.LocalCtrlFlag)//modo manual
 //        {
-//            if(OP.WorkMode == ManualFlashing) // ÷∂Ø…¡π‚
+//            if(OP.WorkMode == ManualFlashing) //flash manual
 //            {
 //                AutoFlashMode();
 //            }
-//            else if(OP.WorkMode == ManualAllRead)// ÷∂Ø»´∫Ï
+//            else if(OP.WorkMode == ManualAllRead)//Manual todo rojo
 //            {
 //                AutoAllRedMode();
 //            }
-//            else if(OP.WorkMode == ManualLampOff)// ÷∂Øπÿµ∆
+//            else if(OP.WorkMode == ManualLampOff)//Apagar manualmente las luces
 //            {
 //                AutoLampOffMode();
 //            }
-//            else if(OP.WorkMode == ManualStep)// ÷∂Ø
+//            else if(OP.WorkMode == ManualStep)//manual
 //            {
 //                ManualStepProcess();
-//                OP.LampStateRefreshFlag = 1;    //√ø1sÀ¢–¬“ª¥ŒÕ®µ¿◊¥Ã¨
+//                OP.LampStateRefreshFlag = 1;    //Actualizar el estado del canal cada 1s
 //            }
 //            return;
 //        }
         
         if(ManualCtrl.RemoteCtrlFlag || ManualCtrl.LocalCtrlFlag)
         {
-            if(OP.WorkMode == ManualAppoint)// ÷∂Ø
+            if(OP.WorkMode == ManualAppoint)//manual
             {
                 AppointCtrlProcess();
             }
@@ -2059,55 +2060,55 @@ void RunPhaseTimeCalc(void)//10ms‘À––“ª¥Œ
                         OP.WorkMode_Reason = WMR_Normal;
                     }
                 }
-                if(OP.WorkMode == ManualFlashing) // ÷∂Ø…¡π‚
+                if(OP.WorkMode == ManualFlashing) //flash manual
                 {
                     AutoFlashMode();
                 }
-                else if(OP.WorkMode == ManualAllRead)// ÷∂Ø»´∫Ï
+                else if(OP.WorkMode == ManualAllRead)//Manual todo rojo
                 {
                     AutoAllRedMode();
                 }
-                else if(OP.WorkMode == ManualLampOff)// ÷∂Øπÿµ∆
+                else if(OP.WorkMode == ManualLampOff)//Apagar manualmente las luces
                 {
                     AutoLampOffMode();
                 }
-                else if(OP.WorkMode == ManualStep)// ÷∂Øœ¬“ª≤Ω
+                else if(OP.WorkMode == ManualStep)//siguiente paso manual
                 {
                     ManualStepProcess();
-                    OP.LampStateRefreshFlag = 1;    //√ø1sÀ¢–¬“ª¥ŒÕ®µ¿◊¥Ã¨
+                    OP.LampStateRefreshFlag = 1;    //Actualizar el estado del canal cada 1s
                 }
             }
             return;
         }
         
-        if(OP.WorkMode == FixedTime)    //∂®÷‹∆⁄µƒ÷¥––≤ﬂ¬‘
+        if(OP.WorkMode == FixedTime)    //Estrategia de ejecuci√≥n peri√≥dica
         {
             FixedTimeProcess();
-            OP.LampStateRefreshFlag = 1;    //√ø1sÀ¢–¬“ª¥ŒÕ®µ¿◊¥Ã¨
+            OP.LampStateRefreshFlag = 1;    //Actualizar el estado del canal cada 1s
         }
-        else if(OP.WorkMode == LineCtrl)    //œﬂ–≠µ˜(¬Ã≤®)µƒ÷¥––≤ﬂ¬‘
+        else if(OP.WorkMode == LineCtrl)    //Estrategia de Ejecuci√≥n de Coordinaci√≥n de L√≠nea (Onda Verde)
         {
             LineCtrlProcess();
-            OP.LampStateRefreshFlag = 1;    //√ø1sÀ¢–¬“ª¥ŒÕ®µ¿◊¥Ã¨
+            OP.LampStateRefreshFlag = 1;    //Actualizar el estado del canal cada 1s
         }
-        else if(OP.WorkMode == VehicleSense)//∏–”¶µƒ÷¥––≤ﬂ¬‘
+        else if(OP.WorkMode == VehicleSense)//Detecci√≥n de estrategias de ejecuci√≥n
         {
             VehicleSenseProcess();
-            OP.LampStateRefreshFlag = 1;    //√ø1sÀ¢–¬“ª¥ŒÕ®µ¿◊¥Ã¨
+            OP.LampStateRefreshFlag = 1;    //Actualizar el estado del canal cada 1s
         }
-        else if(OP.WorkMode == Flashing)//…¡π‚µƒ÷¥––≤ﬂ¬‘
+        else if(OP.WorkMode == Flashing)//Estrategia de implementaci√≥n flash
         {
             FlashingProcess();
         }
-        else if(OP.WorkMode == AllRed)//»´∫Ïµƒ÷¥––≤ﬂ¬‘
+        else if(OP.WorkMode == AllRed)//La estrategia de ejecuci√≥n de All Red
         {
             AllRedProcess();
         }
-        else if(OP.WorkMode == LampOff)//»´∫Ïµƒ÷¥––≤ﬂ¬‘
+        else if(OP.WorkMode == LampOff)//La estrategia de ejecuci√≥n de All Red
         {
             LampOffProcess();
         }
-        else if(OP.WorkMode == StarupMode)//∆Ù∂Øƒ£ Ω
+        else if(OP.WorkMode == StarupMode)//El modo de inicio
         {
             StartupProcess();
         }
@@ -2132,7 +2133,7 @@ void GetSeqTime(void)
                 {
                     SeqTime.Ring[i].Time[step] = SplitNow.Phase[SplitPhaseIndex].Time;
                 }
-                else//¬Ã–≈±»±Ì÷–Œ¥∂®“Â∏√œ‡Œª, π”√◊Ó–°œ‡Œª ±º‰
+                else//La fase no est√° definida en la tabla de relaci√≥n de se√±al verde, use el tiempo m√≠nimo de fase
                 {
                     SeqTime.Ring[i].Time[step] = PhaseTab.Phase[PhaseIndex].MinimumGreen+PhaseTab.Phase[PhaseIndex].YellowChange+PhaseTab.Phase[PhaseIndex].RedClear;
                 }
@@ -2174,7 +2175,7 @@ void GetPhaseStatusMap(void)
     }
     
     PhaseState.StateNum = 0;
-    PhaseState.State[0] = 0;//œ‡Œª◊¥Ã¨1
+    PhaseState.State[0] = 0;//estado de fase 1
     
     for(t=1;t<NowCycleTime;t++)
     {
@@ -2211,15 +2212,15 @@ void GetPhaseStatusMap(void)
 }
 
 /*
-    Õ®π˝µ±«∞∑≈––µƒœ‡Œª∫≈ œ‡Œª≤Œ ˝ ∫Õ “—∑≈–– ±º‰, ≈–∂œº∆À„∏˜Õ®µ¿◊¥Ã¨
+    Juzgar y calcular el estado de cada canal a trav√©s del n√∫mero de fase liberado actual, los par√°metros de fase y el tiempo liberado
 */
-void LampStateControl(void)//1s‘À––“ª¥Œ
+void LampStateControl(void)//Ejecutar una vez en 1s
 {
-    if(OP.LampStateRefreshFlag)//µ∆Ã¨À¢–¬
+    if(OP.LampStateRefreshFlag)//Actualizaci√≥n de estado de luz
     {
         OP.LampStateRefreshFlag = 0;
         PhaseStatusControl();
         OverlapStatusControl();
-        ChannelStatusControl();//∏˘æ›PhaseStatus,«˝∂ØChannelStatus
+        ChannelStatusControl();//De acuerdo con PhaseStatus, conduce ChannelStatus
     }
 }
