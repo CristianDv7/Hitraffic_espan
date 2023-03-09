@@ -1,13 +1,13 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : 时钟芯片操作接口
-*	文件名称 : sd2405.h
-*	版    本 : V1.0
-*	说    明 : 
-*	修改记录 :
-*		版本号  日期       作者    说明
-*		V1.0    2019-03-19 wcx     首发
+*	Nombre del m贸dulo: interfaz de operaci贸n de chip de reloj
+*	Nombre del archivo: sd2405.h
+*	Versi贸n: V1.0
+*	Ilustrado : 
+*	registro de modificaci贸n :
+*		N煤mero de versi贸n Fecha Autor Descripci贸n
+*		V1.0    2019-03-19 wcx     Primer lanzamiento
 *
 *********************************************************************************************************
 */
@@ -24,7 +24,7 @@
 #define ISL1208_ADDR    0xDE
 #define SD2405_ADDR     0x64
 
-/* ISL1208_ADDR 寄存器定 */
+/* Configuraci贸n de registro ISL1208_ADDR */
 #define SecReg  0x00
 #define MinReg  0x01
 #define HourReg 0x02
