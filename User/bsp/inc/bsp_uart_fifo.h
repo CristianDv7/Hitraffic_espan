@@ -1,10 +1,10 @@
 /*
 *********************************************************************************************************
 *
-* Module name: serial port interrupt + FIFO driver module 
-* File name: bsp_uart_fifo.h 
+* Nombre del m贸dulo: interrupci贸n de puerto serie + m贸dulo de controlador FIFO
+* Nombre del archivo: bsp_uart_fifo.h
 * Version : V1.0 
-* Description: Header file
+* Descripci贸n: archivo de cabecera
 *
 *********************************************************************************************************
 */
@@ -15,25 +15,25 @@
 #include "bsp.h"
 
 /*	
-	串口分配：
-	【串口1】 RS232	--- 打印调试口，上位机
+	Asignaci贸n de puerto serie: [Puerto serie 1] 
+	RS232 --- Imprimir puerto de depuraci贸n, computadora host
 		PA9/USART1_TX
 		PA10/USART1_RX
 
-	【串口2】GPS 模块  --- 卫星定位，授时
+	Puerto serie 2銆慚贸dulo GPS --- Posicionamiento por sat茅lite, temporizaci贸n
 		PA2/USART2_TX
 		PA3/USART2_RX 
 
-	【串口3】WiFi 模块
+	銆怭uerto serie 3銆慚贸dulo WiFi
 		PB10/USART3_TX
 		PB11/USART3_RX
 
-	【串口4】 RS485 通信
+	[Puerto serie 4] Comunicaci贸n RS485
 		PC10/UART4_TX
 		PC11/UART4_RX
 		PD0/BOOT1/RS485_TX_EN
 		
-	【串口5】 RS232 检测器输入
+	[Puerto serie 5] Entrada de detector RS232
 		PC12/UART5_TX
 		PD2/UART5_RX
 */
@@ -44,38 +44,38 @@
 #define	UART4_FIFO_EN	1
 #define	UART5_FIFO_EN	1
 
-/* RS485 chip sends enable GPIO, PB2 */
+/* Los env铆os del chip RS485 habilitan GPIO, PB2 */
 #define RCC_RS485_DIR 	 RCC_APB2Periph_GPIOD
 #define RS485_DIR_PORT   GPIOD
 #define RS485_DIR_PIN	 GPIO_Pin_0
 
-//High level receive, low level transmit
+//Recepci贸n de alto nivel, transmisi贸n de bajo nivel
 #define RS485_RX_EN()	RS485_DIR_PORT->BSRR = RS485_DIR_PIN
 #define RS485_TX_EN()	RS485_DIR_PORT->BRR = RS485_DIR_PIN
 
 
-/* Serial device structure */
+/* Estructura del dispositivo serie */
 typedef struct
 {
-	USART_TypeDef *uart;		/* STM32 internal serial device pointe */
-	uint8_t *pTxBuf;			/* send buffer */
-	uint8_t *pRxBuf;			/* receive buffer */
-	uint16_t usTxBufSize;		/* send buffer size */
-	uint16_t usRxBufSize;		/* receive buffer size */
-	__IO uint16_t usTxWrite;	/* send buffer write pointer */
-	__IO uint16_t usTxRead;		/* send buffer read pointer */
-	__IO uint16_t usTxCount;	/* The number of data waiting to be sent */
+	USART_TypeDef *uart;		/* Punto de dispositivo serial interno STM32 */
+	uint8_t *pTxBuf;			/* enviar b煤fer */
+	uint8_t *pRxBuf;			/* b煤fer de recepci贸n */
+	uint16_t usTxBufSize;		/* tama帽o del b煤fer de env铆o */
+	uint16_t usRxBufSize;		/* tama帽o del b煤fer de recepci贸n */
+	__IO uint16_t usTxWrite;	/* enviar puntero de escritura de b煤fer */
+	__IO uint16_t usTxRead;		/* enviar puntero de lectura de b煤fer */
+	__IO uint16_t usTxCount;	/* El n煤mero de datos que esperan ser enviados */
 
-	__IO uint16_t usRxWrite;	/* receive buffer write pointer */
-	__IO uint16_t usRxRead;		/* Receive buffer read pointer */
-	__IO uint16_t usRxCount;	/* The number of new data that has not been read */
+	__IO uint16_t usRxWrite;	/* recibir el puntero de escritura del b煤fer */
+	__IO uint16_t usRxRead;		/* Recibe el puntero de lectura del b煤fer */
+	__IO uint16_t usRxCount;	/* El n煤mero de datos nuevos que no han sido le铆dos */
 
-	void (*SendBefor)(void); 	/* Callback function pointer before starting to send (mainly used for switching RS485 to send mode) */
-	void (*SendOver)(void); 	/* The callback function pointer after sending (mainly used for RS485 to switch the sending mode to receiving mode) */
-	void (*ReciveNew)(uint16_t _byte);	/* The callback function pointer of the data received by the serial port */
+	void (*SendBefor)(void); 	/* Puntero de funci贸n de devoluci贸n de llamada antes de comenzar a enviar (utilizado principalmente para cambiar RS485 al modo de env铆o) */
+	void (*SendOver)(void); 	/* El puntero de la funci贸n de devoluci贸n de llamada despu茅s del env铆o (utilizado principalmente para RS485 para cambiar el modo de env铆o al modo de recepci贸n) */
+	void (*ReciveNew)(uint16_t _byte);	/* El puntero de la funci贸n de devoluci贸n de llamada de los datos recibidos por el puerto serie */
 }UART_T;
 
-/* Define serial port baud rate and FIFO buffer size, divided into send buffer and receive buffer, support full duplex */
+/* Definir la tasa de baudios del puerto serie y el tama帽o del b煤fer FIFO, dividido en b煤fer de env铆o y b煤fer de recepci贸n, compatible con d煤plex completo */
 #if UART1_FIFO_EN == 1
 	#define UART1_BAUD			115200
 	#define UART1_TX_BUF_SIZE	1*1024
