@@ -1,29 +1,29 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : ÏàÐòÄ£¿é
-*	ÎÄ¼þÃû³Æ : Sequence.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
-*	ÐÞ¸Ä¼ÇÂ¼ :
-*		°æ±¾ºÅ  ÈÕÆÚ       ×÷Õß    ËµÃ÷
-*		V1.0    2019-12-30  wcx     Ê×·¢
+*	æ¨¡å—åç§° : MÃ³dulo de secuencia de fase
+*	æ–‡ä»¶åç§° : Sequence.c
+*	ç‰ˆ    æœ¬ : V1.0
+*	è¯´    æ˜Ž : 
+*	ä¿®æ”¹è®°å½• :
+*		ç‰ˆæœ¬å·  æ—¥æœŸ       ä½œè€…    è¯´æ˜Ž
+*		V1.0    2019-12-30  wcx     é¦–å‘
 *
 *********************************************************************************************************
 */
 #include "public.h"
 #include "Sequence.h"
 
-//µ±Ç°ÔËÐÐµÄ ºÍ ÏÂÒ»·½°¸µÄ ÏàÐò Êý¾Ý 
+//Datos de secuencia de fase del esquema actualmente en ejecuciÃ³n y el siguiente
 uint8_t         RingStatus[RingMax];
 SequenceType    SequenceNow;
-SequenceTable   SeqTab;   //ÏàÐò±í
+SequenceTable   SeqTab;   //Tabla de secuencia de fases
 
 
 /*
-    ²ÎÊý£ºÏàÐòÖ¸Õë
-    ¹¦ÄÜ£ºÅÐ¶Ï¸ÃÏàÐòÓÐ¶àÉÙ¸öÏàÎ»
-          ÏàÐòµÄ»·ºÅ²»ºÏ·¨£¬·µ»ØÏàÎ»¸öÊý0
+   ParÃ¡metro: puntero de secuencia de fase
+    FunciÃ³n: juzgar cuÃ¡ntas fases tiene la secuencia de fases
+          El nÃºmero de timbre de la secuencia de fase no es vÃ¡lido y el nÃºmero de fases se devuelve como 0
 */
 uint8_t GetSeqMax(RingType* Ring)
 {
@@ -71,13 +71,13 @@ void SequenceDefault(void)
     SeqTab.Seq[1].Ring[0].Phase[2] = 5;
 }
 
-//ÏàÐòSequenceµÄÄ¬ÈÏÅäÖÃ
-//Ö»ÓÐÒ»¸ö»·£¬»·1·ÅÐÐ5¸öÏàÎ»
+//La configuraciÃ³n por defecto de la secuencia de fases Sequence
+//Solo hay un anillo, y el anillo 1 libera 5 fases
 void SequenceXDataInit(SequenceType* Sequence)
 {
     Sequence->Num = 1;
-    Sequence->Ring[0].RingNum = 1;//»·1ÓÐÐ§
-    Sequence->Ring[1].RingNum = 0;//Ö»ÓÐ1¸ö»·£¬ÆäËû»·ÎÞÐ§
+    Sequence->Ring[0].RingNum = 1;//anillo 1 activo
+    Sequence->Ring[1].RingNum = 0;//Solo 1 timbre, otros timbres no son vÃ¡lidos
     Sequence->Ring[2].RingNum = 0;
     Sequence->Ring[3].RingNum = 0;
     
