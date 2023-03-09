@@ -4,7 +4,7 @@
 #include "Split.h"
 #include "Overlap.h"
 
-/* µ±Ç°ÔËĞĞµÄ¸÷¸ö»·µÄÏàÎ»×´Ì¬Êı¾İ */
+/* Datos de estado de fase de cada anillo actualmente en ejecuciÃ³n */
 PhaseStateType      PhaseState;
 
 uint32_t GetPhaseNexts(void)
@@ -21,11 +21,11 @@ uint32_t GetPhaseNexts(void)
 }
 
 /* 
- * ÏàÎ»ÂÌµÆÊ±¼ä
- * Í¨¹ı4¸ö»·µÄÓĞĞ§×´Ì¬ºÍÏàÎ»ºÅ£¬·ÅĞĞÊ±¼ä£¬ÅĞ¶ÏËùÓĞÏàÎ»µÄ×´Ì¬
+ * Tiempo de fase verde
+ * Juzgar el estado de todas las fases a travÃ©s del estado efectivo y el nÃºmero de fase de los 4 anillos y el tiempo de liberaciÃ³n
  * PhaseStatus
  */
-void PhaseGreenCount(void)//1sÔËĞĞÒ»´Î
+void PhaseGreenCount(void)//Ejecutar una vez en 1s
 {
     uint8_t     i;
     uint32_t    PhaseMask = 0x1;
@@ -42,11 +42,11 @@ void PhaseGreenCount(void)//1sÔËĞĞÒ»´Î
 }
 
 /* 
- * ÏàÎ»×´Ì¬¿ØÖÆ
- * Í¨¹ı4¸ö»·µÄÓĞĞ§×´Ì¬ºÍÏàÎ»ºÅ£¬·ÅĞĞÊ±¼ä£¬ÅĞ¶ÏËùÓĞÏàÎ»µÄ×´Ì¬
+ * Control de estado de fase
+ * Juzgar el estado de todas las fases a travÃ©s del estado efectivo y el nÃºmero de fase de los 4 anillos y el tiempo de liberaciÃ³n
  * PhaseStatus
  */
-void PhaseStatusControl(void)//1sÔËĞĞÒ»´Î
+void PhaseStatusControl(void)//Ejecutar una vez en 1s
 {
     uint8_t     i,PhaseNum,PhaseIndex;
     uint32_t    PhaseMask;
@@ -60,17 +60,17 @@ void PhaseStatusControl(void)//1sÔËĞĞÒ»´Î
     PhaseStatus.Walks = 0;
     PhaseStatus.PhaseOns = 0;
     
-    for(i = 0; i < RingMax; i++)//4¸ö»·µÄÏàÎ»ºÅÊÇ·ñÓĞµ±Ç°Í¨µÀµÄ¿ØÖÆÔ´
+    for(i = 0; i < RingMax; i++)//Si el nÃºmero de fase de los 4 anillos tiene la fuente de control del canal actual
     {
-        if(PhaseState.Ring[i].SeqMax == 0) continue;//¸Ã»·Î´ÆôÓÃ
+        if(PhaseState.Ring[i].SeqMax == 0) continue;//El anillo no estÃ¡ habilitado.
         
         PhaseNum = RingPhase[i].PhaseNum;
         PhaseIndex = RingPhase[i].PhaseIndex;
         PhaseMask = (0x01 << (PhaseNum-1));
         PhaseStatus.PhaseOns |= PhaseMask;
         
-        //»ú¶¯×´Ì¬Ëã·¨
-        if(PhaseState.Ring[i].SecondRemain > PhaseTab.Phase[PhaseIndex].YellowChange + PhaseTab.Phase[PhaseIndex].RedClear)//»ú¶¯ÂÌ
+        //Algoritmo de estado de maniobra
+        if(PhaseState.Ring[i].SecondRemain > PhaseTab.Phase[PhaseIndex].YellowChange + PhaseTab.Phase[PhaseIndex].RedClear)//æœºåŠ¨ç»¿
         {
             PhaseStatus.Greens  |=  PhaseMask;
             PhaseStatus.Yellows &= ~PhaseMask;
@@ -78,16 +78,16 @@ void PhaseStatusControl(void)//1sÔËĞĞÒ»´Î
             
             if(PhaseState.Ring[i].SecondRemain > PhaseTab.Phase[PhaseIndex].VehicleClear + PhaseTab.Phase[PhaseIndex].YellowChange + PhaseTab.Phase[PhaseIndex].RedClear)
                 PhaseStatus.VehClears &= ~PhaseMask;
-            else //»ú¶¯ÂÌÉÁ
+            else //Flash verde mÃ³vil
                 PhaseStatus.VehClears |=  PhaseMask;
         }
-        else if(PhaseState.Ring[i].SecondRemain > PhaseTab.Phase[PhaseIndex].RedClear)//»ú¶¯»Æ
+        else if(PhaseState.Ring[i].SecondRemain > PhaseTab.Phase[PhaseIndex].RedClear)//æœºåŠ¨é»„
         {
             PhaseStatus.Greens  &= ~PhaseMask;
             PhaseStatus.Yellows |=  PhaseMask;
             PhaseStatus.Reds    &= ~PhaseMask;
         }
-        else//»ú¶¯ºì
+        else//MÃ³vil Rojo
         {
             PhaseStatus.Reds        |=  PhaseMask;
             PhaseStatus.Greens      &= ~PhaseMask;
@@ -95,12 +95,12 @@ void PhaseStatusControl(void)//1sÔËĞĞÒ»´Î
             PhaseStatus.VehClears   &= ~PhaseMask;
         }
         
-        //ĞĞÈË×´Ì¬Ëã·¨
-        if(PhaseTab.Phase[PhaseIndex].OptionsH & 0x20)//±£³ÖĞĞÈË·ÅĞĞ
+        //Algoritmo de estado de peatones
+        if(PhaseTab.Phase[PhaseIndex].OptionsH & 0x20)//Mantenga a los peatones alejados
         {
             if(PhaseStatus.Greens & PhaseMask)
             {
-                if(PhaseStatus.VehClears & PhaseMask) //ÂÌÉÁ
+                if(PhaseStatus.VehClears & PhaseMask) //destello verde
                 {
                     PhaseStatus.Walks       &= ~PhaseMask;
                     PhaseStatus.PedClears   |=  PhaseMask;
@@ -126,11 +126,11 @@ void PhaseStatusControl(void)//1sÔËĞĞÒ»´Î
                 PhaseStatus.DontWalks   |=  PhaseMask;
             }
         }
-        else //Ã»ÓĞ¹´Ñ¡±£³ÖĞĞÈË·ÅĞĞ
+        else //Mantenga a los peatones alejados sin hacer tictac
         {
             if(RingSplit[i].Time >= (PhaseTab.Phase[PhaseIndex].Walk + PhaseTab.Phase[PhaseIndex].PedestrianClear + PhaseTab.Phase[PhaseIndex].RedClear))
             {
-                if((RingSplit[i].Time - PhaseState.Ring[i].SecondRemain) < PhaseTab.Phase[PhaseIndex].Walk) // <= ¸ÄÎª < »áÏà²î1Ãë
+                if((RingSplit[i].Time - PhaseState.Ring[i].SecondRemain) < PhaseTab.Phase[PhaseIndex].Walk) // <= æ”¹ä¸º < ä¼šç›¸å·®1ç§’
                 {
                     PhaseStatus.Walks     |=  PhaseMask;
                     PhaseStatus.PedClears &= ~PhaseMask;
@@ -149,7 +149,7 @@ void PhaseStatusControl(void)//1sÔËĞĞÒ»´Î
                     PhaseStatus.DontWalks |=  PhaseMask;
                 }
             }
-            else //Ã»ÓĞ¹´Ñ¡±£³ÖĞĞÈË·ÅĞĞÊ±,Éè¶¨µÄĞĞÈË·ÅĞĞÊ±¼äÌ«´ó
+            else //Cuando no marca Mantener espacio libre para peatones, el tiempo de espacio libre para peatones establecido es demasiado largo
             {
                 if(PhaseState.Ring[i].SecondRemain > PhaseTab.Phase[PhaseIndex].PedestrianClear + PhaseTab.Phase[PhaseIndex].RedClear)
                 {
@@ -176,17 +176,17 @@ void PhaseStatusControl(void)//1sÔËĞĞÒ»´Î
     PhaseStatus.PhaseNexts = GetPhaseNexts();
 }
 
-//¸úËæÏàÎ»×´Ì¬¿ØÖÆ
-void OverlapStatusControl(void) //1SË¢ĞÂÒ»´Î
+//seguir el control de estado de fase
+void OverlapStatusControl(void) //1S actualizar una vez mÃ¡s
 {
     uint8_t i;
     uint32_t    OverlapMask = 0x1;
-    for(i = 0; i < OverlapMax; i++)//±éÀúËùÓĞÍ¨µÀ¿ØÖÆÔ´
+    for(i = 0; i < OverlapMax; i++)//Atraviesa todas las fuentes de control de canales
     {
         if(OverlapTab.Overlap[i].Num > 0 && OverlapTab.Overlap[i].Num <= OverlapMax)
         {
             OverlapMask = (0x1<<(OverlapTab.Overlap[i].Num - 1));
-            if(OverlapTab.Overlap[i].Type == OT_NORMAL || (OverlapTab.Overlap[i].Type == OT_MINUSGREENYELLOW && ModifierPhases[i] == 0))//¸úËæÏàÎ»ÀàĞÍÎª³£¹æ
+            if(OverlapTab.Overlap[i].Type == OT_NORMAL || (OverlapTab.Overlap[i].Type == OT_MINUSGREENYELLOW && ModifierPhases[i] == 0))//Sigue las reglas
             {
                 //printf("Overlap[%d].Type = OT_NORMAL",i);
                 //printf("IncludedPhases[i] = %d",IncludedPhases[i]);
@@ -196,7 +196,7 @@ void OverlapStatusControl(void) //1SË¢ĞÂÒ»´Î
                 
                 if(IncludedPhases[i] & PhaseStatus.PhaseOns)
                 {
-                    if(OverlapTab.Overlap[i].TrailGreen == 0)//ĞèÒªÅĞ¶ÏPhaseNextsÊÇ·ñÒ²ÊÇÄ¸ÏàÎ»
+                    if(OverlapTab.Overlap[i].TrailGreen == 0)//Necesidad de juzgar si PhaseNexts es tambiÃ©n la fase madre
                     {
                         //printf("PhaseNexts = %04x",PhaseStatus.PhaseNexts);
                         if(IncludedPhases[i] & PhaseStatus.PhaseNexts)
@@ -232,7 +232,7 @@ void OverlapStatusControl(void) //1SË¢ĞÂÒ»´Î
                                 OverlapStatus.Flashs    &=~OverlapMask;
                         }
                     }
-                    else//Ä¸ÏàÎ»½áÊøÊ±Ğè¼ÌĞø·ÅĞĞÂÌµÆµÄÂÌµÆÊ±¼ä
+                    else//El tiempo de luz verde para continuar pasando la luz verde al final de la fase madre
                     {
                         if(IncludedPhases[i] & PhaseStatus.Greens)
                         {
@@ -276,7 +276,7 @@ void OverlapStatusControl(void) //1SË¢ĞÂÒ»´Î
                         }
                     }
                 }
-                else//Ä¸ÏàÎ»¹Ø±Õ
+                else//madre fuera de fase
                 {
                     if(OverlapTab.Overlap[i].TrailGreen == 0)
                     {
@@ -322,10 +322,10 @@ void OverlapStatusControl(void) //1SË¢ĞÂÒ»´Î
                 }
             }
             else if(OverlapTab.Overlap[i].Type == OT_MINUSGREENYELLOW)
-            {   //µ±Ä¸ÏàÎ»ÎªÂÌÉ«,ĞŞÕıÏàÎ»²»ÎªÂÌÉ«£¬ÄÇÃ´¸úËæÏàÎ»ÎªÂÌÉ«
-                if((ModifierPhases[i] & PhaseStatus.Greens)==0)//µ±ĞŞÕıÏàÎ»²»ÎªÂÌÉ«
+            {   //Cuando la fase principal es verde y la fase de correcciÃ³n no es verde, la siguiente fase es verde
+                if((ModifierPhases[i] & PhaseStatus.Greens)==0)//Cuando la fase corregida no es verde
                 {
-                    if((IncludedPhases[i] & PhaseStatus.Greens))//µ±Ä¸ÏàÎ»ÎªÂÌÉ«
+                    if((IncludedPhases[i] & PhaseStatus.Greens))//cuando el aspecto de la madre es verde
                     {
                         if(OverlapTab.Overlap[i].TrailGreen == 0)
                         {
@@ -353,8 +353,8 @@ void OverlapStatusControl(void) //1SË¢ĞÂÒ»´Î
                             OverlapStatus.Flashs    &=~OverlapMask;
                         }
                     }
-                    //µ±Ä¸ÏàÎ»µ±ÖĞÈÎºÎÒ»¸öÏàÎ»Îª»ÆÉ«£¬ÏÂÏàÎ»²»ÎªÄ¸ÏàÎ»£¬ÇÒĞŞÕıÏàÎ»²»Îª»ÆÉ«Ê±£¬¸úËæÏàÎ»Îª»ÆÉ«¡£
-                    else if((IncludedPhases[i] & PhaseStatus.Yellows))//µ±Ä¸ÏàÎ»Îª»ÆÉ«
+                    //Cuando cualquiera de las fases principales es amarilla, la siguiente fase no es la fase principal y la fase de correcciÃ³n no es amarilla, la siguiente fase es amarilla.
+                    else if((IncludedPhases[i] & PhaseStatus.Yellows))//cuando el aspecto de la madre es amarillo
                     {
                         if((IncludedPhases[i] & PhaseStatus.PhaseNexts)==0 && (ModifierPhases[i] & PhaseStatus.Yellows)==0)
                         {
@@ -419,8 +419,8 @@ void OverlapStatusControl(void) //1SË¢ĞÂÒ»´Î
     }
 }
 
-//Í¨µÀ×´Ì¬Ë¢ĞÂ
-void ChannelStatusControl(void)//1SË¢ĞÂÒ»´Î
+//ActualizaciÃ³n del estado del canal
+void ChannelStatusControl(void)//Actualizar una vez en 1S
 {
     uint8_t  i;
     uint32_t PhaseMask;
@@ -431,9 +431,10 @@ void ChannelStatusControl(void)//1SË¢ĞÂÒ»´Î
     ChannelStatus.Greens    = 0;
     ChannelStatus.Flash     = 0;
     
-    for(i = 0; i < ChannelMax; i++)//±éÀúËùÓĞÍ¨µÀ¿ØÖÆÔ´
+    for(i = 0; i < ChannelMax; i++)//Atraviesa todas las fuentes de control de canales
     {
-        //ÏàÎ»ºÅÎª0 »òÕß ¿ØÖÆÀàĞÍÎªÆäËû ±íÊ¾No Control (Not In Use)
+     
+//El nÃºmero de fase es 0 o el tipo de control es otro medio Sin control (no en uso)
         //if(ChannelTab.Channel[i].ControlSource == 0 || ChannelTab.Channel[i].ControlType == CCT_OTHER) continue;
         if(ChannelTab.Channel[i].ControlSource == 0)
         {
@@ -442,32 +443,32 @@ void ChannelStatusControl(void)//1SË¢ĞÂÒ»´Î
         }
         PhaseMask = (0x1 << (ChannelTab.Channel[i].ControlSource-1));
         
-        if(ChannelTab.Channel[i].ControlType == CCT_VEHICLE) //Vehicle¿ØÖÆÀàĞÍÎª»ú¶¯³µ
+        if(ChannelTab.Channel[i].ControlType == CCT_VEHICLE) //El tipo de control del vehÃ­culo es un vehÃ­culo de motor
         {
-            if((PhaseStatus.PhaseOns & PhaseMask) == 0) //¸ÃÍ¨µÀ¶ÔÓ¦µÄ¿ØÖÆÔ´ÏàÎ»¹Ø±Õ
+            if((PhaseStatus.PhaseOns & PhaseMask) == 0) //La fase de fuente de control correspondiente de este canal estÃ¡ cerrada
             {
                 ChannelStatus.Reds      |= ChannelMask;
                 ChannelStatus.Yellows   &=~ChannelMask;
                 ChannelStatus.Greens    &=~ChannelMask;
                 ChannelStatus.Flash     &=~ChannelMask;
             }
-            else //¸ÃÍ¨µÀ¶ÔÓ¦µÄ¿ØÖÆÔ´ÏàÎ»¿ªÆô
+            else //La fase de fuente de control correspondiente del canal estÃ¡ encendida
             {
-                if(PhaseStatus.Reds & PhaseMask) //ÏàÎ»×´Ì¬Îªºì
+                if(PhaseStatus.Reds & PhaseMask) //El estado de la fase es rojo
                 {
                     ChannelStatus.Reds      |= ChannelMask;
                     ChannelStatus.Yellows   &=~ChannelMask;
                     ChannelStatus.Greens    &=~ChannelMask;
                     ChannelStatus.Flash     &=~ChannelMask;
                 }
-                else if(PhaseStatus.Yellows & PhaseMask) //ÏàÎ»×´Ì¬Îª»Æ
+                else if(PhaseStatus.Yellows & PhaseMask) //El estado de la fase es amarillo
                 {
                     ChannelStatus.Yellows   |= ChannelMask;
                     ChannelStatus.Reds      &=~ChannelMask;
                     ChannelStatus.Greens    &=~ChannelMask;
                     ChannelStatus.Flash     &=~ChannelMask;
                 }
-                else if(PhaseStatus.Greens & PhaseMask) //ÏàÎ»×´Ì¬ÎªÂÌ
+                else if(PhaseStatus.Greens & PhaseMask) //El estado de la fase es verde
                 {
                     ChannelStatus.Greens    |= ChannelMask;
                     ChannelStatus.Reds      &=~ChannelMask;
@@ -477,7 +478,7 @@ void ChannelStatusControl(void)//1SË¢ĞÂÒ»´Î
                     else
                         ChannelStatus.Flash &=~ChannelMask;
                 }
-                else //ÏàÎ»×´Ì¬¹Ø±Õ
+                else //Estado de fase apagado
                 {
                     ChannelStatus.Greens    &=~ChannelMask;
                     ChannelStatus.Yellows   &=~ChannelMask;
@@ -497,21 +498,21 @@ void ChannelStatusControl(void)//1SË¢ĞÂÒ»´Î
             }
             else
             {
-                if(PhaseStatus.DontWalks & PhaseMask)//ÏàÎ»×´Ì¬Îªºì
+                if(PhaseStatus.DontWalks & PhaseMask)//El estado de la fase es rojo
                 {
                     ChannelStatus.Reds      |= ChannelMask;
                     ChannelStatus.Yellows   &=~ChannelMask;
                     ChannelStatus.Greens    &=~ChannelMask;
                     ChannelStatus.Flash     &=~ChannelMask;
                 }
-                else if(PhaseStatus.PedClears & PhaseMask)//ÏàÎ»×´Ì¬ÎªÂÌÉÁ
+                else if(PhaseStatus.PedClears & PhaseMask)//El estado de la fase parpadea en verde
                 {
                     ChannelStatus.Greens    |= ChannelMask;
                     ChannelStatus.Reds      &=~ChannelMask;
                     ChannelStatus.Yellows   &=~ChannelMask;                
                     ChannelStatus.Flash     |= ChannelMask;
                 }
-                else if(PhaseStatus.Walks & PhaseMask)//ÏàÎ»×´Ì¬ÎªÂÌ
+                else if(PhaseStatus.Walks & PhaseMask)//El estado de la fase es verde
                 {
                     ChannelStatus.Greens    |= ChannelMask;
                     ChannelStatus.Yellows   &=~ChannelMask;
@@ -522,21 +523,21 @@ void ChannelStatusControl(void)//1SË¢ĞÂÒ»´Î
         }
         else if(ChannelTab.Channel[i].ControlType == CCT_OVERLAP)
         {
-            if(OverlapStatus.Reds & PhaseMask)//ÏàÎ»×´Ì¬Îªºì
+            if(OverlapStatus.Reds & PhaseMask)//El estado de la fase es rojo
             {
                 ChannelStatus.Reds      |= ChannelMask;
                 ChannelStatus.Yellows   &=~ChannelMask;
                 ChannelStatus.Greens    &=~ChannelMask;
                 ChannelStatus.Flash     &=~ChannelMask;
             }
-            else if(OverlapStatus.Yellows & PhaseMask)//ÏàÎ»×´Ì¬Îª»Æ
+            else if(OverlapStatus.Yellows & PhaseMask)//El estado de la fase es amarillo
             {
                 ChannelStatus.Yellows   |= ChannelMask;
                 ChannelStatus.Reds      &=~ChannelMask;
                 ChannelStatus.Greens    &=~ChannelMask;
                 ChannelStatus.Flash     &=~ChannelMask;
             }
-            else if(OverlapStatus.Greens & PhaseMask)//ÏàÎ»×´Ì¬ÎªÂÌ
+            else if(OverlapStatus.Greens & PhaseMask)//El estado de la fase es verde
             {
                 ChannelStatus.Greens    |= ChannelMask;
                 ChannelStatus.Yellows   &=~ChannelMask;  
@@ -546,7 +547,7 @@ void ChannelStatusControl(void)//1SË¢ĞÂÒ»´Î
                 else
                     ChannelStatus.Flash &=~ChannelMask;
             }
-            else//ÏàÎ»×´Ì¬¹Ø±Õ
+            else//Estado de fase apagado
             {
                 ChannelStatus.Greens    &=~ChannelMask;
                 ChannelStatus.Yellows   &=~ChannelMask;
@@ -570,15 +571,15 @@ void ChannelStatusControl(void)//1SË¢ĞÂÒ»´Î
         }
         else if(ChannelTab.Channel[i].ControlType == CCT_FLASH)
         {
-            if(ChannelTab.Channel[i].Flash == CFM_Yellow)          //»ÆÉÁ
+            if(ChannelTab.Channel[i].Flash == CFM_Yellow)          //luz amarilla
             {
                 ChannelStatus.Yellows |= ChannelMask;
             }
-            else if(ChannelTab.Channel[i].Flash == CFM_Red)        //ºìÉÁ
+            else if(ChannelTab.Channel[i].Flash == CFM_Red)        //Rojo
             {
                 ChannelStatus.Reds |= ChannelMask;
             }
-            else if(ChannelTab.Channel[i].Flash == CFM_Alternate)  //½»Ìæ
+            else if(ChannelTab.Channel[i].Flash == CFM_Alternate)  //alternativamente
             {
                 ChannelStatus.Reds |= ChannelMask;
                 ChannelStatus.Yellows |= ChannelMask;
@@ -596,21 +597,21 @@ void ChannelStatusControl(void)//1SË¢ĞÂÒ»´Î
             }
             else
             {
-                if(PhaseStatus.Reds & PhaseMask)//ÏàÎ»×´Ì¬Îªºì
+                if(PhaseStatus.Reds & PhaseMask)//El estado de la fase es rojo
                 {
                     ChannelStatus.Reds      |= ChannelMask;
                     ChannelStatus.Yellows   &=~ChannelMask;
                     ChannelStatus.Greens    &=~ChannelMask;
                     ChannelStatus.Flash     &=~ChannelMask;
                 }
-                else if(PhaseStatus.Yellows & PhaseMask)//ÏàÎ»×´Ì¬Îª»Æ
+                else if(PhaseStatus.Yellows & PhaseMask)//El estado de la fase es amarillo
                 {
                     ChannelStatus.Yellows   |= ChannelMask;
                     ChannelStatus.Reds      &=~ChannelMask;
                     ChannelStatus.Greens    &=~ChannelMask;
                     ChannelStatus.Flash     &=~ChannelMask;
                 }
-                else if(PhaseStatus.Greens & PhaseMask)//ÏàÎ»×´Ì¬ÎªÂÌ
+                else if(PhaseStatus.Greens & PhaseMask)//El estado de la fase es verde
                 {
                     ChannelStatus.Greens    |= ChannelMask;
                     ChannelStatus.Reds      &=~ChannelMask;
@@ -620,7 +621,7 @@ void ChannelStatusControl(void)//1SË¢ĞÂÒ»´Î
                     else
                         ChannelStatus.Flash &=~ChannelMask;
                 }
-                else//ÏàÎ»×´Ì¬¹Ø±Õ
+                else//ç›¸ä½çŠ¶æ€å…³é—­
                 {
                     ChannelStatus.Greens    &=~ChannelMask;
                     ChannelStatus.Yellows   &=~ChannelMask;
