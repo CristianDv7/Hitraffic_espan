@@ -1,8 +1,8 @@
 /*
 *********************************************************************************************************
 *
-* Module Name: Pedestrian Detector Module 
-* File name: Peddet.c * Version : V1.0 
+* Nombre del módulo: Módulo detector de peatones
+* Nombre del archivo: Peddet.c * Versión: V1.0
 * illustrate : * Modification record: 
 * Version Number Date Author Description 
 * V1.0 2019-12-30 wcx first launch 
@@ -14,7 +14,7 @@
 #include "bsp_io.h"
 #include "tsc.h"
 
-PeddetTable  PeddetTab;  //Pedestrian Detector Table
+PeddetTable  PeddetTab;  //Mesa detectora de peatones
 PeddetStateTable PeddetStateTab;
 
 void PeddetInit(void)
@@ -29,7 +29,7 @@ void PeddetStateInit(void)
     PeddetStateTab.Maximum = PeddetMax;
 }
 
-void PeddetStateGet(void)//Execution cycle 1s
+void PeddetStateGet(void)//Ciclo de ejecución 1s
 {
 	uint8_t i;
     static uint8_t reg60s = 0;
@@ -42,17 +42,17 @@ void PeddetStateGet(void)//Execution cycle 1s
     }
     for(i = 0; i < 8; i++)
     {
-        if(PeddetStateTab.peddet[i].Valid) //have signal
+        if(PeddetStateTab.peddet[i].Valid) //tener señal
         {
             if(PeddetStateTab.peddet[i].Presence < 0xffff)PeddetStateTab.peddet[i].Presence++;
         }
-        else //no signal
+        else //sin señal
         {
             if(PeddetStateTab.peddet[i].NoActivity < 0xffff)PeddetStateTab.peddet[i].NoActivity++;
         }
     }
     
-    if(++reg60s >= 60)//Check once in 60s
+    if(++reg60s >= 60)//Revisar una vez en 60s
     {
         reg60s = 0;
         for(i = 0; i < 8; i++)
