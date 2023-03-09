@@ -1,27 +1,27 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : ÏàÎ»Ä£¿é
-*	ÎÄ¼şÃû³Æ : Phase.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
-*	ĞŞ¸Ä¼ÇÂ¼ :
-*		°æ±¾ºÅ  ÈÕÆÚ       ×÷Õß    ËµÃ÷
-*		V1.0    2019-12-30  wcx     Ê×·¢
+*	æ¨¡å—åç§° : mÃ³dulo de fase
+*	æ–‡ä»¶åç§° : Phase.c
+*	ç‰ˆ    æœ¬ : V1.0
+*	è¯´    æ˜ : 
+*	ä¿®æ”¹è®°å½• :
+*		ç‰ˆæœ¬å·  æ—¥æœŸ       ä½œè€…    è¯´æ˜
+*		V1.0    2019-12-30  wcx     é¦–å‘
 *
 *********************************************************************************************************
 */
 #include "public.h"
 #include "Phase.h"
 
-PhaseTable          PhaseTab;       //ÏàÎ»±í
+PhaseTable          PhaseTab;       //tabla de fases
 PhaseStatusType     PhaseStatus;
 PhaseControlType    PhaseControl;
 PhaseIndexType      RingPhase[RingMax];
 
 uint32_t            PhaseTimes[32];
 
-//ÏàÎ»ºÅ + ÏàÎ»±í = ÏàÎ»Ë÷Òı
+//nÃºmero de fase + tabla de fase = Ã­ndice de fase
 uint8_t GetPhaseIndex(PhaseTable* Phase_Tab, uint8_t PhaseNum)
 {
     uint8_t     i;
@@ -39,7 +39,7 @@ uint8_t GetPhaseIndex(PhaseTable* Phase_Tab, uint8_t PhaseNum)
     return temp;   //PhaseTab.Phase[temp].PhaseNum
 }
 
-//Ä¬ÈÏµÄÏàÎ»ÅäÖÃ
+//configuraciÃ³n de fase por defecto
 void PhaseDefault(void)
 {
     uint8_t i;
@@ -69,13 +69,13 @@ void PhaseDefault(void)
         PhaseTab.Phase[i].DynamicMaxLimit = 0;
         PhaseTab.Phase[i].DynamicMaxStep = 0;
         
-        PhaseTab.Phase[i].Startup = 1;//Î´ÆôÓÃ
+        PhaseTab.Phase[i].Startup = 1;//No disponible
         PhaseTab.Phase[i].OptionsH = 0;
         PhaseTab.Phase[i].OptionsL = 0;
         PhaseTab.Phase[i].Ring = 1;
         PhaseTab.Phase[i].ConcurrencyH = 0xff;
         PhaseTab.Phase[i].ConcurrencyL = 0xff;
-        PhaseTab.Phase[i].VehicleClear = 3;//26-×Ô¼ºÔö¼ÓµÄ»ú¶¯ÂÌÉÁÊ±¼äÅäÖÃ
+        PhaseTab.Phase[i].VehicleClear = 3;//26- ConfiguraciÃ³n de tiempo de flash verde mÃ³vil autoaÃ±adido
     }
 }
 
