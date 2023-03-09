@@ -1,13 +1,13 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : 时钟芯片操作接口
-*	文件名称 : sd2405.c
-*	版    本 : V1.0
-*	说    明 : 
-*	修改记录 :
-*		版本号  日期       作者    说明
-*		V1.0    2019-03-19 wcx     首发
+*	Nombre del m贸dulo: interfaz de operaci贸n de chip de reloj
+*	Nombre del archivo: sd2405.c
+*	Version : V1.0
+*	Ilustrado : 
+*	Registro de modificacion :
+*		N煤mero de versi贸n Fecha Autor Descripci贸n
+*		V1.0    2019-03-19 wcx    Primer lanzamiento
 *
 *********************************************************************************************************
 */
@@ -237,7 +237,7 @@ void RtcInit(void)
 
 /********************************************************/
 /*
-    将时钟芯片 BCD 码的日期转换为 NTCIP 定义的日期格式
+   Convierta la fecha del c贸digo BCD del chip del reloj al formato de fecha definido por NTCIP
 */
 void RtcDateConvert(DateType* Date, RtcType* RtcTime)
 {
@@ -265,24 +265,24 @@ void RtcTimeConvert(TimeType* Time, RtcType* RtcTime)
 
 void RtcReadTime(void)
 {
-    RtcRead(&Rtc);                  //读取RTC时间
-    RtcTimeConvert(&Time, &Rtc);    //时间格式转换
-    RtcDateConvert(&Date, &Rtc);    //日期格式转换
+    RtcRead(&Rtc);                  //Leer hora RTC
+    RtcTimeConvert(&Time, &Rtc);    // conversi贸n de formato de hora
+    RtcDateConvert(&Date, &Rtc);    //conversi贸n de formato de fecha
 }
 
 
 //                             0   1   2   3   4   5   6   7   8   9  10  11  12
 const uint8_t DayMonth[13] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
 
-//输入:年份
-//输出:该年份是不是闰年 1是 0不是
+// Entrada: a帽o
+//Salida: 驴Es el a帽o un a帽o bisiesto? 1 es 0 no lo es
 uint8_t Is_Leap_Year(uint16_t year)
 {
-	if(year%4==0)//必须能被4整除
+	if(year%4==0)//debe ser divisible por 4
 	{
 		if(year%100==0)
 		{
-			if(year%400==0)return 1;//如果以00结尾,还要能被400整除 	   
+			if(year%400==0)return 1;//Si termina en 00, debe ser divisible por 400	   
 			else return 0;
 		}else return 1;
 	}else return 0;
@@ -305,7 +305,7 @@ void utc_to_local(RtcType* local, RtcType* utc, uint8_t* TimeZone)
     local->month = utc->month;
     local->day = utc->day;
     
-    if(TimeZone[0])//东区
+    if(TimeZone[0])//Distrito Este
     {
         if(seconds + timezone < 86400)
         {
@@ -327,7 +327,7 @@ void utc_to_local(RtcType* local, RtcType* utc, uint8_t* TimeZone)
             }
         }
     }
-    else //西区
+    else //West End
     {
         if(seconds >= timezone)
         {
@@ -385,7 +385,7 @@ void second_to_rtc(uint32_t seconds, RtcType* rtc)
 void calc_week(RtcType* rtc)
 {
     uint16_t y,m,d,a,b,c;
-    //计算星期
+    //calcular el dia de la semana
     y = rtc->year;
     m = rtc->month;
     d = rtc->day;
