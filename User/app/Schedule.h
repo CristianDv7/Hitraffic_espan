@@ -4,7 +4,7 @@
 
 
 //timeBaseScheduleMonth
-#define SM_Reserved     ((uint16_t)0x0001)  //保留 
+#define SM_Reserved     ((uint16_t)0x0001)  //reservar 
 #define SM_January      ((uint16_t)0x0002)  //1
 #define SM_February     ((uint16_t)0x0004)  //2
 #define SM_March        ((uint16_t)0x0008)  //3
@@ -20,7 +20,7 @@
 #define SM_ALL          ((uint16_t)0x1FFE)  //12
 
 //timeBaseScheduleDay
-#define SD_Reserved         ((uint8_t)0x01)  //保留 
+#define SD_Reserved         ((uint8_t)0x01)  //reservar 
 #define SD_Sunday           ((uint8_t)0x02)  // 
 #define SD_Monday           ((uint8_t)0x04)  // 
 #define SD_Tuesday          ((uint8_t)0x08)  // 
@@ -30,7 +30,7 @@
 #define SD_Saturday         ((uint8_t)0x80)  // 
 
 //timeBaseScheduleDate
-#define SD_Day_Reserved     ((uint32_t)0x00000001)  //保留 
+#define SD_Day_Reserved     ((uint32_t)0x00000001)  //reservar
 #define SD_Day_1            ((uint32_t)0x00000002)
 #define SD_Day_2            ((uint32_t)0x00000004)
 #define SD_Day_3            ((uint32_t)0x00000008)
@@ -66,30 +66,30 @@
 typedef struct
 {
     uint8_t MonthL;
-    uint8_t MonthH;     //1,2       bit0保留 bit 1-12 月
-    uint8_t Day;        //3         bit0保留 bit 1-7  周天-周六
-    uint8_t Date[4];    //4,5,6,7   bit0保留 bit 1-31 日
+    uint8_t MonthH;     //1,2       bit0 reservado bit 1-12 meses
+    uint8_t Day;        //3         bit0 reservado bit 1-7 domingo-s谩bado
+    uint8_t Date[4];    //4,5,6,7   bit0 reservado bit 1-31
 }DateType;
 
 typedef struct
 {
-    uint8_t     Num;        //1      调度计划编号
-    DateType    Date;       //2-8    调度计划日期数据
-    uint8_t     PlanNum;    //9      时段表号
-}ScheduleType; //调度计划定义
+    uint8_t     Num;        //1      n煤mero de plan de env铆o
+    DateType    Date;       //2-8   Datos de la fecha del plan de env铆o
+    uint8_t     PlanNum;    //9      n煤mero de horario
+}ScheduleType; //Definici贸n del plan de programaci贸n
 
 typedef struct
 {
     uint8_t Maximum;
     ScheduleType Schedule[ScheduleMax];   //40 * 9
     uint8_t Reserve[7];
-}ScheduleTable; //调度计划表      8 + 40*9 = 368 = 0x0170
+}ScheduleTable; //Horario de programaci贸n 8 + 40*9 = 368 = 0x0170
 
 
 
 
 extern ScheduleType     ScheduleNow;
-extern ScheduleTable    ScheduleTab;   //调度计划表
+extern ScheduleTable    ScheduleTab;   //Horario de programaci贸n
 
 
 
