@@ -5,13 +5,13 @@
 
 typedef struct
 {
-    uint8_t     StartupFlash;       //开机黄闪时间 0-255
-    uint8_t     StartupAllRed;      //开机全红时间 0-255
-    uint8_t     AutomaticPedClear;  //1不能 2能    设置自动行人清空时间
-    uint8_t     RedRevert;          //最小红灯时间 0-255
+    uint8_t     StartupFlash;       //Iniciar tiempo de parpadeo amarillo 0-255
+    uint8_t     StartupAllRed;      //Arranque todo el tiempo rojo 0-255
+    uint8_t     AutomaticPedClear;  //1 no puede 2 puede configurar el tiempo de limpieza autom谩tica de peatones
+    uint8_t     RedRevert;          //Tiempo m铆nimo de luz roja 0-255
     uint8_t     BackupTimeL;
-    uint8_t     BackupTimeH;        //系统设置的备份时间 0-65535
-    uint8_t     FlowCycle;          //流量采集周期
+    uint8_t     BackupTimeH;        //Tiempo de copia de seguridad de la configuraci贸n del sistema 0-65535
+    uint8_t     FlowCycle;          //Ciclo de recolecci贸n de flujo
     uint8_t     FlashStatus;
     uint8_t     Status;
     uint8_t     GreenConflictDetectFlag;
