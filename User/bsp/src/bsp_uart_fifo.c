@@ -1,10 +1,10 @@
 /*
 *********************************************************************************************************
-* Module name: serial port interrupt + FIFO driver module 
-* File name: bsp_uart_fifo.c 
+* Nombre del módulo: interrupción de puerto serie + módulo de controlador FIFO
+* Nombre del archivo: bsp_uart_fifo.c
 * Version : V1.0 
-* Description: Use serial port interrupt + FIFO mode to realize 
-simultaneous access to multiple serial ports
+* Descripción: use la interrupción del puerto serie + el modo FIFO para realizar
+acceso simultáneo a múltiples puertos seriales
 *********************************************************************************************************
 */
 
@@ -55,25 +55,25 @@ void RS485_InitTXE(void);
 
 /*
 *********************************************************************************************************
-* Function name: bsp_InitUart 
-* Function description: Initialize the serial port hardware and assign initial values ??to global variables. 
-* Formal parameters: none 
-* Return value: None
+* Nombre de la función: bsp_InitUart
+* Descripción de la función: Inicializar el hardware del puerto serie y asignar valores iniciales a las variables globales
+* Parámetros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_InitUart(void)
 {
-	UartVarInit();		/* Global variables must be initialized before configuring the hardware */
-	InitHardUart();		/* Configure the hardware parameters of the serial port (baud rate, etc.) */
-	RS485_InitTXE();	/* Configure the sending enable hardware of the RS485 chip, configured as a push-pull output */
-	ConfigUartNVIC();	/* Configure serial port interrupt*/
+	UartVarInit();		/* Las variables globales deben inicializarse antes de configurar el hardware */
+	InitHardUart();		/* Configurar los parámetros de hardware del puerto serie (tasa de baudios, etc.) */
+	RS485_InitTXE();	/* Configurar el hardware de habilitación de envío del chip RS485, configurado como salida push-pull */
+	ConfigUartNVIC();	/* Configurar la interrupción del puerto serie*/
 }
 
 /*
 *********************************************************************************************************
-* Function name: UartSendBuf 
+* Nombre de la función: UartSendBuf
 * Function description: Fill data into UART send buffer, and start sending interrupt. After the interrupt processing function is sent, 
-the sending interrupt is automatically turned off 
+la interrupción de envío se apaga automáticamente 
 * Formal parameters: none 
 * Return value: None
 *********************************************************************************************************
@@ -84,7 +84,7 @@ void UartSendBuf(UART_T *uart_t, uint8_t *_ucaBuf, uint16_t _usLen)
     
 	if (uart_t->SendBefor != 0)
 	{
-		uart_t->SendBefor();		/* If it is RS485 communication, you can set RS485 to send mode in this function */
+		uart_t->SendBefor();		/* Si se trata de comunicación RS485, puede configurar RS485 para enviar el modo en esta función */
 	}
     
 	for (i = 0; i < _usLen; i++)
@@ -103,7 +103,7 @@ void UartSendBuf(UART_T *uart_t, uint8_t *_ucaBuf, uint16_t _usLen)
 			}
 		}
 
-		/* Fill the send buffer with new data */
+		/* Llena el búfer de envío con nuevos datos */
 		uart_t->pTxBuf[uart_t->usTxWrite] = _ucaBuf[i];
 
 		DISABLE_INT();
@@ -115,7 +115,7 @@ void UartSendBuf(UART_T *uart_t, uint8_t *_ucaBuf, uint16_t _usLen)
 		ENABLE_INT();
 	}
 
-	USART_ITConfig(uart_t->uart, USART_IT_TXE, ENABLE); //Enable send interrupt
+	USART_ITConfig(uart_t->uart, USART_IT_TXE, ENABLE); //Habilitar interrupción de envío
 }
 
 void UartSendChar(UART_T *uart_t, uint8_t _ucByte)
@@ -125,34 +125,34 @@ void UartSendChar(UART_T *uart_t, uint8_t _ucByte)
 
 /*
 *********************************************************************************************************
-* Function name: UartGetChar 
-* Function description: Read 1 byte of data from the serial port receiving buffer (for the main program call) 
-* Formal parameter: _pUart : serial device 
-* _pByte: pointer to store read data 
-* Return value: 0 means no data, 1 means read data
+* Nombre de la función: UartGetChar
+* Descripción de la función: Leer 1 byte de datos del búfer de recepción del puerto serie (para la llamada del programa principal)
+* Parámetro formal: _pUart: dispositivo serie 
+* _pByte: puntero para almacenar datos leídos
+* Valor de retorno: 0 significa que no hay datos, 1 significa leer datos
 *********************************************************************************************************
 */
 uint8_t UartGetChar(UART_T *uart_t, uint8_t *_pByte)
 {
 	uint16_t usCount;
 
-	/* usRxWrite The variable is rewritten in the interrupt function. 
-	When the main program reads the variable, it must protect the critical area. */
+	/* usRxWrite La variable se reescribe en la función de interrupción.
+	Cuando el programa principal lee la variable, debe proteger el área crítica. */
 	DISABLE_INT();
 	usCount = uart_t->usRxCount;
 	ENABLE_INT();
 
-	/* Returns 0 if the read and write indices are the same */
-	if (usCount == 0)	/* no more data */
+	/* Devuelve 0 si los índices de lectura y escritura son iguales */
+	if (usCount == 0)	/* no mas datos */
 	{
 		return 0;
 	}
 	else
 	{
-		*_pByte = uart_t->pRxBuf[uart_t->usRxRead];		/* Take 1 data from the serial port receiving FIFO */
-		/* Rewrite FIFO read index */
+		*_pByte = uart_t->pRxBuf[uart_t->usRxRead];		/*Tomar 1 dato del puerto serie que recibe FIFO*/
+		/* Reescribe el índice de lectura FIFO */
 		DISABLE_INT();
-		if (++uart_t->usRxRead >= uart_t->usRxBufSize)//buffer zone read to end,
+		if (++uart_t->usRxRead >= uart_t->usRxBufSize)// zona de búfer leer hasta el final,
 		{
 			uart_t->usRxRead = 0;
 		}
@@ -187,17 +187,17 @@ void UartClearRxFifo(UART_T *uart_t)
 
 /*
 *********************************************************************************************************
-* Function name: bsp_SetUart1Baud 
-* Function description: Modify UART1 baud rate 
-* Formal parameters: none 
-* Return value: None
+* Nombre de la función: bsp_SetUart1Baud
+* Descripción de la función: modificar la tasa de baudios UART1
+* Parámetros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_SetUart1Baud(uint32_t _baud)
 {
 	USART_InitTypeDef USART_InitStructure;
 
-	/* Step 2: Configure serial port hardware parameters */
+	/* Paso 2: Configurar los parámetros de hardware del puerto serie */
 	USART_InitStructure.USART_BaudRate = _baud;	/* tasa de baudios */
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
@@ -209,10 +209,10 @@ void bsp_SetUart1Baud(uint32_t _baud)
 
 /*
 *********************************************************************************************************
-* Function name: bsp_SetUart2Baud 
-* Function description: Modify UART2 baud rate 
-* Formal parameters: None 
-* Return value: None
+* Nombre de la función: bsp_SetUart2Baud
+* Descripción de la función: modificar la tasa de baudios UART2
+*	Parámetros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_SetUart2Baud(uint32_t _baud)
@@ -231,8 +231,8 @@ void bsp_SetUart2Baud(uint32_t _baud)
 
 /*
 *********************************************************************************************************
-* Function name: RS485_InitTXE 
-* Function description: Configure the RS485 transmission enable port line TXE 
+* Nombre de la función: RS485_InitTXE
+* Descripción de la función: Configure la línea de puerto de habilitación de transmisión RS485 TXE 
 * Formal parameters: None 
 * Return value: None
 *********************************************************************************************************
