@@ -1,14 +1,14 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : ¶¨Ê±Æ÷Ä£¿é
-*	ÎÄ¼şÃû³Æ : bsp_timer.c
-*	°æ    ±¾ : V1.3
-*	Ëµ    Ã÷ : ÅäÖÃsystick¶¨Ê±Æ÷×÷ÎªÏµÍ³µÎ´ğ¶¨Ê±Æ÷¡£È±Ê¡¶¨Ê±ÖÜÆÚÎª1ms¡£
+*	Nombre del mÃ³dulo: MÃ³dulo de temporizador
+*	Nombre del archivo: bsp_timer.c
+*	VersiÃ³n: V1.3
+*	DescripciÃ³n: configura el sysstick timer como el cronÃ³metro del sistema. El perÃ­odo de tiempo predeterminado es de 1 ms.
 *
-*				ÊµÏÖÁË¶à¸öÈí¼ş¶¨Ê±Æ÷¹©Ö÷³ÌĞòÊ¹ÓÃ(¾«¶È1ms)£¬ ¿ÉÒÔÍ¨¹ıĞŞ¸Ä TMR_COUNT Ôö¼õ¶¨Ê±Æ÷¸öÊı
-*				ÊµÏÖÁËms¼¶±ğÑÓ³Ùº¯Êı£¨¾«¶È1ms£© ºÍus¼¶ÑÓ³Ùº¯Êı
-*				ÊµÏÖÁËÏµÍ³ÔËĞĞÊ±¼äº¯Êı£¨1msµ¥Î»£©
+*				Se implementaron mÃºltiples temporizadores de software para que los use el programa principal (precisiÃ³n de 1 ms), puede aumentar o disminuir la cantidad de temporizadores modificando TMR_COUNT
+*				FunciÃ³n de retraso de nivel de ms implementada (precisiÃ³n de 1 ms) y funciÃ³n de retraso de nivel de EE. UU.
+*				Se dio cuenta de la funciÃ³n de tiempo de ejecuciÃ³n del sistema (unidad de 1 ms)
 *
 *********************************************************************************************************
 */
@@ -16,9 +16,9 @@
 #include "bsp.h"
 
 /*
-	¶¨ÒåÓÃÓÚÓ²¼ş¶¨Ê±Æ÷µÄTIM£¬ ¿ÉÒÔÊ¹ TIM2 - TIM5
-	TIM3 ºÍTIM4 ÊÇ16Î»
-	TIM2 ºÍTIM5 ÊÇ16Î» (103ÊÇ16Î», 407ÊÇ32Î»)
+	Defina TIM para el temporizador de hardware, puede hacer TIM2 - TIM5
+	TIM3 y TIM4 son de 16 bits
+	TIM2 y TIM5 son 16 bits (103 es 16 bits, 407 es 32 bits)
 */
 #define USE_TIM2
 
@@ -46,22 +46,22 @@
 	#define TIM_HARD_RCC	RCC_APB1Periph_TIM5
 #endif
 
-/* Õâ2¸öÈ«¾Ö±äÁ¿×¨ÓÃÓÚ bsp_DelayMS() º¯Êı */
+/* Estas 2 variables globales estÃ¡n dedicadas a la funciÃ³n bsp_DelayMS() */
 static volatile uint32_t s_uiDelayCount = 0;
 static volatile uint8_t s_ucTimeOutFlag = 0;
 
-/* ¶¨ÒåÈí¼ş¶¨Ê±Æ÷½á¹¹Ìå±äÁ¿ */
+/* Definir variables de estructura de temporizador de software */
 static SOFT_TMR s_tTmr[TMR_COUNT];
 
 /*
-	È«¾ÖÔËĞĞÊ±¼ä£¬µ¥Î»1ms
-	×î³¤¿ÉÒÔ±íÊ¾ 24.85Ìì£¬Èç¹ûÄãµÄ²úÆ·Á¬ĞøÔËĞĞÊ±¼ä³¬¹ıÕâ¸öÊı£¬Ôò±ØĞë¿¼ÂÇÒç³öÎÊÌâ
+	Tiempo de funcionamiento global, unidad 1 ms
+	Puede representar hasta 24,85 dÃ­as. Si su producto se ejecuta continuamente durante mÃ¡s de este nÃºmero, debe considerar el problema de desbordamiento.
 */
 __IO uint32_t g_iRunTime = 0;
 
 static void bsp_SoftTimerDec(SOFT_TMR *_tmr);
 
-/* ±£´æ TIM¶¨Ê±ÖĞ¶Ïµ½ºóÖ´ĞĞµÄ»Øµ÷º¯ÊıÖ¸Õë */
+/* Guardar el puntero de funciÃ³n de devoluciÃ³n de llamada ejecutado despuÃ©s de la interrupciÃ³n de temporizaciÃ³n de TIM */
 static void (*s_TIM_CallBack1)(void);
 static void (*s_TIM_CallBack2)(void);
 static void (*s_TIM_CallBack3)(void);
@@ -69,36 +69,36 @@ static void (*s_TIM_CallBack4)(void);
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_InitTimer
-*	¹¦ÄÜËµÃ÷: ÅäÖÃsystickÖĞ¶Ï£¬²¢³õÊ¼»¯Èí¼ş¶¨Ê±Æ÷±äÁ¿
-*	ĞÎ    ²Î:  ÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: bsp_InitTimer
+*	DescripciÃ³n de la funciÃ³n: configurar la interrupciÃ³n del sysstick e inicializar la variable del temporizador de software
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_InitTimer(void)
 {
 	uint8_t i;
 
-	/* ÇåÁãËùÓĞµÄÈí¼ş¶¨Ê±Æ÷ */
+	/* Borrar todos los temporizadores de software */
 	for (i = 0; i < TMR_COUNT; i++)
 	{
 		s_tTmr[i].Count = 0;
 		s_tTmr[i].PreLoad = 0;
 		s_tTmr[i].Flag = 0;
-		s_tTmr[i].Mode = TMR_ONCE_MODE;	/* È±Ê¡ÊÇ1´ÎĞÔ¹¤×÷Ä£Ê½ */
+		s_tTmr[i].Mode = TMR_ONCE_MODE;	/* El valor predeterminado es el modo de trabajo de una sola vez */
 	}
 
 	/*
-		ÅäÖÃsysticÖĞ¶ÏÖÜÆÚÎª1ms£¬²¢Æô¶¯systickÖĞ¶Ï¡£
+		Configure el perÃ­odo de interrupciÃ³n de sytic como 1 ms e inicie la interrupciÃ³n de systick.
 
-    	SystemCoreClock ÊÇ¹Ì¼şÖĞ¶¨ÒåµÄÏµÍ³ÄÚºËÊ±ÖÓ£¬¶ÔÓÚSTM32F4XX,Ò»°ãÎª 168MHz
+    	SystemCoreClock es el reloj central del sistema definido en el firmware, para STM32F4XX, generalmente 168MHz
 
-    	SysTick_Config() º¯ÊıµÄĞÎ²Î±íÊ¾ÄÚºËÊ±ÖÓ¶àÉÙ¸öÖÜÆÚºó´¥·¢Ò»´ÎSystick¶¨Ê±ÖĞ¶Ï.
-	    	-- SystemCoreClock / 1000  ±íÊ¾¶¨Ê±ÆµÂÊÎª 1000Hz£¬ Ò²¾ÍÊÇ¶¨Ê±ÖÜÆÚÎª  1ms
-	    	-- SystemCoreClock / 500   ±íÊ¾¶¨Ê±ÆµÂÊÎª 500Hz£¬  Ò²¾ÍÊÇ¶¨Ê±ÖÜÆÚÎª  2ms
-	    	-- SystemCoreClock / 2000  ±íÊ¾¶¨Ê±ÆµÂÊÎª 2000Hz£¬ Ò²¾ÍÊÇ¶¨Ê±ÖÜÆÚÎª  500us
+    	El parÃ¡metro formal de la funciÃ³n SysTick_Config() indica cuÃ¡ntos ciclos del reloj del nÃºcleo activarÃ¡n una interrupciÃ³n de temporizaciÃ³n de Systick.
+	    	-- SystemCoreClock / 1000 significa que la frecuencia de sincronizaciÃ³n es de 1000 Hz, es decir, el perÃ­odo de sincronizaciÃ³n es de 1 ms
+	    	-- SystemCoreClock / 500 significa que la frecuencia de sincronizaciÃ³n es de 500 Hz, es decir, el perÃ­odo de sincronizaciÃ³n es de 2 ms
+	    	-- SystemCoreClock / 2000 significa que la frecuencia de tiempo es 2000Hz, es decir, el perÃ­odo de tiempo es 500us
 
-    	¶ÔÓÚ³£¹æµÄÓ¦ÓÃ£¬ÎÒÃÇÒ»°ãÈ¡¶¨Ê±ÖÜÆÚ1ms¡£¶ÔÓÚµÍËÙCPU»òÕßµÍ¹¦ºÄÓ¦ÓÃ£¬¿ÉÒÔÉèÖÃ¶¨Ê±ÖÜÆÚÎª 10ms
+    	Para aplicaciones convencionales, generalmente tomamos el perÃ­odo de tiempo como 1 ms. Para CPU de baja velocidad o aplicaciones de bajo consumo, puede configurar el perÃ­odo de tiempo en 10 ms
     */
 	SysTick_Config(SystemCoreClock / 1000);
 	
@@ -109,10 +109,10 @@ void bsp_InitTimer(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: SysTick_ISR
-*	¹¦ÄÜËµÃ÷: SysTickÖĞ¶Ï·şÎñ³ÌĞò£¬Ã¿¸ô1ms½øÈë1´Î
-*	ĞÎ    ²Î:  ÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: SysTick_ISR
+*	DescripciÃ³n de la funciÃ³n: rutina de servicio de interrupciÃ³n de SysTick, ingrese una vez cada 1 ms
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 extern void bsp_RunPer1ms(void);
@@ -123,7 +123,7 @@ void SysTick_ISR(void)
 {
 	uint8_t i;
 
-	/* Ã¿¸ô1ms½øÀ´1´Î £¨½öÓÃÓÚ bsp_DelayMS£© */
+	/* entra cada 1 ms (solo para bsp_DelayMS) */
 	if (s_uiDelayCount > 0)
 	{
 		if (--s_uiDelayCount == 0)
@@ -132,40 +132,40 @@ void SysTick_ISR(void)
 		}
 	}
 
-	/* Ã¿¸ô1ms£¬¶ÔÈí¼ş¶¨Ê±Æ÷µÄ¼ÆÊıÆ÷½øĞĞ¼õÒ»²Ù×÷ */
+	/* Cada 1 ms, decrementa el contador del temporizador del software */
 	for (i = 0; i < TMR_COUNT; i++)
 	{
 		bsp_SoftTimerDec(&s_tTmr[i]);
 	}
 
-	/* È«¾ÖÔËĞĞÊ±¼äÃ¿1msÔö1 */
+	/* El tiempo de ejecuciÃ³n global aumenta en 1 cada 1 ms */
 	g_iRunTime++;
-	if(g_iRunTime >= 0xFFFFFED8)	/* 4294967 second = 49.71 Day Õâ¸ö±äÁ¿ÊÇ uint32_t ÀàĞÍ£¬×î´óÊıÎª 0xFFFFFFFF */
+	if(g_iRunTime >= 0xFFFFFED8)	/* 4294967 segundo = 49.71 DÃ­a Esta variable es de tipo uint32_t, el nÃºmero mÃ¡ximo es 0xFFFFFFFF */
 	{
 		g_iRunTime = 0;
 	}
 
-	bsp_RunPer1ms();		    /* Ã¿¸ô1msµ÷ÓÃÒ»´Î´Ëº¯Êı */
+	bsp_RunPer1ms();		   /* Llamar a esta funciÃ³n cada 1 ms */
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_SoftTimerDec
-*	¹¦ÄÜËµÃ÷: Ã¿¸ô1ms¶ÔËùÓĞ¶¨Ê±Æ÷±äÁ¿¼õ1¡£±ØĞë±»SysTick_ISRÖÜÆÚĞÔµ÷ÓÃ¡£
-*	ĞÎ    ²Î:  _tmr : ¶¨Ê±Æ÷±äÁ¿Ö¸Õë
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: bsp_SoftTimerDec
+*	DescripciÃ³n de la funciÃ³n: Decrementa todas las variables del temporizador en 1 cada 1 ms. Debe ser llamado periÃ³dicamente por SysTick_ISR.
+*	ParÃ¡metros formales: _tmr: puntero de variable de temporizador
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 static void bsp_SoftTimerDec(SOFT_TMR *_tmr)
 {
 	if (_tmr->Count > 0)
 	{
-		/* Èç¹û¶¨Ê±Æ÷±äÁ¿¼õµ½1ÔòÉèÖÃ¶¨Ê±Æ÷µ½´ï±êÖ¾ */
+		/* Si la variable del temporizador se reduce a 1, establece el indicador de llegada del temporizador */
 		if (--_tmr->Count == 0)
 		{
 			_tmr->Flag = 1;
 
-			/* Èç¹ûÊÇ×Ô¶¯Ä£Ê½£¬Ôò×Ô¶¯ÖØ×°¼ÆÊıÆ÷ */
+			/* Recargar automÃ¡ticamente el contador si estÃ¡ en modo automÃ¡tico */
 			if(_tmr->Mode == TMR_AUTO_MODE)
 			{
 				_tmr->Count = _tmr->PreLoad;
@@ -176,10 +176,10 @@ static void bsp_SoftTimerDec(SOFT_TMR *_tmr)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_DelayMS
-*	¹¦ÄÜËµÃ÷: ms¼¶ÑÓ³Ù£¬ÑÓ³Ù¾«¶ÈÎªÕı¸º1ms
-*	ĞÎ    ²Î:  n : ÑÓ³Ù³¤¶È£¬µ¥Î»1 ms¡£ n Ó¦´óÓÚ2
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: bsp_DelayMS
+*	DescripciÃ³n de la funciÃ³n: retardo de nivel de ms, la precisiÃ³n del retardo es mÃ¡s o menos 1 ms
+*	ParÃ¡metros formales: n : duraciÃ³n del retardo, unidad 1 ms. n debe ser mayor que 2
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_DelayMS(uint32_t n)
@@ -193,18 +193,18 @@ void bsp_DelayMS(uint32_t n)
 		n = 2;
 	}
 
-	DISABLE_INT();  			/* ¹ØÖĞ¶Ï */
+	DISABLE_INT();  			/* desactivar la interrupciÃ³n */
 
 	s_uiDelayCount = n;
 	s_ucTimeOutFlag = 0;
 
-	ENABLE_INT();  				/* ¿ªÖĞ¶Ï */
+	ENABLE_INT();  				/* habilitar interrupciÃ³n */
 
 	while (1)
 	{
 		/*
-			µÈ´ıÑÓ³ÙÊ±¼äµ½
-			×¢Òâ£º±àÒëÆ÷ÈÏÎª s_ucTimeOutFlag = 0£¬ËùÒÔ¿ÉÄÜÓÅ»¯´íÎó£¬Òò´Ë s_ucTimeOutFlag ±äÁ¿±ØĞëÉêÃ÷Îª volatile
+			Espere a que transcurra el tiempo de retardo
+			Nota: el compilador piensa que s_ucTimeOutFlag = 0, por lo que puede ser un error de optimizaciÃ³n, por lo que la variable s_ucTimeOutFlag debe declararse como volÃ¡til
 		*/
 		if (s_ucTimeOutFlag == 1)
 		{
@@ -215,10 +215,10 @@ void bsp_DelayMS(uint32_t n)
 
 /*
 *********************************************************************************************************
-*    º¯ Êı Ãû: bsp_DelayUS
-*    ¹¦ÄÜËµÃ÷: us¼¶ÑÓ³Ù¡£ ±ØĞëÔÚsystick¶¨Ê±Æ÷Æô¶¯ºó²ÅÄÜµ÷ÓÃ´Ëº¯Êı¡£
-*    ĞÎ    ²Î:  n : ÑÓ³Ù³¤¶È£¬µ¥Î»1 us
-*    ·µ »Ø Öµ: ÎŞ
+*    Nombre de la funciÃ³n: bsp_DelayUS
+*    DescripciÃ³n de la funciÃ³n: retardo de nivel de EE. UU. Esta funciÃ³n debe llamarse despuÃ©s de que se haya iniciado el temporizador sysstick.
+*    ParÃ¡metros formales: n: duraciÃ³n del retardo, unidad 1 us
+*    Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_DelayUS(uint32_t n)
@@ -230,29 +230,29 @@ void bsp_DelayUS(uint32_t n)
     uint32_t reload;
     
 	reload = SysTick->LOAD;                
-    ticks = n * (SystemCoreClock / 1000000);	 /* ĞèÒªµÄ½ÚÅÄÊı */  
+    ticks = n * (SystemCoreClock / 1000000);	 /* NÃºmero de ticks requeridos */ 
     
     tcnt = 0;
-    told = SysTick->VAL;             /* ¸Õ½øÈëÊ±µÄ¼ÆÊıÆ÷Öµ */
+    told = SysTick->VAL;            /* Valor del contador reciÃ©n ingresado */
 
     while (1)
     {
         tnow = SysTick->VAL;    
         if (tnow != told)
         {    
-            /* SYSTICKÊÇÒ»¸öµİ¼õµÄ¼ÆÊıÆ÷ */    
+            /* SYSTICK es un contador decreciente */  
             if (tnow < told)
             {
                 tcnt += told - tnow;    
             }
-            /* ÖØĞÂ×°ÔØµİ¼õ */
+           /* decremento de recarga */
             else
             {
                 tcnt += reload - tnow + told;    
             }        
             told = tnow;
 
-            /* Ê±¼ä³¬¹ı/µÈÓÚÒªÑÓ³ÙµÄÊ±¼ä,ÔòÍË³ö */
+            /* El tiempo excede/igual al tiempo a retrasar, luego sale */
             if (tcnt >= ticks)
             {
             	break;
@@ -264,93 +264,93 @@ void bsp_DelayUS(uint32_t n)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_StartTimer
-*	¹¦ÄÜËµÃ÷: Æô¶¯Ò»¸ö¶¨Ê±Æ÷£¬²¢ÉèÖÃ¶¨Ê±ÖÜÆÚ¡£
-*	ĞÎ    ²Î:  	_id     : ¶¨Ê±Æ÷ID£¬ÖµÓò¡¾0,TMR_COUNT-1¡¿¡£ÓÃ»§±ØĞë×ÔĞĞÎ¬»¤¶¨Ê±Æ÷ID£¬ÒÔ±ÜÃâ¶¨Ê±Æ÷ID³åÍ»¡£
-*				_period : ¶¨Ê±ÖÜÆÚ£¬µ¥Î»1ms
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: bsp_StartTimer
+*	DescripciÃ³n de la funciÃ³n: Iniciar un temporizador y establecer el perÃ­odo de tiempo.
+*	ParÃ¡metros formales: _id: ID del temporizador, rango de valores [0,TMR_COUNT-1]. Los usuarios deben mantener la identificaciÃ³n del temporizador por sÃ­ mismos para evitar conflictos de identificaciÃ³n del temporizadorã€‚
+*				_period : Periodo de tiempo, unidad 1ms
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_StartTimer(uint8_t _id, uint32_t _period)
 {
 	if (_id >= TMR_COUNT)
 	{
-		/* ´òÓ¡³ö´íµÄÔ´´úÂëÎÄ¼şÃû¡¢º¯ÊıÃû³Æ */
+		/* Imprime el nombre del archivo del cÃ³digo fuente del error, nombre de la funciÃ³n */
 		BSP_Printf("Error: file %s, function %s()\r\n", __FILE__, __FUNCTION__);
-		while(1); /* ²ÎÊıÒì³££¬ËÀ»úµÈ´ı¿´ÃÅ¹·¸´Î» */
+		while(1); /* ParÃ¡metro anÃ³malo, bloqueo esperando el restablecimiento del mecanismo de vigilancia */
 	}
 
-	DISABLE_INT();  			/* ¹ØÖĞ¶Ï */
+	DISABLE_INT();  			/* desactivar la interrupciÃ³n */
 
-	s_tTmr[_id].Count = _period;		/* ÊµÊ±¼ÆÊıÆ÷³õÖµ */
-	s_tTmr[_id].PreLoad = _period;		/* ¼ÆÊıÆ÷×Ô¶¯ÖØ×°Öµ£¬½ö×Ô¶¯Ä£Ê½Æğ×÷ÓÃ */
-	s_tTmr[_id].Flag = 0;				/* ¶¨Ê±Ê±¼äµ½±êÖ¾ */
-	s_tTmr[_id].Mode = TMR_ONCE_MODE;	/* 1´ÎĞÔ¹¤×÷Ä£Ê½ */
+	s_tTmr[_id].Count = _period;		/* contador en tiempo real */
+	s_tTmr[_id].PreLoad = _period;		/* El contador recarga automÃ¡ticamente el valor, solo funciona el modo automÃ¡tico */
+	s_tTmr[_id].Flag = 0;				/* Tiempo de tiempo para marcar */
+	s_tTmr[_id].Mode = TMR_ONCE_MODE;	/* Modo de trabajo de una sola vez */
 
-	ENABLE_INT();  				/* ¿ªÖĞ¶Ï */
+	ENABLE_INT();  				/* habilitar interrupciÃ³n */
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_StartAutoTimer
-*	¹¦ÄÜËµÃ÷: Æô¶¯Ò»¸ö×Ô¶¯¶¨Ê±Æ÷£¬²¢ÉèÖÃ¶¨Ê±ÖÜÆÚ¡£
-*	ĞÎ    ²Î:  	_id     : ¶¨Ê±Æ÷ID£¬ÖµÓò¡¾0,TMR_COUNT-1¡¿¡£ÓÃ»§±ØĞë×ÔĞĞÎ¬»¤¶¨Ê±Æ÷ID£¬ÒÔ±ÜÃâ¶¨Ê±Æ÷ID³åÍ»¡£
-*				_period : ¶¨Ê±ÖÜÆÚ£¬µ¥Î»10ms
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: bsp_StartAutoTimer
+*	DescripciÃ³n de la funciÃ³n: Iniciar un temporizador automÃ¡tico y establecer el perÃ­odo de tiempo.
+*	ParÃ¡metros formales: _id: ID del temporizador, rango de valores [0,TMR_COUNT-1]. Los usuarios deben mantener las ID de temporizador por sÃ­ mismos para evitar conflictos de ID de temporizador.
+*				_period : Periodo de tiempo, unidad 10ms
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_StartAutoTimer(uint8_t _id, uint32_t _period)
 {
 	if (_id >= TMR_COUNT)
 	{
-		/* ´òÓ¡³ö´íµÄÔ´´úÂëÎÄ¼şÃû¡¢º¯ÊıÃû³Æ */
+		/* Imprime el nombre del archivo del cÃ³digo fuente del error, nombre de la funciÃ³n */
 		BSP_Printf("Error: file %s, function %s()\r\n", __FILE__, __FUNCTION__);
-		while(1); /* ²ÎÊıÒì³££¬ËÀ»úµÈ´ı¿´ÃÅ¹·¸´Î» */
+		while(1); /* ParÃ¡metro anÃ³malo, bloqueo esperando el restablecimiento del mecanismo de vigilancia */
 	}
 
-	DISABLE_INT();  		/* ¹ØÖĞ¶Ï */
+	DISABLE_INT();  		/* desactivar la interrupciÃ³n */
 
-	s_tTmr[_id].Count = _period;		/* ÊµÊ±¼ÆÊıÆ÷³õÖµ */
-	s_tTmr[_id].PreLoad = _period;		/* ¼ÆÊıÆ÷×Ô¶¯ÖØ×°Öµ£¬½ö×Ô¶¯Ä£Ê½Æğ×÷ÓÃ */
-	s_tTmr[_id].Flag = 0;				/* ¶¨Ê±Ê±¼äµ½±êÖ¾ */
-	s_tTmr[_id].Mode = TMR_AUTO_MODE;	/* ×Ô¶¯¹¤×÷Ä£Ê½ */
+	s_tTmr[_id].Count = _period;		/* contador en tiempo real */
+	s_tTmr[_id].PreLoad = _period;		/* El contador recarga automÃ¡ticamente el valor, solo funciona el modo automÃ¡tico */
+	s_tTmr[_id].Flag = 0;				/* Tiempo de tiempo para marcar */
+	s_tTmr[_id].Mode = TMR_AUTO_MODE;	/* Modo de trabajo automÃ¡tico */
 
-	ENABLE_INT();  			/* ¿ªÖĞ¶Ï */
+	ENABLE_INT();  			/* habilitar interrupciÃ³n */
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_StopTimer
-*	¹¦ÄÜËµÃ÷: Í£Ö¹Ò»¸ö¶¨Ê±Æ÷
-*	ĞÎ    ²Î:  	_id     : ¶¨Ê±Æ÷ID£¬ÖµÓò¡¾0,TMR_COUNT-1¡¿¡£ÓÃ»§±ØĞë×ÔĞĞÎ¬»¤¶¨Ê±Æ÷ID£¬ÒÔ±ÜÃâ¶¨Ê±Æ÷ID³åÍ»¡£
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: bsp_StopTimer
+*	DescripciÃ³n de la funciÃ³n: detener un temporizador
+*	ParÃ¡metros formales: _id: ID del temporizador, rango de valores [0,TMR_COUNT-1]. Los usuarios deben mantener las ID de temporizador por sÃ­ mismos para evitar conflictos de ID de temporizador.
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_StopTimer(uint8_t _id)
 {
 	if (_id >= TMR_COUNT)
 	{
-		/* ´òÓ¡³ö´íµÄÔ´´úÂëÎÄ¼şÃû¡¢º¯ÊıÃû³Æ */
+		/* Imprime el nombre del archivo del cÃ³digo fuente del error, nombre de la funciÃ³n */
 		BSP_Printf("Error: file %s, function %s()\r\n", __FILE__, __FUNCTION__);
-		while(1); /* ²ÎÊıÒì³££¬ËÀ»úµÈ´ı¿´ÃÅ¹·¸´Î» */
+		while(1); /* ParÃ¡metro anÃ³malo, bloqueo esperando el restablecimiento del mecanismo de vigilancia */
 	}
 
-	DISABLE_INT();  	/* ¹ØÖĞ¶Ï */
+	DISABLE_INT();  	/* desactivar la interrupciÃ³n */
 
-	s_tTmr[_id].Count = 0;				/* ÊµÊ±¼ÆÊıÆ÷³õÖµ */
-	s_tTmr[_id].Flag = 0;				/* ¶¨Ê±Ê±¼äµ½±êÖ¾ */
-	s_tTmr[_id].Mode = TMR_ONCE_MODE;	/* ×Ô¶¯¹¤×÷Ä£Ê½ */
+	s_tTmr[_id].Count = 0;				/* Valor inicial del contador en tiempo real */
+	s_tTmr[_id].Flag = 0;				/* Tiempo de tiempo para marcar */
+	s_tTmr[_id].Mode = TMR_ONCE_MODE;	/* Modo de trabajo automÃ¡tico */
 
-	ENABLE_INT();  		/* ¿ªÖĞ¶Ï */
+	ENABLE_INT();  		/* habilitar interrupciÃ³n */
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_CheckTimer
-*	¹¦ÄÜËµÃ÷: ¼ì²â¶¨Ê±Æ÷ÊÇ·ñ³¬Ê±
-*	ĞÎ    ²Î:  	_id     : ¶¨Ê±Æ÷ID£¬ÖµÓò¡¾0,TMR_COUNT-1¡¿¡£ÓÃ»§±ØĞë×ÔĞĞÎ¬»¤¶¨Ê±Æ÷ID£¬ÒÔ±ÜÃâ¶¨Ê±Æ÷ID³åÍ»¡£
-*				_period : ¶¨Ê±ÖÜÆÚ£¬µ¥Î»1ms
-*	·µ »Ø Öµ: ·µ»Ø 0 ±íÊ¾¶¨Ê±Î´µ½£¬ 1±íÊ¾¶¨Ê±µ½
+*	Nombre de la funciÃ³n: bsp_CheckTimer
+*	DescripciÃ³n de la funciÃ³n: compruebe si el temporizador estÃ¡ agotado
+*	ParÃ¡metros formales: _id: ID del temporizador, rango de valores [0,TMR_COUNT-1]. Los usuarios deben mantener las ID de temporizador por sÃ­ mismos para evitar conflictos de ID de temporizador.
+*				_period : Periodo de tiempo, unidad 1ms
+*	Valor de retorno: retorno 0 significa que el temporizador no ha llegado, 1 significa que el temporizador ha llegado
 *********************************************************************************************************
 */
 uint8_t bsp_CheckTimer(uint8_t _id)
@@ -373,31 +373,31 @@ uint8_t bsp_CheckTimer(uint8_t _id)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_GetRunTime
-*	¹¦ÄÜËµÃ÷: »ñÈ¡CPUÔËĞĞÊ±¼ä£¬µ¥Î»1ms¡£×î³¤¿ÉÒÔ±íÊ¾ 24.85Ìì£¬Èç¹ûÄãµÄ²úÆ·Á¬ĞøÔËĞĞÊ±¼ä³¬¹ıÕâ¸öÊı£¬Ôò±ØĞë¿¼ÂÇÒç³öÎÊÌâ
-*	ĞÎ    ²Î:  ÎŞ
-*	·µ »Ø Öµ: CPUÔËĞĞÊ±¼ä£¬µ¥Î»1ms
+*	Nombre de la funciÃ³n: bsp_GetRunTime
+*	DescripciÃ³n de la funciÃ³n: obtenga el tiempo de ejecuciÃ³n de la CPU, la unidad es de 1 ms. Puede representar hasta 24,85 dÃ­as. Si su producto se ejecuta continuamente durante mÃ¡s de este nÃºmero, debe considerar el problema de desbordamiento.
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: tiempo de ejecuciÃ³n de la CPU, unidad 1 ms
 *********************************************************************************************************
 */
 int32_t bsp_GetRunTime(void)
 {
 	int32_t runtime;
 
-	DISABLE_INT();  	/* ¹ØÖĞ¶Ï */
+	DISABLE_INT();  	/* desactivar la interrupciÃ³n */
 
-	runtime = g_iRunTime;	/* Õâ¸ö±äÁ¿ÔÚSystickÖĞ¶ÏÖĞ±»¸ÄĞ´£¬Òò´ËĞèÒª¹ØÖĞ¶Ï½øĞĞ±£»¤ */
+	runtime = g_iRunTime;	/* Esta variable se reescribe en la interrupciÃ³n de Systick, por lo que debe protegerse desactivando la interrupciÃ³n */
 
-	ENABLE_INT();  		/* ¿ªÖĞ¶Ï */
+	ENABLE_INT();  		/* habilitar interrupciÃ³n */
 
 	return runtime;
 }
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_CheckRunTime
-*	¹¦ÄÜËµÃ÷: ¼ÆËãµ±Ç°ÔËĞĞÊ±¼äºÍ¸ø¶¨Ê±¿ÌÖ®¼äµÄ²îÖµ¡£´¦ÀíÁË¼ÆÊıÆ÷Ñ­»·¡£
-*	ĞÎ    ²Î:  _LastTime ÉÏ¸öÊ±¿Ì
-*	·µ »Ø Öµ: µ±Ç°Ê±¼äºÍ¹ıÈ¥Ê±¼äµÄ²îÖµ£¬µ¥Î»1ms
+*	Nombre de la funciÃ³n: bsp_CheckRunTime
+*	DescripciÃ³n de la funciÃ³n: Calcular la diferencia entre el tiempo de ejecuciÃ³n actual y el momento dado. Se manejan los bucles de contador.
+*	ParÃ¡metro formal: _LastTime Ãºltima vez
+*	Valor devuelto: la diferencia entre la hora actual y la hora pasada, la unidad es 1ms
 *********************************************************************************************************
 */
 int32_t bsp_CheckRunTime(int32_t _LastTime)
@@ -405,11 +405,11 @@ int32_t bsp_CheckRunTime(int32_t _LastTime)
 	int32_t now_time;
 	int32_t time_diff;
 
-	DISABLE_INT();  	/* ¹ØÖĞ¶Ï */
+	DISABLE_INT();  	/* desactivar la interrupciÃ³n */
 
-	now_time = g_iRunTime;	/* Õâ¸ö±äÁ¿ÔÚSystickÖĞ¶ÏÖĞ±»¸ÄĞ´£¬Òò´ËĞèÒª¹ØÖĞ¶Ï½øĞĞ±£»¤ */
+	now_time = g_iRunTime;	/* Esta variable se reescribe en la interrupciÃ³n de Systick, por lo que debe protegerse desactivando la interrupciÃ³n */
 
-	ENABLE_INT();  		/* ¿ªÖĞ¶Ï */
+	ENABLE_INT();  		/* habilitar interrupciÃ³n */
 	
 	if (now_time >= _LastTime)
 	{
@@ -425,10 +425,10 @@ int32_t bsp_CheckRunTime(int32_t _LastTime)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: SysTick_Handler
-*	¹¦ÄÜËµÃ÷: ÏµÍ³àÖàª¶¨Ê±Æ÷ÖĞ¶Ï·şÎñ³ÌĞò¡£Æô¶¯ÎÄ¼şÖĞÒıÓÃÁË¸Ãº¯Êı¡£
-*	ĞÎ    ²Î:  ÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: SysTick_Handler
+*	DescripciÃ³n de la funciÃ³n: Rutina de servicio de interrupciÃ³n del temporizador de ticks del sistema. Se hace referencia a esta funciÃ³n en el archivo de inicio.
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void SysTick_Handler(void)
@@ -438,11 +438,11 @@ void SysTick_Handler(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_InitHardTimer
-*	¹¦ÄÜËµÃ÷: ÅäÖÃ TIMx£¬ÓÃÓÚus¼¶±ğÓ²¼ş¶¨Ê±¡£TIMx½«×ÔÓÉÔËĞĞ£¬ÓÀ²»Í£Ö¹.
-*			TIMx¿ÉÒÔÓÃTIM2 - TIM5 Ö®¼äµÄTIM, ÕâĞ©TIMÓĞ4¸öÍ¨µÀ, ¹ÒÔÚ APB1 ÉÏ£¬ÊäÈëÊ±ÖÓ=SystemCoreClock / 2
-*	ĞÎ    ²Î: ÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: bsp_InitHardTimer
+*	DescripciÃ³n de la funciÃ³n: Configure TIMx para sincronizaciÃ³n de hardware de nivel estadounidense. TIMx funcionarÃ¡ libremente y nunca se detendrÃ¡.
+*			TIMx puede usar TIM entre TIM2 - TIM5, estos TIM tienen 4 canales, cuelgan en APB1, reloj de entrada = SystemCoreClock / 2
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 #if defined (USE_TIM2) || defined (USE_TIM3)  || defined (USE_TIM4)	|| defined (USE_TIM5)
@@ -453,30 +453,30 @@ void bsp_InitHardTimer(void)
 	uint16_t usPrescaler;
 	uint32_t uiTIMxCLK;
 
-  	/* Ê¹ÄÜTIMÊ±ÖÓ */
+  	/* Habilitar reloj TIM */
 	RCC_APB1PeriphClockCmd(TIM_HARD_RCC, ENABLE);
 
     /*-----------------------------------------------------------------------
-		system_stm32f4xx.c ÎÄ¼şÖĞ void SetSysClock(void) º¯Êı¶ÔÊ±ÖÓµÄÅäÖÃÈçÏÂ£º
+		La funciÃ³n void SetSysClock(void) en el archivo system_stm32f4xx.c configura el reloj de la siguiente manera:
 
 		HCLK = SYSCLK / 1     (AHB1Periph)
 		PCLK2 = HCLK / 2      (APB2Periph)
 		PCLK1 = HCLK / 4      (APB1Periph)
 
-		ÒòÎªAPB1 prescaler != 1, ËùÒÔ APB1ÉÏµÄTIMxCLK = PCLK1 x 2 = SystemCoreClock / 2;
-		ÒòÎªAPB2 prescaler != 1, ËùÒÔ APB2ÉÏµÄTIMxCLK = PCLK2 x 2 = SystemCoreClock;
+		Debido a que el preescalador APB1 != 1, entonces TIMxCLK en APB1 = PCLK1 x 2 = SystemCoreClock / 2;
+		Debido a que el preescalador APB2 != 1, entonces TIMxCLK en APB2 = PCLK2 x 2 = SystemCoreClock;
 
-		APB1 ¶¨Ê±Æ÷ÓĞ TIM2, TIM3 ,TIM4, TIM5, TIM6, TIM7, TIM12, TIM13,TIM14
-		APB2 ¶¨Ê±Æ÷ÓĞ TIM1, TIM8 ,TIM9, TIM10, TIM11
+		APB1 con temporizador TIM2, TIM3, TIM4, TIM5, TIM6, TIM7, TIM12, TIM13, TIM14
+		APB2 con temporizador TIM1, TIM8 ,TIM9, TIM10, TIM11
 
 	----------------------------------------------------------------------- */
 	uiTIMxCLK = SystemCoreClock / 2;
 
-	usPrescaler = uiTIMxCLK / 1000000 ;	/* ·ÖÆµµ½ÖÜÆÚ 1us */
+	usPrescaler = uiTIMxCLK / 1000000 ;	/* division de frecuencia al periodo 1us */
 	
 #if defined (USE_TIM2) || defined (USE_TIM5) 
-	//usPeriod = 0xFFFFFFFF;	/* 407Ö§³Ö32Î»¶¨Ê±Æ÷ */
-	usPeriod = 0xFFFF;	/* 103Ö§³Ö16Î» */
+	//usPeriod = 0xFFFFFFFF;	/* 407 admite temporizador de 32 bits */
+	usPeriod = 0xFFFF;	/* 103 admite 16 bits */
 #else
 	usPeriod = 0xFFFF;
 #endif
@@ -493,13 +493,13 @@ void bsp_InitHardTimer(void)
 	/* TIMx enable counter */
 	TIM_Cmd(TIM_HARD, ENABLE);
 
-	/* ÅäÖÃTIM¶¨Ê±ÖĞ¶Ï (Update) */
+	/* Configurar interrupciÃ³n de temporizaciÃ³n TIM (ActualizaciÃ³n) */
 	{
-		NVIC_InitTypeDef NVIC_InitStructure;	/* ÖĞ¶Ï½á¹¹ÌåÔÚ misc.h ÖĞ¶¨Òå */
+		NVIC_InitTypeDef NVIC_InitStructure;	/* La estructura de interrupciÃ³n se define en misc.h */
 
 		NVIC_InitStructure.NVIC_IRQChannel = TIM_HARD_IRQn;
 
-		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 4;	/* ±È´®¿ÚÓÅÏÈ¼¶µÍ */
+		NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 4;	/* Menor prioridad que el puerto serie */
 		NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 		NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
 		NVIC_Init(&NVIC_InitStructure);
@@ -508,15 +508,15 @@ void bsp_InitHardTimer(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: bsp_StartHardTimer
-*	¹¦ÄÜËµÃ÷: Ê¹ÓÃTIM2-5×öµ¥´Î¶¨Ê±Æ÷Ê¹ÓÃ, ¶¨Ê±Ê±¼äµ½ºóÖ´ĞĞ»Øµ÷º¯Êı¡£¿ÉÒÔÍ¬Ê±Æô¶¯4¸ö¶¨Ê±Æ÷£¬»¥²»¸ÉÈÅ¡£
-*             ¶¨Ê±¾«¶ÈÕı¸º10us £¨Ö÷ÒªºÄ·ÑÔÚµ÷ÓÃ±¾º¯ÊıµÄÖ´ĞĞÊ±¼ä£¬º¯ÊıÄÚ²¿½øĞĞÁË²¹³¥¼õĞ¡Îó²î£©
-*			 TIM2ºÍTIM5 ÊÇ16Î»¶¨Ê±Æ÷¡£
-*			 TIM3ºÍTIM4 ÊÇ16Î»¶¨Ê±Æ÷¡£
-*	ĞÎ    ²Î: _CC : ²¶»ñÍ¨µÀ¼¸£¬1£¬2£¬3, 4
-*             _uiTimeOut : ³¬Ê±Ê±¼ä, µ¥Î» 1us.       ¶ÔÓÚ16Î»¶¨Ê±Æ÷£¬×î´ó 65.5ms; ¶ÔÓÚ32Î»¶¨Ê±Æ÷£¬×î´ó 4294Ãë
-*             _pCallBack : ¶¨Ê±Ê±¼äµ½ºó£¬±»Ö´ĞĞµÄº¯Êı
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: bsp_StartHardTimer
+*	DescripciÃ³n de la funciÃ³n: use TIM2-5 como un temporizador Ãºnico y ejecute la funciÃ³n de devoluciÃ³n de llamada despuÃ©s de que expire el temporizador. Se pueden iniciar 4 temporizadores al mismo tiempo sin interferir entre sÃ­.
+*            La precisiÃ³n de tiempo es mÃ¡s o menos 10us (principalmente consumido en el tiempo de ejecuciÃ³n de llamar a esta funciÃ³n, y la funciÃ³n se compensa para reducir el errorï¼‰
+*			 TIM2 y TIM5 son temporizadores de 16 bits.
+*			 TIM3 y TIM4 son temporizadores de 16 bitsã€‚
+*	ParÃ¡metro formal: _CC: nÃºmero de canal de captura, 1, 2, 3, 4
+*             _uiTimeOut: tiempo de espera, unidad 1us. Para el temporizador de 16 bits, el mÃ¡ximo es 65,5 ms; para el temporizador de 32 bits, el mÃ¡ximo es 4294 segundos
+*            _pCallBack: la funciÃ³n que se ejecutarÃ¡ despuÃ©s de que expire el temporizador
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_StartHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBack)
@@ -525,7 +525,7 @@ void bsp_StartHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBack)
     uint32_t cnt_tar;
 
     /*
-        Ö´ĞĞÏÂÃæÕâ¸öÓï¾ä£¬Ê±³¤ = 18us (Í¨¹ıÂß¼­·ÖÎöÒÇ²âÁ¿IO·­×ª)
+        Ejecute la siguiente declaraciÃ³n, duraciÃ³n = 18us (mida el cambio de IO por el analizador lÃ³gico)
         bsp_StartTimer2(3, 500, (void *)test1);
     */
     if (_uiTimeOut < 5)
@@ -537,40 +537,40 @@ void bsp_StartHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBack)
         _uiTimeOut -= 5;
     }
 
-    cnt_now = TIM_GetCounter(TIM_HARD);    	/* ¶ÁÈ¡µ±Ç°µÄ¼ÆÊıÆ÷Öµ */
-    cnt_tar = cnt_now + _uiTimeOut;			/* ¼ÆËã²¶»ñµÄ¼ÆÊıÆ÷Öµ */
+    cnt_now = TIM_GetCounter(TIM_HARD);    	/* lee el valor actual del contador */
+    cnt_tar = cnt_now + _uiTimeOut;			/* Calcular el valor del contador capturado */
     if (_CC == 1)
     {
         s_TIM_CallBack1 = (void (*)(void))_pCallBack;
 
-        TIM_SetCompare1(TIM_HARD, cnt_tar);      	/* ÉèÖÃ²¶»ñ±È½Ï¼ÆÊıÆ÷CC1 */
+        TIM_SetCompare1(TIM_HARD, cnt_tar);      	/* Establecer el contador de comparaciÃ³n de captura CC1 */
         TIM_ClearITPendingBit(TIM_HARD, TIM_IT_CC1);
-		TIM_ITConfig(TIM_HARD, TIM_IT_CC1, ENABLE);	/* Ê¹ÄÜCC1ÖĞ¶Ï */
+		TIM_ITConfig(TIM_HARD, TIM_IT_CC1, ENABLE);	/* Habilitar interrupciÃ³n CC1 */
 
     }
     else if (_CC == 2)
     {
 		s_TIM_CallBack2 = (void (*)(void))_pCallBack;
 
-        TIM_SetCompare2(TIM_HARD, cnt_tar);      	/* ÉèÖÃ²¶»ñ±È½Ï¼ÆÊıÆ÷CC2 */
+        TIM_SetCompare2(TIM_HARD, cnt_tar);      	/* Establecer el contador de comparaciÃ³n de captura CC2 */
 		TIM_ClearITPendingBit(TIM_HARD, TIM_IT_CC2);
-		TIM_ITConfig(TIM_HARD, TIM_IT_CC2, ENABLE);	/* Ê¹ÄÜCC2ÖĞ¶Ï */
+		TIM_ITConfig(TIM_HARD, TIM_IT_CC2, ENABLE);	/* Habilitar interrupciÃ³n CC2 */
     }
     else if (_CC == 3)
     {
         s_TIM_CallBack3 = (void (*)(void))_pCallBack;
 
-        TIM_SetCompare3(TIM_HARD, cnt_tar);      	/* ÉèÖÃ²¶»ñ±È½Ï¼ÆÊıÆ÷CC3 */
+        TIM_SetCompare3(TIM_HARD, cnt_tar);      	/* Establecer el contador de comparaciÃ³n de captura CC3 */
         TIM_ClearITPendingBit(TIM_HARD, TIM_IT_CC3);
-		TIM_ITConfig(TIM_HARD, TIM_IT_CC3, ENABLE);	/* Ê¹ÄÜCC3ÖĞ¶Ï */
+		TIM_ITConfig(TIM_HARD, TIM_IT_CC3, ENABLE);	/* Habilitar interrupciÃ³n CC3 */
     }
     else if (_CC == 4)
     {
         s_TIM_CallBack4 = (void (*)(void))_pCallBack;
 
-        TIM_SetCompare4(TIM_HARD, cnt_tar);      	/* ÉèÖÃ²¶»ñ±È½Ï¼ÆÊıÆ÷CC4 */
+        TIM_SetCompare4(TIM_HARD, cnt_tar);      	/* Establecer el contador de comparaciÃ³n de captura CC4 */
 		TIM_ClearITPendingBit(TIM_HARD, TIM_IT_CC4);
-		TIM_ITConfig(TIM_HARD, TIM_IT_CC4, ENABLE);	/* Ê¹ÄÜCC4ÖĞ¶Ï */
+		TIM_ITConfig(TIM_HARD, TIM_IT_CC4, ENABLE);	/* Habilitar interrupciÃ³n CC4 */
     }
 	else
     {
@@ -581,10 +581,10 @@ void bsp_StartHardTimer(uint8_t _CC, uint32_t _uiTimeOut, void * _pCallBack)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: TIMx_IRQHandler
-*	¹¦ÄÜËµÃ÷: TIM ÖĞ¶Ï·şÎñ³ÌĞò
-*	ĞÎ    ²Î£ºÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: TIMx_IRQHandler
+*	DescripciÃ³n de la funciÃ³n: Rutina de servicio de interrupciÃ³n TIM
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 
@@ -607,36 +607,36 @@ void TIM5_IRQHandler(void)
     if (TIM_GetITStatus(TIM_HARD, TIM_IT_CC1))
     {
         TIM_ClearITPendingBit(TIM_HARD, TIM_IT_CC1);
-        TIM_ITConfig(TIM_HARD, TIM_IT_CC1, DISABLE);	/* ½ûÄÜCC1ÖĞ¶Ï */
+        TIM_ITConfig(TIM_HARD, TIM_IT_CC1, DISABLE);	/* deshabilitar la interrupciÃ³n CC1 */
 
-        /* ÏÈ¹Ø±ÕÖĞ¶Ï£¬ÔÙÖ´ĞĞ»Øµ÷º¯Êı¡£ÒòÎª»Øµ÷º¯Êı¿ÉÄÜĞèÒªÖØÆô¶¨Ê±Æ÷ */
+       /* Primero deshabilite la interrupciÃ³n y luego ejecute la funciÃ³n de devoluciÃ³n de llamada. Debido a que la funciÃ³n de devoluciÃ³n de llamada puede necesitar reiniciar el temporizador */
         s_TIM_CallBack1();
     }
 
     if (TIM_GetITStatus(TIM_HARD, TIM_IT_CC2))
     {
         TIM_ClearITPendingBit(TIM_HARD, TIM_IT_CC2);
-        TIM_ITConfig(TIM_HARD, TIM_IT_CC2, DISABLE);	/* ½ûÄÜCC2ÖĞ¶Ï */
+        TIM_ITConfig(TIM_HARD, TIM_IT_CC2, DISABLE);	/* deshabilitar la interrupciÃ³n CC2 */
 
-        /* ÏÈ¹Ø±ÕÖĞ¶Ï£¬ÔÙÖ´ĞĞ»Øµ÷º¯Êı¡£ÒòÎª»Øµ÷º¯Êı¿ÉÄÜĞèÒªÖØÆô¶¨Ê±Æ÷ */
+        /* Primero deshabilite la interrupciÃ³n y luego ejecute la funciÃ³n de devoluciÃ³n de llamada. Debido a que la funciÃ³n de devoluciÃ³n de llamada puede necesitar reiniciar el temporizador */
         s_TIM_CallBack2();
     }
 
     if (TIM_GetITStatus(TIM_HARD, TIM_IT_CC3))
     {
         TIM_ClearITPendingBit(TIM_HARD, TIM_IT_CC3);
-        TIM_ITConfig(TIM_HARD, TIM_IT_CC3, DISABLE);	/* ½ûÄÜCC3ÖĞ¶Ï */
+        TIM_ITConfig(TIM_HARD, TIM_IT_CC3, DISABLE);	/* deshabilitar la interrupciÃ³n CC3 */
 
-        /* ÏÈ¹Ø±ÕÖĞ¶Ï£¬ÔÙÖ´ĞĞ»Øµ÷º¯Êı¡£ÒòÎª»Øµ÷º¯Êı¿ÉÄÜĞèÒªÖØÆô¶¨Ê±Æ÷ */
+        /* Primero deshabilite la interrupciÃ³n y luego ejecute la funciÃ³n de devoluciÃ³n de llamada. Debido a que la funciÃ³n de devoluciÃ³n de llamada puede necesitar reiniciar el temporizador */
         s_TIM_CallBack3();
     }
 
     if (TIM_GetITStatus(TIM_HARD, TIM_IT_CC4))
     {
         TIM_ClearITPendingBit(TIM_HARD, TIM_IT_CC4);
-        TIM_ITConfig(TIM_HARD, TIM_IT_CC4, DISABLE);	/* ½ûÄÜCC4ÖĞ¶Ï */
+        TIM_ITConfig(TIM_HARD, TIM_IT_CC4, DISABLE);	/* deshabilitar la interrupciÃ³n CC4 */
 
-        /* ÏÈ¹Ø±ÕÖĞ¶Ï£¬ÔÙÖ´ĞĞ»Øµ÷º¯Êı¡£ÒòÎª»Øµ÷º¯Êı¿ÉÄÜĞèÒªÖØÆô¶¨Ê±Æ÷ */
+        /* Primero deshabilite la interrupciÃ³n y luego ejecute la funciÃ³n de devoluciÃ³n de llamada. Debido a que la funciÃ³n de devoluciÃ³n de llamada puede necesitar reiniciar el temporizador */
         s_TIM_CallBack4();
     }
 }
