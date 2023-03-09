@@ -1,13 +1,13 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : ·½°¸Ä£¿é
-*	ÎÄ¼şÃû³Æ : Pattern.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
-*	ĞŞ¸Ä¼ÇÂ¼ :
-*		°æ±¾ºÅ  ÈÕÆÚ       ×÷Õß    ËµÃ÷
-*		V1.0    2019-12-30  wcx     Ê×·¢
+*	Nombre del mÃ³dulo: MÃ³dulo de programa
+*	Nombre del archivo: Pattern.c
+*	VersiÃ³n: V1.0
+*	ilustrar: 
+*	registro de modificaciÃ³n :
+*		ç‰ˆæœ¬å·  æ—¥æœŸ       ä½œè€…    è¯´æ˜
+*		V1.0    2019-12-30  wcx     é¦–å‘
 *
 *********************************************************************************************************
 */
@@ -16,10 +16,10 @@
 
 uint16_t         NowCycleTime;
 PatternType      PatternNow;
-PatternTable     PatternTab;    //·½°¸±í
+PatternTable     PatternTab;    // Tabla de esquemas
 
 
-//·½°¸ºÅ + ·½°¸±í = ·½°¸Ë÷Òı
+//NÃºmero de esquema + tabla de esquema = Ã­ndice de esquema
 uint8_t GetPatternIndex(PatternTable* Pattern_tab, uint8_t PatternNum)
 {
     uint8_t     i;
