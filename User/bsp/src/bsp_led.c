@@ -1,10 +1,10 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : LEDÖ¸Ê¾µÆÇý¶¯Ä£¿é
-*	ÎÄ¼þÃû³Æ : bsp_led.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : Çý¶¯LEDÖ¸Ê¾µÆ
+*	Nombre del mÃ³dulo: mÃ³dulo de controlador de indicador LED
+*	Nombre del archivo: bsp_led.c
+*	Version : V1.0
+*	DescripciÃ³n: Indicadores LED de la unidad
 *
 *********************************************************************************************************
 */
@@ -12,7 +12,7 @@
 #include "bsp.h"
 
 /*
-    LED ¸ßµçÆ½µãÁÁ ¿ÚÏß·ÖÅä£º
+    El LED de alto nivel se ilumina DistribuciÃ³n de la lÃ­nea del puerto:
 
     LED1       : PE14
     LED2       : PE13
@@ -24,7 +24,7 @@
     LED7       : PE8
     LED8       : PE7
 */
-	#define RCC_ALL_LED 	RCC_APB2Periph_GPIOE	/* °´¼ü¿Ú¶ÔÓ¦µÄRCCÊ±ÖÓ */
+	#define RCC_ALL_LED 	RCC_APB2Periph_GPIOE	/* El reloj RCC correspondiente al puerto clave */
 
 	#define GPIO_PORT_LED   GPIOE
 	
@@ -38,22 +38,22 @@
 	#define GPIO_PIN_LED8	GPIO_Pin_11
 /*
 *********************************************************************************************************
-*	º¯ Êý Ãû: bsp_InitLed
-*	¹¦ÄÜËµÃ÷: ÅäÖÃLEDÖ¸Ê¾µÆÏà¹ØµÄGPIO,  ¸Ãº¯Êý±» bsp_Init() µ÷ÓÃ¡£
-*	ÐÎ    ²Î:  ÎÞ
-*	·µ »Ø Öµ: ÎÞ
+*	Nombre de la funciÃ³n: bsp_InitLed
+*	DescripciÃ³n de la funciÃ³n: Configure el GPIO relacionado con el indicador LED, esta funciÃ³n es llamada por bsp_Init().
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_InitLed(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	/* ´ò¿ªGPIOÊ±ÖÓ */
+	/* Enciende el reloj GPIO */
 	RCC_APB2PeriphClockCmd(RCC_ALL_LED, ENABLE);
 
 	/*
-		ÅäÖÃËùÓÐµÄLEDÖ¸Ê¾µÆGPIOÎªÍÆÍìÊä³öÄ£Ê½
-		ÓÉÓÚ½«GPIOÉèÖÃÎªÊä³öÊ±£¬GPIOÊä³ö¼Ä´æÆ÷µÄÖµÈ±Ê¡ÊÇ0
+		Configure todos los indicadores LED GPIO como modo de salida push-pull
+		Cuando GPIO se establece como una salida, el valor del registro de salida GPIO es 0 de forma predeterminada
 	*/
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;		/* asigna el valor 0001 0000*/
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* definicion de valor del oscilador */
@@ -63,10 +63,10 @@ void bsp_InitLed(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êý Ãû: bsp_LedOn
-*	¹¦ÄÜËµÃ÷: µãÁÁÖ¸¶¨µÄLEDÖ¸Ê¾µÆ¡£
-*	ÐÎ    ²Î:  _no : Ö¸Ê¾µÆÐòºÅ£¬·¶Î§ 1 - 8
-*	·µ »Ø Öµ: ÎÞ
+*	Nombre de la funciÃ³n: bsp_LedOn
+*	DescripciÃ³n de la funciÃ³n: enciende el indicador LED especificado.
+*	ParÃ¡metros formales: _no : NÃºmero de serie del LED, rango 1 - 8
+*	è¿” å›ž å€¼: æ— 
 *********************************************************************************************************
 */
 void bsp_LedOn(uint8_t _no)
@@ -107,10 +107,10 @@ void bsp_LedOn(uint8_t _no)
 
 /*
 *********************************************************************************************************
-*	º¯ Êý Ãû: bsp_LedOff
-*	¹¦ÄÜËµÃ÷: Ï¨ÃðÖ¸¶¨µÄLEDÖ¸Ê¾µÆ¡£
-*	ÐÎ    ²Î:  _no : Ö¸Ê¾µÆÐòºÅ£¬·¶Î§ 1 - 8
-*	·µ »Ø Öµ: ÎÞ
+*	Nombre de la funciÃ³n: bsp_LedOff
+*	DescripciÃ³n de la funciÃ³n: apaga el indicador LED especificado.
+*	ParÃ¡metros formales: _no : NÃºmero de serie del LED, rango 1 - 8
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_LedOff(uint8_t _no)
@@ -151,10 +151,10 @@ void bsp_LedOff(uint8_t _no)
 
 /*
 *********************************************************************************************************
-*	º¯ Êý Ãû: bsp_LedToggle
-*	¹¦ÄÜËµÃ÷: ·­×ªÖ¸¶¨µÄLEDÖ¸Ê¾µÆ¡£
-*	ÐÎ    ²Î:  _no : Ö¸Ê¾µÆÐòºÅ£¬·¶Î§ 1 - 8
-*	·µ »Ø Öµ: °´¼ü´úÂë
+*	Nombre de la funciÃ³n: bsp_LedToggle
+*	DescripciÃ³n de la funciÃ³n: voltear el indicador LED especificado.
+*	ParÃ¡metros formales: _no : NÃºmero de serie del LED, rango 1 - 8
+*	Valor de retorno: cÃ³digo clave
 *********************************************************************************************************
 */
 void bsp_LedToggle(uint8_t _no)
@@ -195,10 +195,10 @@ void bsp_LedToggle(uint8_t _no)
 
 /*
 *********************************************************************************************************
-*	º¯ Êý Ãû: bsp_IsLedOn
-*	¹¦ÄÜËµÃ÷: ÅÐ¶ÏLEDÖ¸Ê¾µÆÊÇ·ñÒÑ¾­µãÁÁ¡£
-*	ÐÎ    ²Î:  _no : Ö¸Ê¾µÆÐòºÅ£¬·¶Î§ 1 - 4
-*	·µ »Ø Öµ: 1±íÊ¾ÒÑ¾­µãÁÁ£¬0±íÊ¾Î´µãÁÁ
+*	Nombre de la funciÃ³n: bsp_IsLedOn
+*	DescripciÃ³n de la funciÃ³n: determina si el indicador LED estÃ¡ encendido.
+*	ParÃ¡metros formales: _no : NÃºmero de serie del LED, rango 1 - 4
+*	Valor de retorno: 1 significa que estÃ¡ encendido, 0 significa que no estÃ¡ encendido
 *********************************************************************************************************
 */
 uint8_t bsp_IsLedOn(uint8_t _no)
