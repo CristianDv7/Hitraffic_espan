@@ -5,28 +5,28 @@
 
 typedef struct
 {    
-    uint8_t         RingNum;        //环号
-    uint8_t         SeqNum;         //运行的阶段号
-    uint8_t         SeqMax;         //相序最大
-    uint8_t         PhaseChangeFlag;//相位切换标志
-    uint8_t         CycleOverFlag;  //环运行结束标志
+    uint8_t         RingNum;        //n煤mero de tarjeta
+    uint8_t         SeqNum;         //N煤mero de fase de la carrera
+    uint8_t         SeqMax;         //M谩ximo de secuencia de fase
+    uint8_t         PhaseChangeFlag;//Indicador de cambio de fase
+    uint8_t         CycleOverFlag;  //se帽al de final de carrera de anillo
     uint8_t         VehicleTransitionTime;
-    uint16_t        SecondRemain;   //秒递减计数
+    uint16_t        SecondRemain;   //Cuenta regresiva de segundos
 }RingStateType;
 
 typedef struct
 {
     uint8_t         Phase1sFlag;
-    uint8_t         Phase10msCount; //10ms计数器
+    uint8_t         Phase10msCount; //contador de 10ms
     uint8_t         miniRemainTime;
-    uint8_t         NewCycleFlag;   //新周期标志位
-    uint8_t         StepMaxRing;    //相位数量最多者的环号
-    uint8_t         CycleStepMax;   //环相位数量最大值
-    uint8_t         ValidRings;     //有效(非空)环数
+    uint8_t         NewCycleFlag;   //bandera del nuevo ciclo
+    uint8_t         StepMaxRing;    //El n煤mero de anillo del que tiene el mayor n煤mero de fases.
+    uint8_t         CycleStepMax;   //n煤mero de fase de anillo m谩ximo
+    uint8_t         ValidRings;     //N煤mero v谩lido (no vac铆o) de timbres
     RingStateType   Ring[RingMax];
-    uint8_t         StateNum; //当前步序(步数)
-    uint8_t         StateMax; //相位状态(步数)最大值
-    uint32_t        State[64];//相位状态列表
+    uint8_t         StateNum; //Secuencia de pasos actual (n煤mero de pasos)
+    uint8_t         StateMax; //Estado de fase (n煤mero de pasos) m谩ximo
+    uint32_t        State[64];//Lista de estados de fase
 }PhaseStateType;
 
 
@@ -35,9 +35,9 @@ typedef struct
 extern PhaseStateType       PhaseState;
 
 uint32_t GetPhaseNexts(void);
-void PhaseStatusControl(void);//1s运行一次
-void OverlapStatusControl(void);//1S刷新一次
-void ChannelStatusControl(void);//1S刷新一次
+void PhaseStatusControl(void);//Ejecutar una vez en 1s
+void OverlapStatusControl(void);//Actualizar una vez en 1S
+void ChannelStatusControl(void);//Actualizar una vez en 1S
 void ChannelStatusToLmap(void);
 
 #endif
