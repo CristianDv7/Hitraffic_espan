@@ -3,13 +3,13 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : ¶¯×÷Ä£¿é
-*	ÎÄ¼şÃû³Æ : Action.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
-*	ĞŞ¸Ä¼ÇÂ¼ :
-*		°æ±¾ºÅ  ÈÕÆÚ       ×÷Õß    ËµÃ÷
-*		V1.0    2019-12-30  wcx     Ê×·¢
+*	Nombre del mÃ³dulo: mÃ³dulo de acciÃ³n
+*	Nombre del archivo: Action.c
+*	ç‰ˆ    æœ¬ : V1.0
+*	è¯´    æ˜ : 
+*	ä¿®æ”¹è®°å½• :
+*		ç‰ˆæœ¬å·  æ—¥æœŸ       ä½œè€…    è¯´æ˜
+*		V1.0    2019-12-30  wcx     é¦–å‘
 *
 *********************************************************************************************************
 */
@@ -19,12 +19,12 @@
 #include "bsp.h"
 
 
-ActionType  Action;         //µ±Ç°ÔËĞĞ¶¯×÷ 
-ActionTable ActionTab;     //¶¯×÷±í
+ActionType  Action;         //acciÃ³n de ejecuciÃ³n actual
+ActionTable ActionTab;     //hoja de acciÃ³n
 uint8_t     ActionStatus;
 
 
-//¶¯×÷±í + ¶¯×÷ºÅ = ¶¯×÷±íµÄË÷Òı
+//tabla de acciones + nÃºmero de acciÃ³n = Ã­ndice de la tabla de acciones
 uint8_t GetActionIndex(ActionTable* Action_tab, uint8_t ActionNum)
 {
     uint8_t     i;
@@ -41,8 +41,8 @@ uint8_t GetActionIndex(ActionTable* Action_tab, uint8_t ActionNum)
     return temp;   //ActionTab.Action[temp].Pattern;
 }
 
-//Ä¬ÈÏµÄ¶¯×÷ÅäÖÃ
-//¶¯×÷±í1Ö¸¶¨£¬ÔËĞĞ·½°¸1£¬ÎŞ¸¨Öú¹¦ÄÜ£¬ÎŞÌØÊâ¹¦ÄÜ
+//ConfiguraciÃ³n de acciones por defecto
+//Tabla de acciÃ³n 1 especificada, esquema de operaciÃ³n 1, sin funciÃ³n auxiliar, sin funciÃ³n especial
 void ActionDataInit(uint8_t n)
 {
     ActionTab.Action[n].Num = n + 1;
