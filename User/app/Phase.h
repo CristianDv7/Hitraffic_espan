@@ -24,36 +24,35 @@ typedef struct
 /********************************************************/
 typedef struct
 {
-    uint8_t Num;              //1-相位号
-    uint8_t Walk;             //2-行人相位绿灯时间
-    uint8_t PedestrianClear;  //3-行人相位绿闪时间
-    uint8_t MinimumGreen;     //4-在感应控制下，相位执行绿灯的最小时间
-    uint8_t Passage;          //5-在感应控制下，相位绿灯时间延长一次的时间
+    uint8_t Num;              //1-n煤mero de fase
+    uint8_t Walk;             //2-Tiempo de luz verde fase peat贸n
+    uint8_t PedestrianClear;  //3-Tiempo de parpadeo verde fase peat贸n
+    uint8_t MinimumGreen;     //4-Bajo control de inducci贸n, el tiempo m铆nimo para que la fase ejecute la luz verde
+    uint8_t Passage;          //5-Bajo control de inducci贸n, el tiempo de luz verde de fase se extiende una vez
 
-    uint8_t Maximum1;         //6-在感应控制下，相位执行绿灯的最大时间1
-    uint8_t Maximum2;         //7-在感应控制下，相位执行绿灯的最大时间2。一般情况下，最大时间使用最大绿1，只有在强制执行最大绿2时才使用最大绿2
-    uint8_t YellowChange;     //8-机动车相位绿灯结束转向红灯信号的黄灯时间
-    uint8_t RedClear;         //9-机动车相位放行结束，在同环的下一个相位放行之前，放行的红灯时间
-    uint8_t RedRevert;        //10-相位黄灯结束后，距再次放行绿灯所需经历的最小红灯时间
+    uint8_t Maximum1;         //6-Bajo control de inducci贸n, el tiempo m谩ximo para la ejecuci贸n de la fase luz verde 1
+    uint8_t Maximum2;         //7-Bajo control de inducci贸n, la fase ejecuta la luz verde por un tiempo m谩ximo de 2. En general, max green 1 se usa para el tiempo m谩ximo, max green 2 solo se usa cuando se aplica max green 2
+    uint8_t YellowChange;     //8-Tiempo de luz amarilla para el final de la luz verde de la fase del veh铆culo de motor que gira la se帽al de luz roja
+    uint8_t RedClear;         //9-El tiempo de luz roja antes de que se complete la liberaci贸n de fase del veh铆culo de motor y se libere la siguiente fase del mismo anillo
+    uint8_t RedRevert;        //10-Despu茅s del final de la fase de luz amarilla, el tiempo m铆nimo de luz roja requerido para pasar la luz verde nuevamente
 
-    uint8_t AddedInitial;     //11-每接非绿灯时间间隔内的车辆感应后，可变初始间隔从零开始的增加值
-    uint8_t MaximumInitial;   //12-可变初始间隔的最大值
-    uint8_t TimeBeforeReduction;//13-开始线性减少前的时间
-    uint8_t CarsBeforeReduction;//14-开始线性减少前的车辆数
-    uint8_t TimeToReduce;     //15-该对象可以成为NEMA TS 1和 TS 2所规定的线性下降的替代品，用于减小流量密度间隔
+    uint8_t AddedInitial;     //11-Aumente el valor del intervalo inicial variable a partir de cero despu茅s de que cada veh铆culo detecte un intervalo sin luz verde
+    uint8_t MaximumInitial;   //12-Valor m谩ximo para intervalo inicial variable
+    uint8_t TimeBeforeReduction;//13-Tiempo antes de comenzar a disminuir linealmente
+    uint8_t CarsBeforeReduction;//14-El n煤mero de veh铆culos antes de comenzar a disminuir linealmente
+    uint8_t TimeToReduce;     //15-Este objeto puede ser una alternativa a la disminuci贸n lineal especificada en NEMA TS 1 y TS 2 para intervalos decrecientes de densidad de flujo
 
-    uint8_t ReduceBy;         //16-定义递减率
-    uint8_t MinimumGap;       //17-最小相位间隔参数，可允许间隔将一直下降，直到间隔等于或小于最小间隔控制设备所规定的最小间隔值。然后，可允许间隔将保持在最小间隔控制设备所规定的值
-    uint8_t DynamicMaxLimit;  //18-规定了动态最大操作中运转最大的上限和下限
-    uint8_t DynamicMaxStep;   //19-规定了运转最大的自动调整
-    uint8_t Startup;          //20-初始状态（启动） 0-其它  1-未启动  2-绿灯  3-机动车绿灯  4-黄灯  5-全红
-
-    uint8_t Ring;             //21-相位所在环
-    uint8_t VehicleClear;     //22-自己增加的机动绿闪时间配置
-    uint8_t OptionsL;         //23,24-配置选项
+    uint8_t ReduceBy;         //16-Definir tasa de disminuci贸n
+    uint8_t MinimumGap;       //17-El par谩metro m铆nimo de separaci贸n de fases, la separaci贸n permisible seguir谩 disminuyendo hasta que la separaci贸n sea igual o menor que el valor m铆nimo de separaci贸n especificado por el equipo de control de separaci贸n m铆nima. La separaci贸n permisible permanecer谩 entonces en el valor prescrito por el dispositivo de control de separaci贸n m铆nima.
+    uint8_t DynamicMaxLimit;  //18-Especifica los l铆mites superior e inferior del m谩ximo operativo en el funcionamiento m谩ximo din谩mico
+    uint8_t DynamicMaxStep;   //19-Especifica el ajuste autom谩tico del m谩ximo operativo
+    uint8_t Startup;          //20-Estado inicial (activado) 0-otro 1-no activado 2-luz verde 3-veh铆culo luz verde 4-luz amarilla 5-totalmente roja 50
+    uint8_t Ring;             //21-anillo de fase
+    uint8_t VehicleClear;     //22-Configuraci贸n de tiempo de parpadeo verde m贸vil autoa帽adido
+    uint8_t OptionsL;         //23,24-opciones de configuraci贸n
     uint8_t OptionsH;         
-    uint8_t ConcurrencyL;     //25,26   并发相位：可以和本相位同时放行的相位,以此来判断冲突相位
-    uint8_t ConcurrencyH;     // 是否改为冲突相位定义,为1表示与对应相位冲突
+    uint8_t ConcurrencyL;     //25,26 fase concurrente: la fase que se puede liberar al mismo tiempo que esta fase, para juzgar la fase conflictiva
+    uint8_t ConcurrencyH;     // Si cambiar la definici贸n de la fase de conflicto, 1 significa conflicto con la fase correspondiente
     uint8_t Expand[6];        //6
 }PhaseType;
 
@@ -80,9 +79,9 @@ typedef struct
 }PhaseStatusType;
 
 /********************************************************/
-//1202V0219F PAGE51 原NTCIP当中，\
-以字节为单位，8个一分组，定义为一个group，\
-在此，我们32位处理器，无需分组.
+//1202V0219F PAGE51 Entre los NTCIP originales,\
+En bytes, un grupo de 8, definido como un grupo, \
+Aqu铆 tenemos procesadores de 32 bits sin agrupar.
 typedef struct 
 {
     uint32_t PhaseOmit;
@@ -94,7 +93,7 @@ typedef struct
 }PhaseControlType;//for remote control
 
 /********************************************************/
-extern  PhaseTable          PhaseTab;       //相位表
+extern  PhaseTable          PhaseTab;       //tabla de fases
 extern  PhaseStatusType     PhaseStatus;    //
 extern  PhaseControlType    PhaseControl;   //
 extern  PhaseIndexType      RingPhase[RingMax]; //
