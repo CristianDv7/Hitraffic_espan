@@ -2,14 +2,14 @@
 #include "Plan.h"
 
 /*
- * 功能：通过查询调度计划表，获取时段表号，判断时段表是否改变，有改变直接更新
- * 返回：无Plan可用，返回0，否则返回1
- * 执行频率：开机时运行，每天零点运行，日期时间修改时运行，调度计划表修改时运行
+ * Funci贸n: obtenga el n煤mero de horario consultando el horario de programaci贸n, juzgue si el horario ha cambiado y actual铆celo directamente si hay un cambio
+ * Devoluci贸n: No hay plan disponible, devuelve 0, de lo contrario, devuelve 1
+ * Frecuencia de ejecuci贸n: se ejecuta al inicio, se ejecuta a las cero en punto todos los d铆as, se ejecuta cuando se modifica la fecha y la hora y se ejecuta cuando se modifica la programaci贸n
  * 
  */
 uint8_t SchedulePlanRefresh(ScheduleTable* ScheduleTab, DateType* Date)
 {
-    uint8_t temp = GetScheduleIndex(ScheduleTab, Date);   //日期 + 调度计划表 = 时段表号
+    uint8_t temp = GetScheduleIndex(ScheduleTab, Date);   //fecha + horario = n煤mero de horario
     #if DEBUG 
     printf("ScheduleIndex = %d \r\n",temp);
     #endif
