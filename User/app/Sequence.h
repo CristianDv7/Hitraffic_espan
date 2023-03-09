@@ -3,7 +3,7 @@
 #include "public.h"
 
 
-/* RingStatus环状态定义 */
+/* RingStatus definici贸n de estado del anillo */
 #define ForceOFF    0x20
 #define MaxOut      0x10
 #define GapOut      0x08
@@ -22,28 +22,28 @@ typedef enum
 /******************************************************************************/
 typedef struct 
 {
-    uint8_t RingNum;            //环号
-    uint8_t Phase[PhaseMax];    //环相序
-}RingType;  //环相序定义   17 byte
+    uint8_t RingNum;            //n煤mero de timbre
+    uint8_t Phase[PhaseMax];    //secuencia de fase de anillo
+}RingType;  //Definici贸n de secuencia de fase de anillo 17 bytes
 
 typedef struct
 {
-    uint8_t     Num;            //相序号
-    RingType    Ring[RingMax];  //环相序定义 4个环
-}SequenceType;        //相序表信息 69 byte
+    uint8_t     Num;            //N煤mero de fase
+    RingType    Ring[RingMax];  //Definici贸n de secuencia de fase de anillo 4 anillos
+}SequenceType;        //Informaci贸n de la tabla de secuencia de fases 69 bytes
 
 typedef struct
 {
     uint8_t         Maximum;
     SequenceType    Seq[SequenceMax];     //16
     uint8_t         Reserve[15];
-}SequenceTable;      //相序表  16 + (17*4+1)*16 = 1120 = 0x0460
+}SequenceTable;      //Tabla de secuencia de fases 16 + (17*4+1)*16 = 1120 = 0x0460
 
 /******************************************************************************/
 typedef struct
 {
-    uint8_t StopTime;   //bit1,停止计时
-    uint8_t ForceOff;   //bit1,强制关停
+    uint8_t StopTime;   //bit1, detener el tiempo
+    uint8_t ForceOff;   //bit1, apagado forzado
     uint8_t Max2;       //
     uint8_t MaxInhibit;
     uint8_t PedRecycle;
@@ -60,7 +60,7 @@ typedef struct
 
 extern uint8_t          RingStatus[RingMax];
 extern SequenceType     SequenceNow;
-extern SequenceTable    SeqTab;   //相序表
+extern SequenceTable    SeqTab;   //Tabla de secuencia de fases
 
 
 uint8_t GetSeqMax(RingType* Ring);
