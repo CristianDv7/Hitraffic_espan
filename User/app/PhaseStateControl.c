@@ -70,7 +70,7 @@ void PhaseStatusControl(void)//Ejecutar una vez en 1s
         PhaseStatus.PhaseOns |= PhaseMask;
         
         //Algoritmo de estado de maniobra
-        if(PhaseState.Ring[i].SecondRemain > PhaseTab.Phase[PhaseIndex].YellowChange + PhaseTab.Phase[PhaseIndex].RedClear)//机动绿
+        if(PhaseState.Ring[i].SecondRemain > PhaseTab.Phase[PhaseIndex].YellowChange + PhaseTab.Phase[PhaseIndex].RedClear)//motor verde
         {
             PhaseStatus.Greens  |=  PhaseMask;
             PhaseStatus.Yellows &= ~PhaseMask;
@@ -81,7 +81,7 @@ void PhaseStatusControl(void)//Ejecutar una vez en 1s
             else //Flash verde móvil
                 PhaseStatus.VehClears |=  PhaseMask;
         }
-        else if(PhaseState.Ring[i].SecondRemain > PhaseTab.Phase[PhaseIndex].RedClear)//机动黄
+        else if(PhaseState.Ring[i].SecondRemain > PhaseTab.Phase[PhaseIndex].RedClear)//Motor amarillo
         {
             PhaseStatus.Greens  &= ~PhaseMask;
             PhaseStatus.Yellows |=  PhaseMask;
@@ -130,7 +130,7 @@ void PhaseStatusControl(void)//Ejecutar una vez en 1s
         {
             if(RingSplit[i].Time >= (PhaseTab.Phase[PhaseIndex].Walk + PhaseTab.Phase[PhaseIndex].PedestrianClear + PhaseTab.Phase[PhaseIndex].RedClear))
             {
-                if((RingSplit[i].Time - PhaseState.Ring[i].SecondRemain) < PhaseTab.Phase[PhaseIndex].Walk) // <= 改为 < 会相差1秒
+                if((RingSplit[i].Time - PhaseState.Ring[i].SecondRemain) < PhaseTab.Phase[PhaseIndex].Walk) //<= a < tendrá una diferencia de 1 segundo
                 {
                     PhaseStatus.Walks     |=  PhaseMask;
                     PhaseStatus.PedClears &= ~PhaseMask;
