@@ -1,7 +1,7 @@
 /*
 *********************************************************************************************************
 *
-*	Nombre del módulo: interfaz de operación de chip de reloj
+*	Nombre del módulo: interfaz de operación de chip de reloj 
 *	Nombre del archivo: sd2405.h
 *	Versión: V1.0
 *	Ilustrado : 
