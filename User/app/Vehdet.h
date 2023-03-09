@@ -13,21 +13,21 @@ typedef struct
 
 typedef struct
 {
-    uint8_t  Num;           //检测器编号
-    uint8_t  Index;         //检测器配置参数在检测器表中的索引
-    uint8_t  Valid;         //1有效 0无效
-    uint8_t  State;         //1有效 0无效
-    uint32_t DelayCount;    //单位10ms秒
-    uint32_t Time;          //当前状态持续时间，单位10ms
-    uint16_t CarsByCycle;   //每周期过车数
-    uint16_t CarsByMinute;  //每分钟车辆数  是否统计每周期过车数，而不是每分钟？
+    uint8_t  Num;           //N煤mero de detector
+    uint8_t  Index;         //El 铆ndice del par谩metro de configuraci贸n del detector en la tabla de detectores
+    uint8_t  Valid;         //1 v谩lido 0 inv谩lido
+    uint8_t  State;         //1 v谩lido 0 inv谩lido
+    uint32_t DelayCount;    //Unidad 10ms segundo
+    uint32_t Time;          //Duraci贸n del estado actual, unidad 10ms
+    uint16_t CarsByCycle;   //N煤mero de veh铆culos por ciclo
+    uint16_t CarsByMinute;  //Veh铆culos por minuto 驴Se cuentan los veh铆culos por ciclo en lugar de por minuto?
 }VehDetState_Type;
 
 typedef struct
 {
     VehDetState_Type VehDet[VehdetMax];
 }VehDetStateTable;
-//文件组织：每天一个以分钟为单位的流量记录 文件/信息，连续统计至少一个月
+//Organizaci贸n de archivos: un archivo de registro de flujo/informaci贸n en minutos todos los d铆as, estad铆sticas continuas durante al menos un mes
 
 
 //Options bits
@@ -65,21 +65,21 @@ typedef struct
 
 typedef struct  //14
 {
-    uint8_t Num;            //检测器编号
-    uint8_t Options;        //检测器选项
-    uint8_t CallPhase;      //请求相位  车辆检测器对应的机动车相位，当该检测器检测到车辆通过的信号时，对应的请求相位将做出反应。
-    uint8_t SwitchPhase;    //开关相位  检测器转换相位参数，当指定相位是黄灯或红灯且转换相位是绿灯时，车辆检测器感应将转换到该相位
-    uint8_t Extend;         //延长绿    在感应控制下，请求相位绿灯时间延长一次的时间。功能与相位参数的单位延长绿相同。但它只在选择“使用检测器的延长绿”选项后才有效，反之使用“请求相位”的单位延长绿
-    uint8_t QueueLimit;     //队列限制  检测器排队限制参数，单位：秒。
-    uint8_t NoActivity;     //无响应时间         检测器在该段时间内，没有检测到车辆通过，表示该检测器出现故障，该故障被信号机记入故障日志。该值为零时，该项功能不启用。单位为：分钟。
-    uint8_t MaxPresence;    //最大持续响应时间   检测器在该段时间内，一直检测到车辆通过，表示该检测器出现故障，该故障被信号机记入故障日志。该值为零时，该项功能不启用。单位为：分钟。
-    uint8_t ErraticCounts;  //最大车辆数    检测器不确定计数诊断参数。如果一个活动检测器出现感应过强，诊断设备就认为存在故障，该检测器被认为是失败的。如果将这个对象的值设为零，将关闭对该检测器的诊断，单位：次/分钟。
-    uint8_t FailTime;       //失败时间      检测器的请求在没有得到响应之前，如果失败时间内没有任何请求，则取消本次记录的请求，不再予以响应。
-    uint8_t Alarms;         //故障    
-    uint8_t ReportedAlarms; //报警    
-    uint8_t Reset;          //重置0-1       重置操作放到检测器状态里面?
+    uint8_t Num;            //N煤mero de detector
+    uint8_t Options;        //Opciones de detectores
+    uint8_t CallPhase;      //Fase de solicitud La fase del veh铆culo de motor correspondiente al detector de veh铆culos, cuando el detector detecta la se帽al del paso del veh铆culo, responder谩 la fase de solicitud correspondiente.
+    uint8_t SwitchPhase;    //Par谩metro de fase del interruptor del detector de fase del interruptor, cuando la fase especificada es luz amarilla o roja y la fase del interruptor es luz verde, el sentido del detector del veh铆culo cambiar谩 a esta fase
+    uint8_t Extend;         //Extend Green Bajo el control del sensor, solicita que el tiempo de luz verde de fase se extienda por una vez. La funci贸n es la misma que la extensi贸n de la unidad verde del par谩metro de fase. Pero solo funciona si se selecciona la opci贸n "Usar verde extendido del detector", de lo contrario, use la unidad de "fase de solicitud" para extender verde
+    uint8_t QueueLimit;     //L铆mite de cola El par谩metro de l铆mite de cola del detector, unidad: segundo.
+    uint8_t NoActivity;     //Sin tiempo de respuesta Si el detector no detecta el paso de veh铆culos dentro de este per铆odo, significa que el detector est谩 defectuoso y la m谩quina de se帽ales registra la falla en el registro de fallas. Cuando el valor es cero, esta funci贸n est谩 deshabilitada. La unidad es: minuto.
+    uint8_t MaxPresence;    //El tiempo m谩ximo de respuesta continua Si el detector detecta el paso del veh铆culo dentro de este per铆odo, significa que el detector tiene una falla, y la m谩quina de se帽ales registra la falla en el registro de fallas. Cuando el valor es cero, esta funci贸n est谩 deshabilitada. La unidad es: minuto.
+    uint8_t ErraticCounts;  //N煤mero m谩ximo de veh铆culos Par谩metro de diagn贸stico de recuento incierto del detector. Si un detector de actividad es sobredetectado, el equipo de diagn贸stico asume que hay una falla y se considera que el detector ha fallado. Si el valor de este objeto se establece en cero, el diagn贸stico de este detector se desactivar谩, la unidad: veces/minuto.
+    uint8_t FailTime;       //Tiempo de falla Antes de que se responda la solicitud del detector, si no hay ninguna solicitud dentro del tiempo de falla, la solicitud registrada se cancelar谩 y no se dar谩 respuesta.
+    uint8_t Alarms;         //Falla  
+    uint8_t ReportedAlarms; //Llame a la polic铆a    
+    uint8_t Reset;          //Restablecer 0-1 驴Restablecer la operaci贸n en el estado del detector?
     uint8_t Reserve;
-    uint16_t Delay;         //延迟      检测器的请求时间达到延迟时间设置的长度，才记录一次请求,标准单位10S
+    uint16_t Delay;         //Retraso El tiempo de solicitud del detector alcanza la duraci贸n del ajuste de tiempo de retraso antes de registrar una solicitud, la unidad est谩ndar es 10S
 }Vehdet;
 
 typedef struct
@@ -96,8 +96,8 @@ typedef struct
 
 typedef struct
 {
-    uint8_t Volume;     //该值的范围应为0至254，表示在收集期间通过相关检测器编号的交通量。
-    uint8_t Occupancy;  //探测器占有率占收集数据或探测器单元诊断信息的体积占用率的百分比。
+    uint8_t Volume;     //Este valor debe oscilar entre 0 y 254 y representa la cantidad de tr谩fico que pas贸 por el n煤mero de detector asociado durante el per铆odo de recolecci贸n.
+    uint8_t Occupancy;  //Ocupaci贸n del detector Porcentaje de ocupaci贸n del volumen para recopilar datos o informaci贸n de diagn贸stico de la unidad detectora.
     //Range     Meaning
     //0-200     Detector Occupancy in 0.5% Increments
     //201-209   Reserved
@@ -117,14 +117,14 @@ typedef struct
     VolumeOccupancy_Type VehDet[VehdetMax];
 }VolumeOccupancyTable;
 
-extern VehdetTable              VehdetTab;          //车检器表
-extern VehdetStatusTable        VehdetStatusTab;    //车检状态表
-extern VolumeOccupancyTable     VolumeOccupancyTab; //车流量占有率表
-extern VehDetStateTable         VehDetStateTab;       //车检状态表
+extern VehdetTable              VehdetTab;          //mesa de detectores de autos
+extern VehdetStatusTable        VehdetStatusTab;    //Tabla de estado de inspecci贸n de veh铆culos
+extern VolumeOccupancyTable     VolumeOccupancyTab; //Tabla de reparto de tr谩fico
+extern VehDetStateTable         VehDetStateTab;       //Tabla de estado de inspecci贸n de veh铆culos
 
 void VehicleDetectorInit(void);
-void GetVehDetSta(void);//1ms执行一次，检测器状态获取
-void VehDetStaCount(void);    //10ms执行一次，检测器状态时间统计
+void GetVehDetSta(void);//Ejecutado una vez en 1 ms, y se adquiere el estado del detector
+void VehDetStaCount(void);    //Ejecutado una vez cada 10 ms, las estad铆sticas de tiempo del estado del detector
 
 
 
