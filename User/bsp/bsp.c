@@ -1,9 +1,10 @@
 /*
 *********************************************************************************************************
-* Module name: BSP module (For STM32F103) 
-* File name: bsp.c 
+* Nombre del módulo: módulo BSP (para STM32F103)
+* Nombre del archivo: bsp.c
 * Version : V1.0 
-* Description: This is the main file of the hardware underlying driver module. It mainly provides the bsp_Init() function for the main program to call. Each c file of the main program can be opened in * Header Add #include "bsp.h" to include all peripheral driver modules.
+* Descripción: Este es el archivo principal del módulo del controlador subyacente del hardware. Principalmente proporciona la función bsp_Init() para que la llame el programa principal. Cada archivo c del programa principal se puede abrir en 
+* Header Add #include "bsp.h" para incluir todos los módulos de controladores periféricos.
 *********************************************************************************************************
 */
 
@@ -12,45 +13,45 @@
 
 /*
 *********************************************************************************************************
-* Function name: bsp_Init 
-* Function Description: Initialize the hardware device. Only needs to be called once. This function configures CPU registers and peripheral registers and initializes some global variables. 
-* Global variables. 
-* Formal parameters: none 
-* Return value: None
+* Nombre de la función: bsp_Init
+* Descripción de la función: Inicializar el dispositivo de hardware. Solo necesita ser llamado una vez. Esta función configura los registros de la CPU y los registros periféricos e inicializa algunas variables globales.
+* Variables globales.
+* Parámetros formales: ninguno 
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_Init(void)
 {
-	/*
-		Since the startup file of the ST firmware library has already 
-	executed the initialization of the CPU system clock, there is no
-	need to repeat the configuration of the system clock again. The 
-	startup file configures the CPU main clock frequency, internal 
-	Flash access speed and optional external SRAM FSMC initialization. 
-	The default configuration of the system clock is 72MHz, if you need 
-	to change it, you can modify the system_stm32f103.c file
-	*/
+/*
+Dado que el archivo de inicio de la biblioteca de firmware ST ya ha
+ejecutó la inicialización del reloj del sistema de la CPU, no hay
+necesita repetir la configuración del reloj del sistema nuevamente. El
+El archivo de inicio configura la frecuencia del reloj principal de la CPU, interno
+Velocidad de acceso flash e inicialización SRAM FSMC externa opcional.
+La configuración predeterminada del reloj del sistema es de 72 MHz, si necesita
+para cambiarlo, puede modificar el archivo system_stm32f103.c
+*/
 
-	/* Priority grouping is set to 4 */
+	/* La agrupación de prioridad se establece en 4 */
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_4);
 	
-	bsp_InitLed();		/* GPIO port to configure LED */
+	bsp_InitLed();		/* Puerto GPIO para configurar LED */
     bsp_InitIO();
     LampDriveOff();
     W5500_GPIO_Configuration();
     
-	bsp_InitTimer();	/* Initialize the system tick timer (this function will open interrupt) */
-	bsp_InitUart();		/* Initialize the serial port driver*/
-	can_Init();         /* Initialize STM32 CAN hardware*/
-	can_NVIC_Config();  /* Configure CAN interrupt */
+	bsp_InitTimer();	/* Inicializar el temporizador de ticks del sistema (esta función abrirá la interrupción) */
+	bsp_InitUart();		/* Inicializar el controlador del puerto serie*/
+	can_Init();        /* Inicializar hardware STM32 CAN*/
+	can_NVIC_Config(); /* Configurar interrupción CAN */
     
     bsp_DelayMS(100);
     RtcInit();
-    bsp_InitSpiBus();   // Initialize the spi interface
-	Ch376t_Init();      // CS INT pin configuration
-	Fm25v_Init();	    // Configure PE11-Fm25v_CS PE12-W25Q_CS PE15-W5500_CS
+    bsp_InitSpiBus();   // Inicializar la interfaz spi
+	Ch376t_Init();      // configuración de pin CS INT
+	Fm25v_Init();	    // Configurar PE11-Fm25v_CS PE12-W25Q_CS PE15-W5500_CS
     
-	Fm25v_ReadInfo();   /* Automatic identification chip model */
+	Fm25v_ReadInfo();   /* Modelo de chip de identificación automática */
 	
 	bsp_Init_OLED_gpio();
     
@@ -99,18 +100,18 @@ void bsp_RunPer1ms(void)
 
 /*
 *********************************************************************************************************
-Function name: bsp_Idle 
-* Function description: The function executed when idle. Generally, the main program needs to insert the CPU_IDLE() macro in the body of the for and while loops to call this function. 
-* This function is a no-op by default. Users can add the functions of feeding the dog and setting the CPU into sleep mode. 
-* Formal parameters: none 
-* Return value: None
+Nombre de la función: bsp_Idle
+* Descripción de la función: la función ejecutada cuando está inactiva. Generalmente, el programa principal necesita insertar la macro CPU_IDLE() en el cuerpo de los bucles for y while para llamar a esta función.
+* Esta función no está operativa de forma predeterminada. Los usuarios pueden agregar las funciones de alimentar al perro y configurar la CPU en modo de suspensión. 
+* Parámetros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_Idle(void)
 {
-	/* --- Feed the dog */ 
-	/* --- Let the CPU go to sleep, wake up by Systick timer interrupt or other interrupts */ 
-	/* For example, emWin graphics library, you can insert the polling function required by the graphics library */ 
+	/* --- Alimenta al perro */
+	/* --- Deje que la CPU se duerma, se despierte con la interrupción del temporizador Systick u otras interrupciones */
+	/* Por ejemplo, la biblioteca de gráficos emWin, puede insertar la función de sondeo requerida por la biblioteca de gráficos */
 	/* GUI_Exec(); */ 
-	/* For example uIP protocol, uip polling function can be inserted */
+	/* Por ejemplo, el protocolo uIP, se puede insertar la función de sondeo uip */
 }
