@@ -1,13 +1,13 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : ³µÁ¾¼ì²âÆ÷Ä£¿é
-*	ÎÄ¼þÃû³Æ : DetectorVehicle.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
-*	ÐÞ¸Ä¼ÇÂ¼ :
-*		°æ±¾ºÅ  ÈÕÆÚ       ×÷Õß    ËµÃ÷
-*		V1.0    2019-12-30  wcx     Ê×·¢
+*	Nombre del mÃ³dulo: mÃ³dulo detector de vehÃ­culos
+*	Nombre del archivo: DetectorVehicle.c
+*	ç‰ˆ    æœ¬ : V1.0
+*	è¯´    æ˜Ž : 
+*	ä¿®æ”¹è®°å½• :
+*		ç‰ˆæœ¬å·  æ—¥æœŸ       ä½œè€…    è¯´æ˜Ž
+*		V1.0    2019-12-30  wcx     é¦–å‘
 *
 *********************************************************************************************************
 */
@@ -19,10 +19,10 @@
 #define VD(n)                   ((GPIOF->IDR & (0x0001 << (n)))? 1 : 0)
 
 
-VehdetTable             VehdetTab;          //³µ¼ìÆ÷±í
-VehdetStatusTable       VehdetStatusTab;    //³µ¼ì×´Ì¬±í
-VolumeOccupancyTable    VolumeOccupancyTab; //³µÁ÷Á¿Õ¼ÓÐÂÊ±í
-VehDetStateTable        VehDetStateTab;     //³µ¼ì×´Ì¬±í
+VehdetTable             VehdetTab;          //mesa de detectores de autos
+VehdetStatusTable       VehdetStatusTab;    //Tabla de estado de inspecciÃ³n de vehÃ­culos
+VolumeOccupancyTable    VolumeOccupancyTab; //Tabla de reparto de trÃ¡fico
+VehDetStateTable        VehDetStateTab;     //Tabla de estado de inspecciÃ³n de vehÃ­culos
 
 uint8_t GetVehicleDetectorIndex(VehdetTable* VehdetTab, uint8_t DetectorNum)
 {
@@ -108,13 +108,13 @@ void VehicleDetectorConfigInit(void)
     VehdetTab.vehdet[3].Reserve = 0xff;
 }
 
-void VehicleDetectorStateInit(void) //Ã¿´ÎÅäÖÃ³µ¼ìÆ÷²ÎÊý³õÊ¼»¯Ò»±é
+void VehicleDetectorStateInit(void) //Inicializa los parÃ¡metros del detector de vehÃ­culos cada vez que se configura
 {
     uint8_t     i, VehDetNo, StateIndex = 0;
     for(i = 0; i < VehdetMax; i++)
     {
         VehDetNo = VehdetTab.vehdet[i].Num;
-        if(IsVehdet(VehDetNo))    //ÓÐÐ§µÄ¼ì²âÆ÷
+        if(IsVehdet(VehDetNo))    //detector efectivo
         {
             VehDetStateTab.VehDet[StateIndex].Num = VehDetNo;
             VehDetStateTab.VehDet[StateIndex].Index = i;
@@ -135,14 +135,14 @@ void VehicleDetectorInit(void)
     VehicleDetectorStateInit();
 }
 
-void GetVehDetSta(void)//10msÖ´ÐÐÒ»´Î£¬¼ì²âÆ÷×´Ì¬»ñÈ¡
+void GetVehDetSta(void)//Ejecute una vez cada 10 ms y obtenga el estado del detector
 {
     uint8_t i,StateTemp,DetectorNum;
     static uint8_t changeTime[VehdetMax] = {0};
-    for(i = 0; i < VehdetMax; i++) //Ö»¼ì²âÆôÓÃµÄ¼ì²âÆ÷
+    for(i = 0; i < VehdetMax; i++) //Detectar solo detectores habilitados
     {
-        DetectorNum = VehDetStateTab.VehDet[i].Num;  //¼ì²âÆ÷ºÅDetectorNum 
-        StateTemp = VD(DetectorNum - 1); //¶ÔÓ¦Ó²¼þµÄºÅÂëÎª ºÅDetectorNum-1 
+        DetectorNum = VehDetStateTab.VehDet[i].Num;  //NÃºmero de detector DetectorNum 
+        StateTemp = VD(DetectorNum - 1); //El nÃºmero de hardware correspondiente es DetectorNum-1 
         
         if(VehDetStateTab.VehDet[i].State != StateTemp)
         {
@@ -160,11 +160,11 @@ void GetVehDetSta(void)//10msÖ´ÐÐÒ»´Î£¬¼ì²âÆ÷×´Ì¬»ñÈ¡
     }
 }
 
-void VehDetStaCount(void)    //10msÖ´ÐÐÒ»´Î£¬¼ì²âÆ÷×´Ì¬Ê±¼äÍ³¼Æ
+void VehDetStaCount(void)    //Ejecutado una vez cada 10 ms, las estadÃ­sticas de tiempo del estado del detector
 {
     uint8_t i;
     static uint8_t StatePre[VehdetMax] = { 0 };
-    for(i = 0; i < VehdetMax; i++)//Ö»Í³¼ÆÆôÓÃµÄ¼ì²âÆ÷
+    for(i = 0; i < VehdetMax; i++)//Contar solo los detectores habilitados
     {
         if(StatePre[i] != VehDetStateTab.VehDet[i].State)
         {
