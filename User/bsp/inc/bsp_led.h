@@ -1,10 +1,10 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : LED指示灯驱动模块
-*	文件名称 : bsp_led.h
-*	版    本 : V1.0
-*	说    明 : 头文件
+* Nombre del m贸dulo: m贸dulo de controlador de indicador LED
+*	Nombre del archivo: bsp_led.h
+*	Version : V1.0
+*	Descripci贸n: archivo de cabecera
 *
 *********************************************************************************************************
 */
@@ -14,7 +14,7 @@
 #include <stdint.h>
 
 
-/* 供外部调用的函数声明 */
+/* Declaraci贸n de funci贸n para llamadas externas */
 void bsp_InitLed(void);
 void bsp_LedOn(uint8_t _no);
 void bsp_LedOff(uint8_t _no);
