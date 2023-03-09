@@ -1,13 +1,13 @@
 /*
 *********************************************************************************************************
 *
-*	ƒ£øÈ√˚≥∆ : µ˜∂»º∆ªÆƒ£øÈ
-*	Œƒº˛√˚≥∆ : Schedule.c
-*	∞Ê    ±æ : V1.0
-*	Àµ    √˜ : 
-*	–ﬁ∏ƒº«¬º :
-*		∞Ê±æ∫≈  »’∆⁄       ◊˜’ﬂ    Àµ√˜
-*		V1.0    2019-12-30  wcx      ◊∑¢
+*	Nombre del m√≥dulo: m√≥dulo de plan de programaci√≥n
+*	Êñá‰ª∂ÂêçÁß∞ : Schedule.c
+*	Áâà    Êú¨ : V1.0
+*	ËØ¥    Êòé : 
+*	‰øÆÊîπËÆ∞ÂΩï :
+*		ÁâàÊú¨Âè∑  Êó•Êúü       ‰ΩúËÄÖ    ËØ¥Êòé
+*		V1.0    2019-12-30  wcx     È¶ñÂèë
 *
 *********************************************************************************************************
 */
@@ -18,8 +18,8 @@
 
 
 
-ScheduleType     ScheduleNow;      //µ±«∞‘À––µƒµ˜∂»º∆ªÆ
-ScheduleTable    ScheduleTab;   //µ˜∂»º∆ªÆ±Ì
+ScheduleType     ScheduleNow;      //El horario actualmente en ejecuci√≥n
+ScheduleTable    ScheduleTab;   //Horario de programaci√≥n
 
 
 
@@ -40,7 +40,7 @@ void ScheduleDefault(void)
 }
 
 /*
- *  Õ®π˝»’∆⁄≤È—Ø£¨µ˜∂»º∆ªÆ±Ì£¨ªÒ»°∑˚∫œÃıº˛µƒµ˜∂»º∆ªÆ±ÌÀ˜“˝
+ *  Obtener el √≠ndice de la tabla de programaci√≥n calificada mediante consulta de fechas y tabla de programaci√≥n
  *  
  *  
 */
@@ -72,11 +72,11 @@ uint8_t GetScheduleIndex(ScheduleTable* ScheduleTab, DateType* Date)
             printf("SchMonth = %x, SchDate = %x \r\n", SchMonth, SchDate);
 #endif
             
-            if((SchMonth & NowMonth) && (SchDate & NowDate) && (ScheduleTab->Schedule[i].Date.Day & Date->Day))//¬˙◊„º¥»∑»œ
+            if((SchMonth & NowMonth) && (SchDate & NowDate) && (ScheduleTab->Schedule[i].Date.Day & Date->Day))//Satisfecho y confirmado
             {
                 temp = i;
                 break;
-                //if(NowMonth == SchMonth || SchMonth != SM_ALL)  //÷∏∂®‘¬∑›Œ™Ãÿ ‚»’ ”≈œ»º∂◊Ó∏ﬂ
+                //if(NowMonth == SchMonth || SchMonth != SM_ALL)  //Designar un mes como un d√≠a especial con la m√°xima prioridad
             }
         }
     }
