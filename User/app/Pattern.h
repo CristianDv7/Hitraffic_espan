@@ -5,25 +5,25 @@
 
 typedef struct
 {
-    uint8_t Num;               //1 方案号
-    uint8_t CycleTimeL;        //2 周期
+    uint8_t Num;               //1 N煤mero de esquema
+    uint8_t CycleTimeL;        //2 ciclo
     uint8_t CycleTimeH;        //
-    uint8_t OffsetTime;        //3 相位差
-    uint8_t SplitNum;          //4 绿信比号
-    uint8_t SequenceNum;       //5 相序号
-    uint8_t WorkMode;          //6 工作模式
-}PatternType;             //方案信息
+    uint8_t OffsetTime;        //3 diferencia de fase
+    uint8_t SplitNum;          //4 Relaci贸n de se帽al verde
+    uint8_t SequenceNum;       //5 N煤mero de fase
+    uint8_t WorkMode;          //6 Modo operativo
+}PatternType;             //informaci贸n del programa
 
 typedef struct
 {
     uint8_t     Maximum;
     PatternType Pattern[PatternMax];  //7*100
     uint8_t     Reserve[3];
-}PatternTable;           //方案表   704 = 16 * 44 =  0x02C0
+}PatternTable;           // Tabla de esquemas 704 = 16 * 44 = 0x02C0
 
 extern uint16_t         NowCycleTime;
-extern PatternType      PatternNow; //当前运行方案 
-extern PatternTable     PatternTab; //方案表
+extern PatternType      PatternNow; //Esquema de ejecuci贸n actual
+extern PatternTable     PatternTab; //tabla de programas
 
 
 uint8_t GetPatternIndex(PatternTable* PatternTab, uint8_t PatternNum);
