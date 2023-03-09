@@ -1,7 +1,7 @@
 #include "bsp.h"
 
 
-//信号输出口定义 PC0-LAMP_LAT   PC1-LAMP_CLK    PC2-LAMP_DAT 
+//Definici贸n del puerto de salida de se帽al PC0-LAMP_LAT PC1-LAMP_CLK PC2-LAMP_DAT 
 #define LAMP_PORT       GPIOC
 #define LAMP_LAT_PIN    GPIO_Pin_0
 #define LAMP_CLK_PIN    GPIO_Pin_1
@@ -15,7 +15,7 @@
 #define LAMP_DAT_Set()	LAMP_PORT->BSRR = LAMP_DAT_PIN
 
 
-//信号状态检测输入口定义
+//Definici贸n del puerto de entrada de detecci贸n del estado de la se帽al
 //DET_LOAD PC14 
 #define DET_LOAD_PIN    GPIO_Pin_14
 #define DET_LOAD_PORT   GPIOC
@@ -31,7 +31,7 @@
 #define DET_IN_PORT	    GPIOE
 #define DET_IN          (DET_IN_PORT->IDR & DET_IN_PIN)
 
-//手控板信号输入
+//Entrada de se帽al del tablero de control manual
 #define KEY_IN_PIN		GPIO_Pin_5
 #define KEY_IN_PORT	    GPIOE
 #define KEY_IN          (GPIOE->IDR & GPIO_Pin_5)
@@ -63,10 +63,10 @@ void bsp_InitIO(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	/* 打开GPIO时钟 */
+	/* Enciende el reloj GPIO */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_GPIOE | RCC_APB2Periph_GPIOF | RCC_APB2Periph_GPIOG, ENABLE);
 
-	/*  PC输出
+	/* salida de la computadora
         PC0-LAMP_LAT            PC1-LAMP_CLK        PC2-LAMP_DAT 
         PC3-WIFI_SYS_RESET      PC4-Ch376t_CS 
         PC6-LED8                PC7-LED7 
@@ -74,32 +74,32 @@ void bsp_InitIO(void)
         PC14-DET_LOAD           PC15-DET_CLK
 	*/
     
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;		/* 设为输出口 */
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;       /* IO口最大速度 */
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;		/* establecer como puerto de salida */
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;      /* Velocidad m谩xima del puerto IO */
 	GPIO_InitStructure.GPIO_Pin = WIFI_WDT_PIN | RTC_IRQ_PIN; 
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
     
-    //信号输出口定义   PC0-LAMP_LAT   PC1-LAMP_CLK    PC2-LAMP_DAT  PC3-WIFI_RST PC13-PPS
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;		/* 设为输出口 */
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;       /* IO口最大速度 */
+    //Definici贸n del puerto de salida de se帽al PC0-LAMP_LAT PC1-LAMP_CLK PC2-LAMP_DAT PC3-WIFI_RST PC13-PPS
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;		/* establecer como puerto de salida */
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;      /* Velocidad m谩xima del puerto IO */
 	GPIO_InitStructure.GPIO_Pin = LAMP_LAT_PIN | LAMP_CLK_PIN | LAMP_DAT_PIN | DET_LOAD_PIN | DET_CLK_PIN | WIFI_RST_PIN | PPS_PIN;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
     DET_CLK_Clr();
     PPS_OFF();
     
-    //DET_IN信号检测(PE6), KEY_IN手控板输入(PE5)
+    //Detecci贸n de se帽al DET_IN (PE6), entrada de panel de control manual KEY_IN (PE5)
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* IO口最大速度 */
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* IO鍙ｆ渶澶ч�熷害 */
 	GPIO_InitStructure.GPIO_Pin = DET_IN_PIN | KEY_IN_PIN | 0X001F;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
     
-    /* 引脚初始化配置(PD8-15 in0 - in8) */
+   /* Configuraci贸n de inicializaci贸n de pines (PD8-15 in0 - in8) */
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Pin  = 0xff00;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
     
-    /* BEEP 引脚初始化配置(PD1) */
+    /* Configuraci贸n inicial del pin BEEP (PD1) */
     GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
 	GPIO_InitStructure.GPIO_Speed=GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Pin  = BEEP_PIN | KEY_LOAD_PIN | KEY_CLK_PIN;
@@ -109,13 +109,13 @@ void bsp_InitIO(void)
 
     //GPIOF
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* IO口最大速度 */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;             //GPIOF输入
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* Velocidad m谩xima del puerto IO */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;             //Entrada GPIOF
 	GPIO_Init(GPIOF, &GPIO_InitStructure);
     //GPIOG
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* IO口最大速度 */
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;             //GPIOG输入
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	  /* Velocidad m谩xima del puerto IO */
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_All;             //Entrada GPIOG
 	GPIO_Init(GPIOG, &GPIO_InitStructure);
     
     peddet_init(&peddet_hw, PEDDET_STATE);
@@ -172,7 +172,7 @@ void peddet_scan(Input8_Type* Input)//10ms
 			{
 				if((Input->stab & temp_var2)==temp_var2)//mei dao you
 				{
-					if(++Input->counter[i] >= 10)//信号持续100ms
+					if(++Input->counter[i] >= 10)//La se帽al dura 100ms
 					{
 						Input->stab ^= temp_var2;
 						Input->counter[i] = 0;	
@@ -288,7 +288,7 @@ void LampDriveDataInit(void)
     ChangeDM13H();
 }
 
-void LampDriveOff(void)//10ms执行一次
+void LampDriveOff(void)//Ejecutar una vez cada 10ms
 {
 	uint8_t i,n;
 	uint16_t temp_var;
@@ -322,7 +322,7 @@ void LampDriveOff(void)//10ms执行一次
 	LAMP_LAT_Clr();
 }
 
-void LampDriveOut(void)//10ms执行一次
+void LampDriveOut(void)//Ejecutar una vez cada 10ms
 {
 	uint8_t i,n;
 	uint16_t temp_var;
@@ -376,8 +376,8 @@ void lamp_state_detect(void)
     uint8_t  n, i;
     uint16_t temp16bit;
     
-    DET_LOAD_Clr();for(n=0;n<2;n++);//数据装载进移位寄存器,管脚数据透明化 
-    DET_LOAD_Set();for(n=0;n<2;n++);//可移位读取 load 72M_单指令周期13.88ns，50M——20ns，165至少16ns
+    DET_LOAD_Clr();for(n=0;n<2;n++);//Los datos se cargan en el registro de desplazamiento y los datos del pin son transparentes
+    DET_LOAD_Set();for(n=0;n<2;n++);//Carga de lectura variable 72M_ ciclo de instrucci贸n 煤nico 13,88 ns, 50M - 20ns, 165 al menos 16ns
     
     for(n=0;n<4;n++)
     {
@@ -473,7 +473,7 @@ void lamp_state_detect(void)
         current_temp = 0x8000;
         for(i=0;i<16;i++)
         {
-            if((temp16bit & current_temp)==current_temp)//有改变
+            if((temp16bit & current_temp)==current_temp)//han cambiado
             {
                 if((current_state_stab & current_temp)==current_temp)//you dao mei
                 {
@@ -492,7 +492,7 @@ void lamp_state_detect(void)
                     }
                 }
             }
-            else//没有改变
+            else//Ning煤n cambio
             {
                 current_count[i] = 0;
             }
@@ -586,8 +586,8 @@ uint8_t manual_scan(void)
 	uint8_t n,i,temp_var;
 	uint8_t temp = 0;
     
-    KEY_LOAD_Clr();for(n=0;n<5;n++);//数据装载进移位寄存器,管脚数据透明化 
-    KEY_LOAD_Set();for(n=0;n<5;n++);//可移位读取    load 72M_单指令周期13.88ns，50M——20ns，165至少16ns
+    KEY_LOAD_Clr();for(n=0;n<5;n++);//Los datos se cargan en el registro de desplazamiento y los datos del pin son transparentes
+    KEY_LOAD_Set();for(n=0;n<5;n++);//Carga de lectura variable 72M_ ciclo de instrucci贸n 煤nico 13,88 ns, 50M - 20ns, 165 al menos 16ns
 
     temp_var = 0x80;
     for(i=0;i<8;i++)
