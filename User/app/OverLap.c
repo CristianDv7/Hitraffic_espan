@@ -1,24 +1,24 @@
 /*
 *********************************************************************************************************
 *
-*	Ä£¿éÃû³Æ : ¸úËæÏàÎ»Ä£¿é
-*	ÎÄ¼şÃû³Æ : Overlap.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
-*	ĞŞ¸Ä¼ÇÂ¼ :
-*		°æ±¾ºÅ  ÈÕÆÚ       ×÷Õß    ËµÃ÷
-*		V1.0    2019-12-30  wcx     Ê×·¢
+*	Nombre del mÃ³dulo : seguir el mÃ³dulo de fase
+*	Nombre del archivo : Overlap.c
+*	ç‰ˆ    æœ¬ : V1.0
+*	è¯´    æ˜ : 
+*	ä¿®æ”¹è®°å½• :
+*		ç‰ˆæœ¬å·  æ—¥æœŸ       ä½œè€…    è¯´æ˜
+*		V1.0    2019-12-30  wcx     é¦–å‘
 *
 *********************************************************************************************************
 */
 #include "public.h"
 #include "Overlap.h"
 
-uint16_t    OverlapCounter[OverlapMax] = {0};     //¸úËæÏàÎ»Ê±¼äÍ³¼Æ
-uint16_t    IncludedPhases[OverlapMax];     //Ä¸ÏàÎ» Ëù¸úËæ·ÅĞĞµÄ»ú¶¯³µÏàÎ»
-uint16_t    ModifierPhases[OverlapMax];     //ĞŞÕıÏàÎ» 
+uint16_t    OverlapCounter[OverlapMax] = {0};     //Sigue las estadÃ­sticas
+uint16_t    IncludedPhases[OverlapMax];     //Fase principal La siguiente fase del vehÃ­culo de motor
+uint16_t    ModifierPhases[OverlapMax];     //fase correcta 
 
-OverlapTable        OverlapTab; //´î½ÓÏàÎ»±í
+OverlapTable        OverlapTab; //tabla de fases de vueltas
 OverlapStatusType   OverlapStatus;
 
 void OverlapInit(void)
@@ -27,7 +27,7 @@ void OverlapInit(void)
     OverlapTab.Maximum = OverlapMax;
 }
 
-//¸úËæÏàÎ»ºÅ + ¸úËæÏàÎ»±í = ¸úËæÏàÎ»Ë÷Òı
+//seguir nÃºmero de fase + seguir tabla de fase = seguir Ã­ndice de fase
 uint8_t GetOverlapIndex(OverlapTable* Overlap_tab, uint8_t OverlapNum)
 {
     uint8_t     i;
