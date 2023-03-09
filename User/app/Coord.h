@@ -5,12 +5,12 @@
 
 typedef struct
 {
-    uint8_t OperationalMode;   //协调运行模式 0自动 1-253手动方案 254本地感应 255闪光
-    uint8_t CorrectionMode;    //协调校正方式 1其他 2驻留等待 3平滑过渡 4仅增加
-    uint8_t MaximumMode;       //协调最大方式 1其他 2最大1 3最大2 4最大约束
-    uint8_t ForceMode;         //协调强制方式 1其他 2浮动 3固定
+    uint8_t OperationalMode;   //modo de operaci贸n coordinada 0 autom谩tico 1-253 esquema manual 254 inducci贸n local 255 flash
+    uint8_t CorrectionMode;    //M茅todo de correcci贸n coordinada 1 otro 2 residente en espera 3 transici贸n suave 4 solo aumento
+    uint8_t MaximumMode;       //coordenada max camino 1 otros 2 max 1 3 max 2 4 max restricci贸n
+    uint8_t ForceMode;         //Coordinaci贸n Obligatorio Modo 1 Otro 2 Flotante 3 Fijo
     uint8_t Reserve[12];
-}CoordType;   //协调表
+}CoordType;   //hoja de coordinaci贸n
 
 
 extern CoordType   Coord;
