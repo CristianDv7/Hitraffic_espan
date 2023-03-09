@@ -13,7 +13,7 @@
 #define WIFI_RST_ON()	    WIFI_RST_PORT->BSRR = WIFI_RST_PIN
 #define WIFI_RST_OFF()	    WIFI_RST_PORT->BRR = WIFI_RST_PIN
 
-//·äÃùÆ÷¶Ë¿Ú¶¨Òå(PD1)
+//èœ‚é¸£å™¨ç«¯å£å®šä¹‰(PD1)
 #define BEEP_PORT	        GPIOD
 #define BEEP_PIN	        GPIO_Pin_1
 #define BEEP_ON()	        BEEP_PORT->BSRR = BEEP_PIN
@@ -33,7 +33,7 @@
 enum LED_TYPE{LED_POWER = 1, LED_RUN, LED_CON, LED_COM, \
               LED_NEWPLAN, LED_GPS, LED_MANUAL ,LED_ERROR};
 
-//struct DRIVE_Typedef  //Çı¶¯Êä³öÊ± µÍÎ»ÏÈ³öµÄ¶¨Òå
+//struct DRIVE_Typedef  //La definiciÃ³n de orden bajo primero en salir al impulsar la salida
 //{
 //    uint16_t error:1;
 //    uint16_t special:1;
@@ -45,7 +45,7 @@ enum LED_TYPE{LED_POWER = 1, LED_RUN, LED_CON, LED_COM, \
 //    uint16_t group1:3; //bit0-G bit1-Y bit2-R
 //};
 
-struct DRIVE_Typedef  //Çı¶¯Êä³öÊ± ¸ßÎ»ÏÈ³öµÄ¶¨Òå
+struct DRIVE_Typedef  //La definiciÃ³n de bit alto primero en salir al conducir la salida
 {
     uint16_t group1:3; //bit2-G bit1-Y bit0-R
     uint16_t group2:3;
@@ -68,11 +68,11 @@ union DRIVE_REG{
 typedef struct
 {
     uint8_t (*State)(void);
-    uint8_t rising;     //ĞÅºÅÓĞĞ§ÉÏÉıÑØ
-    uint8_t failing;    //ĞÅºÅÓĞĞ§ÏÂ½µÑØ
-    uint8_t stab;       //ÎÈ¶¨×´Ì¬
-    uint8_t temp;       //ÁÙÊ±×´Ì¬
-    uint8_t counter[8]; //Í³¼Æ
+    uint8_t rising;     //SeÃ±al de flanco ascendente vÃ¡lido
+    uint8_t failing;    //SeÃ±al de flanco descendente vÃ¡lida
+    uint8_t stab;       //estado estable
+    uint8_t temp;       //estado provisional
+    uint8_t counter[8]; //EstadÃ­sticas
 }Input8_Type;
 
 typedef struct
