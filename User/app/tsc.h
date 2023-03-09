@@ -27,9 +27,9 @@ typedef struct
 	char NS[2];
 	char Longitude[16];
 	char EW[2];
-    char FS[2];     //定位状态标志
-    char numSv[4];  //卫星数量
-	char Altitude[4];//海拔
+    char FS[2];     //indicador de estado de posicionamiento
+    char numSv[4];  //n煤mero de sat茅lites
+	char Altitude[4];//altitud
 	char Speed[8];
 }GpsType;
 
@@ -43,23 +43,23 @@ typedef struct
 
 typedef struct 
 {
-    uint16_t    CycleTime;          //环周期
-    uint8_t     Time[PhaseMax];    //环相位时间
-}RingTimeType;  //环相位时间   17 byte
+    uint16_t    CycleTime;          //periodo de llamada
+    uint8_t     Time[PhaseMax];    //tiempo de fase de anillo
+}RingTimeType;  //tiempo de fase de anillo  17 byte
 
 typedef struct
 {
-    RingTimeType    Ring[RingMax];  //环相位时间定义 4个环
-}SeqTimeType;        //相序表信息 68 byte
+    RingTimeType    Ring[RingMax];  //Definici贸n de tiempo de fase de timbre 4 timbres
+}SeqTimeType;        //Informaci贸n de la tabla de secuencia de fases 68 bytes
 
 /********************************************************/
 typedef struct
 {
-    uint8_t         ModifierFlag;   //绿波模式,存在偏差,需要修正标志
-    uint16_t        ModifierTime;   //需要修正的总剩余时间
+    uint8_t         ModifierFlag;   //Modo de onda verde, hay una desviaci贸n y la se帽al debe corregirse
+    uint16_t        ModifierTime;   //Tiempo restante total para corregir
     uint16_t        OffsetTime;
-    uint16_t        StepTime;       //单步修正的时间
-}OffsetTimeModifier_Type;//相位差修正
+    uint16_t        StepTime;       //Tiempo de correcci贸n de un solo paso
+}OffsetTimeModifier_Type;//correcci贸n de diferencia de fase
 
 typedef struct
 {
@@ -103,14 +103,14 @@ typedef struct
 /********************************************************/
 typedef struct
 {
-    uint8_t     RemoteCtrlFlag; //远程手控标志
-    uint8_t     LocalCtrlFlag;  //本地手控标志
-    uint8_t     KeyCmd;         //按键指令
-    uint8_t     NextStepFlag;   //步进标志
-    uint8_t     StartFlag;      //刚开始远程手控
-    uint8_t     EnforceFlag;    //执行标志
+    uint8_t     RemoteCtrlFlag; //Se帽al de control manual remoto
+    uint8_t     LocalCtrlFlag;  //se帽al de mano local
+    uint8_t     KeyCmd;         //comando clave
+    uint8_t     NextStepFlag;   //signo paso a paso
+    uint8_t     StartFlag;      //Acabo de empezar el control remoto
+    uint8_t     EnforceFlag;    //Indicador de ejecuci贸n
     uint8_t     OrderFlag;      //
-    uint8_t     ExitFlag;       //退出标志
+    uint8_t     ExitFlag;       //Se帽al de salida
     uint8_t     Pos;            //
     uint8_t     Dir;            //
     uint16_t    AutoTime;
@@ -129,24 +129,24 @@ typedef struct
 
 typedef struct
 {
-    uint8_t             WorkMode;               //工作模式
-    uint8_t             WorkMode_Reason;        //模式原因  ------- 需要修改为按位操作
-    uint32_t            STATE;                  //系统状态  按位定义状态0正常1异常
-    //0-15为系统底层的状态,16-31为应用的系统状态 比如bit0存储,bit1时钟,bit2参数,bit3,
-    uint8_t             SubWorkMode;            //子模式
-    uint8_t             WorkModeBK;             //工作模式
-    uint32_t            WorkModeCount;          //当前工作模式 已运行时间
-    uint32_t            WorkModeExpectTime;     //当前工作模式 预期运行时间
+    uint8_t             WorkMode;               //Modo operativo
+    uint8_t             WorkMode_Reason;        //Motivo del modo ------- necesita ser modificado para operaci贸n bit a bit
+    uint32_t            STATE;                  //Estado del sistema Estado definido por bit 0 normal 1 anormal
+    //0-15 es el estado de la capa inferior del sistema, 16-31 es el estado del sistema de la aplicaci贸n, como almacenamiento bit0, reloj bit1, par谩metro bit2, bit3,
+    uint8_t             SubWorkMode;            //subpatr贸n
+    uint8_t             WorkModeBK;             //Modo operativo
+    uint32_t            WorkModeCount;          //Modo de trabajo actual Tiempo de funcionamiento transcurrido
+    uint32_t            WorkModeExpectTime;     //Modo de trabajo actual Tiempo de funcionamiento esperado
     uint32_t            Reg1sCount;
     OffsetTimeModifier_Type     OffsetTimeModifier;
     uint32_t            Seconds;
     uint32_t            gps_seconds;
-    uint8_t             Run1s_flag;             //每1s置位
+    uint8_t             Run1s_flag;             //establecer cada 1s
     uint8_t             Run10ms_flag;
     uint8_t             Run100ms_flag;
     uint8_t             PlanRefreshFlag;
-    uint8_t             ActionRefreshFlag;      //动作刷新
-    uint8_t             SequenceRefreshFlag;    //相序数据有改变
+    uint8_t             ActionRefreshFlag;      //actualizaci贸n de acci贸n
+    uint8_t             SequenceRefreshFlag;    //Los datos de secuencia de fase han cambiado
     uint8_t             NewPatternFlag;
     uint8_t             ShowTimeFlag;
     
@@ -161,9 +161,9 @@ typedef struct
     uint8_t             RtcIrqFlag;
     uint8_t             GetVehDetStaFlag;
     
-    uint8_t             StartFlag;      //系统重启标志，冷起或者重启都将置1
-    uint8_t             RestartFlag;    //重启操作标志，置1系统将重启
-    uint8_t             TriggerFlag;    //倒计时触发信号 
+    uint8_t             StartFlag;      //El indicador de reinicio del sistema, el inicio en fr铆o o el reinicio se establecer谩n en 1
+    uint8_t             RestartFlag;    //Indicador de operaci贸n de reinicio, establecido en 1 y el sistema se reiniciar谩
+    uint8_t             TriggerFlag;    //Se帽al de disparo de cuenta regresiva 
 
     uint8_t             ConnectFlag;
     uint8_t             SendWorkModeAutoFlag;
@@ -172,7 +172,7 @@ typedef struct
     uint8_t             LampStateRefreshFlag; 
     uint8_t             PhaseStatusRefreshFlag;
     
-    uint8_t             sync_with_gps_flag; //1需要与同步gps时钟同步，0不需要。
+    uint8_t             sync_with_gps_flag; //1 necesita sincronizarse con el reloj gps s铆ncrono, 0 no.
     
     uint16_t            red_green_conflict_reg;
     uint16_t            red_install_reg;
@@ -215,22 +215,22 @@ typedef enum{MANUAL_NONE = 0, MANUAL_SW = 0x01, MANUAL_K1 = 0x02, MANUAL_K2 = 0x
 
 
 extern OPType               OP;
-extern RtcType              Rtc;        //当前时钟时间
-extern DateType             Date;       //当前NTCIP日期
-extern TimeType             Time;       //当前NTCIP时间
+extern RtcType              Rtc;        //Hora actual del reloj
+extern DateType             Date;       //Fecha NTCIP actual
+extern TimeType             Time;       //Hora actual de NTCIP
 extern MANUAL_CTRL_TYPE     ManualCtrl;
 
 
-void LampStateControl(void);    //1s运行一次
+void LampStateControl(void);    //Ejecutar una vez en 1s
 
 
 
 
 void PhaseParInit(void);
-void RunPhaseTrans(void);   //1ms运行一次
-void RunNewPhase(void);     //1ms运行一次
-void RunPhaseGetNext(void); //1ms运行一次
-void RunPhaseTimeCalc(void);//10ms运行一次
+void RunPhaseTrans(void);   //Ejecutar una vez en 1 ms
+void RunNewPhase(void);     //Ejecutar una vez en 1 ms
+void RunPhaseGetNext(void); //Ejecutar una vez en 1 ms
+void RunPhaseTimeCalc(void);//Ejecutar una vez en 10ms
 
 void RunPhaseInit(SequenceType* Sequence, SplitType* Split);
 void RunDataInit(void);
