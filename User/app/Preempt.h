@@ -6,39 +6,39 @@
 
 typedef struct
 {
-    uint8_t Num;            //ÓÅÏÈºÅ
-    uint8_t Control;        //ÓÅÏÈ¿ØÖÆ
-    uint8_t Link;           //ÓÅÏÈÁ´Â·
-    uint16_t Delay;         //ÑÓ³Ù
-    uint16_t Duration;      //³ÖĞøÊ±¼ä
-    uint8_t MinimumGreen;   //×îĞ¡ÂÌµÆÊ±¼ä
-    uint8_t MinimumWalk;    //×îĞ¡ĞĞÈËÊ±¼ä
-    uint8_t EnterPedClear;  //ĞĞÈËÇå¿ÕÊ±¼ä
-    uint8_t TrackGreen;     //Çå¹ìÂÌµÆÊ±¼ä
-    uint8_t DwellGreen;     //×¤ÁôÂÌµÆÊ±¼ä
-    uint8_t MaximumPresence;//×î´óÇëÇóÊ±¼ä
-    uint8_t TrackPhase[16]; //»ú¶¯³µÇå¹ìÏàÎ»
-    uint8_t DwellPhase[16]; //»ú¶¯³µ×¤ÁôÏàÎ»
-    uint8_t DwellPed[16];   //ĞĞÈË×¤ÁôÏàÎ»
-    uint8_t ExitPhase[16];  //ÍË³öÏàÎ»
-    uint8_t State;          //ÓÅÏÈ¹æ¶¨
+    uint8_t Num;            //nÃºmero de prioridad
+    uint8_t Control;        //control de prioridad
+    uint8_t Link;           //enlace de prioridad
+    uint16_t Delay;         //Demora
+    uint16_t Duration;      //duraciÃ³n
+    uint8_t MinimumGreen;   //Tiempo verde mÃ­nimo
+    uint8_t MinimumWalk;    //El nÃºmero mÃ­nimo de personas
+    uint8_t EnterPedClear;  //tiempo de limpieza de peatones
+    uint8_t TrackGreen;     //Tiempo de luz verde de autorizaciÃ³n de pista
+    uint8_t DwellGreen;     //tiempo de permanencia en luz verde
+    uint8_t MaximumPresence;//Tiempo mÃ¡ximo de solicitud
+    uint8_t TrackPhase[16]; //Fase de limpieza de vÃ­a de vehÃ­culos de motor
+    uint8_t DwellPhase[16]; //Fase de estacionamiento de vehÃ­culos de motor
+    uint8_t DwellPed[16];   //Fase de estacionamiento de peatones
+    uint8_t ExitPhase[16];  //fase de salida
+    uint8_t State;          //disposiciÃ³n prioritaria
     
-    uint8_t TrackOverlap[16];   //¸ú×ÙÇå¹ìÏàÎ»
-    uint8_t DwellOverlap[16];   //¸ú×Ù×¤ÁôÏàÎ»
-    uint8_t CyclingPhase[16];   //»ú¶¯³µÑ­»·ÏàÎ»
-    uint8_t CyclingPed[16];     //ĞĞÈËÑ­»·ÏàÎ»
-    uint8_t CyclingOverlap[16]; //¸ú×ÙÑ­»·ÏàÎ»
+    uint8_t TrackOverlap[16];   //fase de limpieza de pista
+    uint8_t DwellOverlap[16];   //pista de fase de permanencia
+    uint8_t CyclingPhase[16];   //fase del ciclo del motor
+    uint8_t CyclingPed[16];     //fase ciclo peatonal
+    uint8_t CyclingOverlap[16]; //fase del ciclo de pista
     
-    uint8_t EnterYellowChange;  //½øÈë»ÆµÆÊ±¼ä
-    uint8_t EnterRedClear;      //½øÈëÈ«ºìÊ±¼ä
-    uint8_t TrackYellowChange;  //Çå¹ì»ÆµÆÊ±¼ä
-    uint8_t TrackRedClear;      //Çå¹ìÈ«ºìÊ±¼ä
-}Preempt_T;     //ÓÅÏÈ²ÎÊı±í
+    uint8_t EnterYellowChange;  //entrar en tiempo de luz amarilla
+    uint8_t EnterRedClear;      //en pleno tiempo rojo
+    uint8_t TrackYellowChange;  //Tiempo de luz amarilla de despeje de vÃ­a
+    uint8_t TrackRedClear;      //borrando todo el tiempo rojo
+}Preempt_T;     //Lista de parÃ¡metros prioritarios
 
 typedef struct
 {
     Preempt_T Preempt[8];
-}Preempt_Tab;     //ÓÅÏÈ²ÎÊı±í
+}Preempt_Tab;     //ä¼˜å…ˆå‚æ•°è¡¨
 
 
 
