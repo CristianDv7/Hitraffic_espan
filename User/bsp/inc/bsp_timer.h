@@ -1,10 +1,10 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : 定时器模块
-*	文件名称 : bsp_timer.h
-*	版    本 : V1.3
-*	说    明 : 头文件
+*	Nombre del m贸dulo: M贸dulo de temporizador
+*	Nombre del archivo: bsp_timer.h
+*	Versi贸n: V1.3
+*	Descripci贸n: archivo de cabecera
 *
 *********************************************************************************************************
 */
@@ -15,28 +15,28 @@
 #include <stdint.h>
 
 /*
-	在此定义若干个软件定时器全局变量
-	注意，必须增加__IO 即 volatile，因为这个变量在中断和主程序中同时被访问，有可能造成编译器错误优化。
+	Defina varias variables globales del temporizador de software aqu铆
+	Tenga en cuenta que se debe agregar __IO o vol谩til, ya que se accede a esta variable en la interrupci贸n y en el programa principal al mismo tiempo, lo que puede provocar la optimizaci贸n de errores del compilador.
 */
-#define TMR_COUNT	4		/* 软件定时器的个数 （定时器ID范围 0 - 3) */
+#define TMR_COUNT	4		/* N煤mero de temporizadores de software (rango de ID de temporizador 0 - 3) */
 
-/* 定时器结构体，成员变量必须是 volatile, 否则C编译器优化时可能有问题 */
+/* Estructura del temporizador, las variables miembro deben ser vol谩tiles; de lo contrario, puede haber problemas cuando el compilador C optimiza */
 typedef enum
 {
-	TMR_ONCE_MODE = 0,		/* 一次工作模式 */
-	TMR_AUTO_MODE = 1		/* 自动定时工作模式 */
+	TMR_ONCE_MODE = 0,		/* modo de trabajo de una sola vez */
+	TMR_AUTO_MODE = 1		/* Modo de trabajo de temporizaci贸n autom谩tica */
 }TMR_MODE_E;
 
-/* 定时器结构体，成员变量必须是 volatile, 否则C编译器优化时可能有问题 */
+/* Estructura del temporizador, las variables miembro deben ser vol谩tiles; de lo contrario, puede haber problemas cuando el compilador C optimiza */
 typedef struct
 {
-	volatile uint8_t Mode;		/* 计数器模式，1次性 */
-	volatile uint8_t Flag;		/* 定时到达标志  */
-	volatile uint32_t Count;	/* 计数器 */
-	volatile uint32_t PreLoad;	/* 计数器预装值 */
+	volatile uint8_t Mode;		/* Modo contador, 1 tiro */
+	volatile uint8_t Flag;		/* se帽al de llegada cronometrada */
+	volatile uint32_t Count;	/* encimera */
+	volatile uint32_t PreLoad;	/* Valor precargado del contador */
 }SOFT_TMR;
 
-/* 提供给其他C文件调用的函数 */
+/* Funciones proporcionadas para ser llamadas por otros archivos C */
 void bsp_InitTimer(void);
 void bsp_DelayMS(uint32_t n);
 void bsp_DelayUS(uint32_t n);
