@@ -1,9 +1,9 @@
 /*
 *********************************************************************************************************
-*	Ä£¿éÃû³Æ : SPI½Ó¿ÚÎÄ¼ş¹ÜÀíĞ¾Æ¬
-*	ÎÄ¼şÃû³Æ : bsp_spi_ch376t.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : 
+*	Nombre del mÃ³dulo: chip de gestiÃ³n de archivos de interfaz SPI
+*	Nombre del archivo: bsp_spi_ch376t.c
+*	VersiÃ³n: V1.0
+*	ilustrar:
 *********************************************************************************************************
 */
 
@@ -13,7 +13,7 @@
 uint8_t	ExchgBuf[4];
 USB_STATUS Usb_status;
 
-/* CH376T Æ¬Ñ¡¿ÚÏß ÖÃµÍÑ¡ÖĞ ÖÃ¸ß²»Ñ¡ÖĞ */
+/* LÃ­nea de selecciÃ³n de chip CH376T, ajuste bajo para seleccionar, ajuste alto para no seleccionar */
 #define Ch376t_CS_PORT		GPIOC
 #define Ch376t_CS_PIN		GPIO_Pin_7
 #define Ch376t_CS_LOW()     Ch376t_CS_PORT->BRR  = Ch376t_CS_PIN
@@ -26,37 +26,37 @@ USB_STATUS Usb_status;
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: sf_ConfigGPIO
-*	¹¦ÄÜËµÃ÷: ÅäÖÃ´®ĞĞFlashµÄÆ¬Ñ¡GPIO¡£ ÉèÖÃÎªÍÆÍìÊä³ö
-*	ĞÎ    ²Î: ÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: sf_ConfigGPIO
+*	DescripciÃ³n de la funciÃ³n: Configure el chip select GPIO de serial Flash. Establecer como salida push-pull
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void Ch376t_ConfigGPIO(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
-	/* Ê¹ÄÜGPIO Ê±ÖÓ */
+	/* Habilitar reloj GPIO */
     RCC_APB2PeriphResetCmd(RCC_APB2Periph_GPIOC, DISABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
 	
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	/* Ch376t_CS-PC7 ÉèÎªÊä³ö */
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	/* IO¿Ú×î´óËÙ¶È */
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	/* Ch376t_CS-PC7 establecido como salida */
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	/* Velocidad mÃ¡xima del puerto IO */
 
 	GPIO_InitStructure.GPIO_Pin = Ch376t_CS_PIN;
 	GPIO_Init(Ch376t_CS_PORT, &GPIO_InitStructure);
 	Ch376t_CS_HIGH();	
 	
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;	/* Ch376t_INT-PC6 ÅäÖÃÎªÊäÈë */
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;	/* Ch376t_INT-PC6 é…ç½®ä¸ºè¾“å…¥ */
 	GPIO_InitStructure.GPIO_Pin = Ch376t_INT_PIN;
 	GPIO_Init(Ch376t_INT_PORT, &GPIO_InitStructure);
 }
 
 void Ch376t_Init(void)
 {
-	Ch376t_ConfigGPIO();    //³õÊ¼»¯ CS INT Òı½Å
+	Ch376t_ConfigGPIO();   //Inicializar pin CS INT
 //    Ch376s_CheckExist();    //CheckExist
-//    Ch376s_SetUsbMode(0x06);//ÉèÖÃ6ÎªUSBÄ£Ê½ 3ÎªSD¿¨Ä£Ê½
-//    Ch376s_SetSdoInt(0x10); //ÉèÖÃSDO½ûÓÃÖĞ¶Ï¹¦ÄÜ
+//    Ch376s_SetUsbMode(0x06);// Establezca 6 en modo USB y 3 en modo tarjeta SD
+//    Ch376s_SetSdoInt(0x10); //Configure SDO para deshabilitar la funciÃ³n de interrupciÃ³n
     
     Usb_status.fox = CheckConnect;
     Usb_status.Cmd = 0;
@@ -79,7 +79,7 @@ uint8_t Ch376s_CheckExist(void)
 	uint8_t data = 0xAA;
 	Ch376t_CS_LOW();
 	Spi_SendByte(CMD_CHECK_EXIST);
-	Spi_SendByte(0x65);  //·µ»ØÊı¾İÓë´ËÊı¾İ°´Î»È¡·´
+	Spi_SendByte(0x65);  //Los datos devueltos son bit a bit inversos a estos datos.
 	data = Spi_SendByte(0xff);
 	Ch376t_CS_HIGH();
     
@@ -115,8 +115,8 @@ uint8_t Ch376s_SetUsbMode(uint8_t Mode)
         return 0;
     }
 }
-// Ch376s_SetSdoInt£ºÉèÖÃSDOÖĞ¶Ï·½Ê½
-// ²ÎÊı£º0x10 ½ûÖ¹SDOÖĞ¶ÏÊä³ö£»0x90 Æ¬Ñ¡ÎŞĞ§Ê±ÖĞ¶ÏÇëÇóÊä³ö
+// Ch376s_SetSdoInt: establecer el modo de interrupciÃ³n SDO
+// ParÃ¡metros: 0x10 deshabilita la salida de interrupciÃ³n SDO; 0x90 salida de solicitud de interrupciÃ³n cuando la selecciÃ³n de chip no es vÃ¡lida
 void Ch376s_SetSdoInt(uint8_t Cmd)
 {
 	Ch376t_CS_LOW();
@@ -139,20 +139,20 @@ uint8_t Ch376s_GetStatus(void)
 {
     uint8_t data;
     Ch376t_CS_LOW();
-    Spi_SendByte(CMD_GET_STATUS);   //¶Á×´Ì¬ÃüÁî
-    data = Spi_SendByte(0xff);      //×´Ì¬·µ»Ø
+    Spi_SendByte(CMD_GET_STATUS);   //comando de lectura de estado
+    data = Spi_SendByte(0xff);      //retorno de estado
     Ch376t_CS_HIGH();
     return data;
 }
 
-void Ch376s_StatusProcess(void)     //100MS Ö´ĞĞÒ»´Î
+void Ch376s_StatusProcess(void)     //100MS ejecutar una vez
 {
     uint8_t Status;
-    if(Usb_status.fox == CheckConnect)//¼ì²éUSBÁ¬½Ó
+    if(Usb_status.fox == CheckConnect)//comprobar la conexiÃ³n usb
     {
-        if(Usb_status.SendCmdFlag == FALSE)//ÃüÁîÃ»ÓĞ·¢ËÍ
+        if(Usb_status.SendCmdFlag == FALSE)//comando no enviado
         {
-            Ch376s_SendCmd(CMD_DISK_CONNECT);//·¢ËÍÃüÁî
+            Ch376s_SendCmd(CMD_DISK_CONNECT);//enviar comando
             Usb_status.SendCmdFlag = TRUE;
             Usb_status.OperFlag = FALSE;
             Usb_status.Cmd = CMD_DISK_CONNECT;
@@ -160,27 +160,27 @@ void Ch376s_StatusProcess(void)     //100MS Ö´ĞĞÒ»´Î
             Usb_status.Count = 0;
             Usb_status.MaxCount = 100; 
         }
-        else //ÃüÁîÒÑ¾­·¢ËÍ£¬ÄÇÃ´¼ì²é×´Ì¬Öµ
+        else //se ha enviado el comando, luego verifique el valor de estado
         {
-            if(Usb_status.OperFlag == FALSE)//ÃüÁî²Ù×÷Ê§°Ü
+            if(Usb_status.OperFlag == FALSE)//La operaciÃ³n de comando fallÃ³
             {
                 if(Usb_status.Count < Usb_status.MaxCount)
                 {
                     Usb_status.Count++;
                     Status = Ch376s_GetStatus();
-                    if(Status == Usb_status.Status)//·µ»ØÖµÕıÈ·
+                    if(Status == Usb_status.Status)//El valor devuelto es correcto
                     {
                         printf("Ch376s_Check_Usb_Connect ok! ");
                         Usb_status.OperFlag = TRUE;
                     }
                 }
-                else //´Ë´¦²»×ö²Ù×÷£¬¾Í²»»á¼ÌĞø¼ì²éÊÇ·ñÒÑ¾­Á¬½Ó
+                else //Si no hay ninguna operaciÃ³n aquÃ­, no continuarÃ¡ verificando si estÃ¡ conectado
                 {
                     Usb_status.SendCmdFlag = FALSE;
                     Usb_status.Count = 0; 
                 }
             }
-            else//ÃüÁî²Ù×÷³É¹¦
+            else//La operaciÃ³n de comando tuvo Ã©xito
             {
                 Usb_status.fox = DiskMount;
                 Usb_status.SendCmdFlag = FALSE;
@@ -194,9 +194,9 @@ void Ch376s_StatusProcess(void)     //100MS Ö´ĞĞÒ»´Î
     }
     else if(Usb_status.fox == DiskMount)
     {
-        if(Usb_status.SendCmdFlag == FALSE)//ÃüÁîÃ»ÓĞ·¢ËÍ
+        if(Usb_status.SendCmdFlag == FALSE)//comando no enviado
         {
-            Ch376s_SendCmd(CMD_DISK_MOUNT);//·¢ËÍÃüÁî
+            Ch376s_SendCmd(CMD_DISK_MOUNT);//enviar comando
             Usb_status.SendCmdFlag = TRUE;
             Usb_status.OperFlag = FALSE;
             Usb_status.Cmd = CMD_DISK_MOUNT;
@@ -204,7 +204,7 @@ void Ch376s_StatusProcess(void)     //100MS Ö´ĞĞÒ»´Î
             Usb_status.Count = 0;
             Usb_status.MaxCount = 10; 
         }
-        else //ÃüÁîÒÑ¾­·¢ËÍ£¬ÄÇÃ´¼ì²é×´Ì¬Öµ
+        else //se ha enviado el comando, luego verifique el valor de estado
         {
             if(Usb_status.OperFlag == FALSE)
             {
@@ -212,13 +212,13 @@ void Ch376s_StatusProcess(void)     //100MS Ö´ĞĞÒ»´Î
                 {
                     Usb_status.Count++;
                     Status = Ch376s_GetStatus();
-                    if(Status == Usb_status.Status)//·µ»ØÖµÕıÈ·
+                    if(Status == Usb_status.Status)//El valor de retorno es correcto
                     {
                         printf("Ch376s_DISK_MOUNT ok! ");
                         Usb_status.OperFlag = TRUE;
                     }
                 }
-                else//´Ë´¦²»×ö²Ù×÷£¬¾Í²»»á¼ÌĞø¼ì²éÊÇ·ñÒÑ¾­¹ÒÔØ
+                else//Si no hay ninguna operaciÃ³n aquÃ­, no continuarÃ¡ verificando si se ha montado
                 {
                     Usb_status.SendCmdFlag = FALSE;
                     Usb_status.Count = 0; 
@@ -238,9 +238,9 @@ void Ch376s_StatusProcess(void)     //100MS Ö´ĞĞÒ»´Î
     }
     else if(Usb_status.fox == SetFileName)
     {
-        if(Usb_status.SendCmdFlag == FALSE)//ÃüÁîÃ»ÓĞ·¢ËÍ
+        if(Usb_status.SendCmdFlag == FALSE)//comando no enviado
         {
-            Ch376s_SendCmd(CMD_SET_FILE_NAME);//·¢ËÍÃüÁî
+            Ch376s_SendCmd(CMD_SET_FILE_NAME);//enviar comando
             Usb_status.SendCmdFlag = TRUE;
             Usb_status.OperFlag = FALSE;
             Usb_status.Cmd = CMD_SET_FILE_NAME;
@@ -521,7 +521,7 @@ uint8_t	CH376SeparatePath(uint8_t* path)
 	return(pName - path);
 }
 
-void Ch376s_SetFileName(uint8_t* name) /* ÉèÖÃ½«Òª²Ù×÷µÄÎÄ¼şÃû */
+void Ch376s_SetFileName(uint8_t* name) /* Establecer el nombre del archivo a operar */
 {
 	uint8_t	c;
     uint8_t	*p;
@@ -558,11 +558,11 @@ uint8_t	CH376FileOpenDir(uint8_t* PathName, uint8_t StopName)
 
     s = CH376FileOpen("/C51\0");
     printf("\n\rOpen /C51 S = %x\n",s);
-    if(s != ERR_OPEN_DIR)//0x41 Èç¹û²»ÊÇ³É¹¦´ò¿ªÁËÄ¿Â¼£¬ËµÃ÷ÓĞÎÊÌâ 
+    if(s != ERR_OPEN_DIR)//0x41 Si el directorio no se abre correctamente, hay un problema
     {
         if(s == USB_INT_SUCCESS) {printf("USB_INT_SUCCESS");return(ERR_FOUND_NAME);}
         else if(s == ERR_MISS_FILE) { printf("ERR_MISS_FILE");return(ERR_MISS_DIR);}
-        else return(s); // ²Ù×÷³ö´í 
+        else return(s); // error de operaciÃ³n
     }
 
     s = CH376FileOpen("CH376HFT.C\0");
@@ -585,11 +585,11 @@ uint8_t	CH376FileOpenDir(uint8_t* PathName, uint8_t StopName)
         printf("CH376FileOpenDir s = %d\n",s);
 		if(i && i!=StopName)
         {
-			if(s != ERR_OPEN_DIR)//0x41 Èç¹û²»ÊÇ³É¹¦´ò¿ªÁËÄ¿Â¼£¬ËµÃ÷ÓĞÎÊÌâ 
+			if(s != ERR_OPEN_DIR)//0x41 Si el directorio no se abre correctamente, hay un problema
             {
-				if(s == USB_INT_SUCCESS) return(ERR_FOUND_NAME); // ³É¹¦´ò¿ªÎÄ¼ş printf("USB_INT_SUCCESS");
-				else if(s == ERR_MISS_FILE) return(ERR_MISS_DIR); // ÎÄ¼ş»òÕßÄ¿Â¼²»´æÔÚ printf("ERR_MISS_FILE");
-				else return(s); // ²Ù×÷³ö´í printf("ÆäËû´íÎó %x",s);
+				if(s == USB_INT_SUCCESS) return(ERR_FOUND_NAME); // AbriÃ³ con Ã©xito el archivo printf("USB_INT_SUCCESS");
+				else if(s == ERR_MISS_FILE) return(ERR_MISS_DIR);// El archivo o directorio no existe printf("ERR_MISS_FILE");
+				else return(s); // error de operaciÃ³n printf("otro error %x",s);
 			}
 			s = i;
 		}
@@ -597,7 +597,7 @@ uint8_t	CH376FileOpenDir(uint8_t* PathName, uint8_t StopName)
 	}
 }
 
-//Ä¿Â¼Ãû²»¿ÉÒÔ³¬¹ı8¸ö×Ö½Ú£¬±ØĞëÊÇ´óĞ´×ÖÄ¸£¬Êı×Ö£¬ÖĞÎÄ×Ö·û
+//El nombre del directorio no puede exceder los 8 bytes y debe contener letras mayÃºsculas, nÃºmeros y caracteres chinos
 uint8_t	CH376FileOpenPath(uint8_t* PathName)
 {
 	return(CH376FileOpenDir(PathName, 0xFF));
@@ -735,7 +735,7 @@ uint8_t	CH376ByteRead(uint8_t* buf, uint16_t ReqCount, uint16_t* RealCount)
 			if(RealCount) *RealCount += s;
 		}
         else if(s == USB_INT_SUCCESS) return(s);
-		else return(s);  /* ´íÎó */
+		else return(s); /* error */
 	}
 }
 
@@ -1278,8 +1278,8 @@ void host(void)
 			printf("UdiskInfo: %s\n",((P_INQUIRY_DATA)buf)->VendorIdStr);
 		}
         
-        //Í¨µÀÊı¾İ¶ÁÈ¡
-		strcpy(buf,"\\GROUP.BIN");//²éÔÄCH376TÊÖ²á, ÎÄ¼şÃû±ØĞëÊı×Ö»òÕß´óĞ´×ÖÄ¸,²»ÄÜĞ¡Ğ´×ÖÄ¸!
+       //lectura de datos del canal
+		strcpy(buf,"\\GROUP.BIN");//Consulte el manual de CH376T, el nombre del archivo debe ser nÃºmeros o letras mayÃºsculas, Â¡no letras minÃºsculas!
 		status = CH376FileOpenPath((uint8_t*)buf);
         printf("CH376FileOpenPath = %x\n\r",status);
 		if(status == ERR_MISS_DIR || status == ERR_MISS_FILE)
@@ -1290,7 +1290,7 @@ void host(void)
         {
 			mStopIfError(status);
 			TotalCount = 128;
-			printf( "´ÓÎÄ¼şÖĞ¶Á³öµÄÇ°%d¸ö×Ö·ûÊÇ:\n",TotalCount);
+			printf( "Los primeros %d caracteres leÃ­dos del archivo son:\n",TotalCount);
 			while(TotalCount)
             {
 				i = TotalCount;
@@ -1300,7 +1300,7 @@ void host(void)
 				for(s=0; s!=RealCount; s++) printf("%x ",(&ChannelTab.Channel[0].Num)[s]);
 				if(RealCount < i)
                 {
-					printf("\nÎÄ¼şÒÑ¾­½áÊø\n");
+					printf("\n archivo ha terminado\n");
 					break;
 				}
 			}
@@ -1308,7 +1308,7 @@ void host(void)
 			status = CH376FileClose(FALSE);
 			mStopIfError(status);
 		}
-        //ÏàÎ»Êı¾İ¶ÁÈ¡
+        //Lectura de datos de fase
 		strcpy(buf,"\\PHASE.BIN");
 		status = CH376FileOpenPath((uint8_t*)buf);
         printf("CH376FileOpenPath = %x\n\r",status);
@@ -1320,7 +1320,7 @@ void host(void)
         {
 			mStopIfError(status);
 			TotalCount = 1024;
-			printf( "´ÓÎÄ¼şÖĞ¶Á³öµÄÇ°%d¸ö×Ö·ûÊÇ:\n",TotalCount);
+			printf( "Los primeros %d caracteres leÃ­dos del archivo son:\n",TotalCount);
 			while(TotalCount)
             {
 				i = TotalCount;
@@ -1331,7 +1331,7 @@ void host(void)
 				if(RealCount < i)
                 {
 					printf( "\n" );
-					printf( "ÎÄ¼şÒÑ¾­½áÊø\n" );
+					printf( "archivo ha terminado\n" );
 					break;
 				}
 			}
@@ -1342,7 +1342,7 @@ void host(void)
         
 UnknownUsbDevice:
         printf("Wait U Disk Take out\n");
-		while(CH376DiskConnect() == USB_INT_SUCCESS) /* ¼ì²éUÅÌÊÇ·ñÁ¬½Ó£¬µÈ´ıUÅÌ°Î³ö */
+		while(CH376DiskConnect() == USB_INT_SUCCESS) /*Compruebe si el disco U estÃ¡ conectado, espere a que se extraiga el disco U */
         {
 			bsp_DelayMS(1000);
 		}
