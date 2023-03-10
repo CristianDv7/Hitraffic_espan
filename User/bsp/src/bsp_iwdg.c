@@ -1,22 +1,22 @@
 #include "stm32f10x.h"
 
-//feed dog function
+// función de perro de alimentación
 void IWDG_Feed(void)
 {
 	IWDG_ReloadCounter();
 }
 /*
 *********************************************************************************************************
-* Function name: bsp_InitIwdg 
-* Function description: independent watchdog time configuration function 
-* Formal parameter: IWDGTime: 0 ---- 0x0FFF * Independent watchdog time setting, the unit is ms, IWDGTime = 1000 is about one second 
-* time 
-* Return value: None	        
+* Nombre de la función: bsp_InitIwdg
+* Descripción de la función: función de configuración de tiempo de vigilancia independiente 
+* Parámetro formal: IWDGTime: 0 ---- 0x0FFF * Configuración de tiempo de vigilancia independiente, la unidad es ms, IWDGTime = 1000 es aproximadamente un segundo 
+* tiempo
+* Valor devuelto: Ninguno	        
 *********************************************************************************************************
 */
 void bsp_InitIwdg(uint32_t _ulIWDGTime)
 {
-	/* Detects system recovery from independent watchdog reset*/
+	/* Detecta la recuperación del sistema desde el restablecimiento del mecanismo de vigilancia independiente*/
 	if (RCC_GetFlagStatus(RCC_FLAG_IWDGRST) != RESET)
 	{		
 		/* clear reset flag */
