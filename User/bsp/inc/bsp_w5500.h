@@ -200,72 +200,72 @@
 #define S7_TX_BUF	0xf0
 #define S7_RX_BUF	0xf8
 
-#define S_RX_SIZE	2048	/*定义Socket接收缓冲区的大小，可以根据W5500_RMSR的设置修改 */
-#define S_TX_SIZE	2048    /*定义Socket发送缓冲区的大小，可以根据W5500_TMSR的设置修改 */
+#define S_RX_SIZE	2048	/* Definir el tama帽o del b煤fer de recepci贸n del Socket, que se puede modificar seg煤n la configuraci贸n de W5500_RMSR */
+#define S_TX_SIZE	2048    /* Definir el tama帽o del b煤fer de env铆o de Socket, que se puede modificar de acuerdo con la configuraci贸n de W5500_TMSR */
 
-//端口的运行模式,0:TCP服务器模式,1:TCP客户端模式,2:UDP(广播)模式
-#define TCP_SERVER		0x00	//TCP服务器模式
-#define TCP_CLIENT		0x01	//TCP客户端模式 
-#define UDP_MODE		0x02	//UDP(广播)模式 
+//El modo operativo del puerto, 0: modo servidor TCP, 1: modo cliente TCP, 2: modo UDP (difusi贸n)
+#define TCP_SERVER		0x00	//Modo servidor TCP
+#define TCP_CLIENT		0x01	//Modo cliente TCP
+#define UDP_MODE		0x02	//Modo UDP (emisi贸n)
 
-//端口0状态记录,1:端口完成初始化,2端口完成连接(可以正常传输数据) 
-#define S_INIT			0x01	//端口完成初始化 
-#define S_CONN			0x02	//端口完成连接,可以正常传输数据 
+// Registro de estado del puerto 0, 1: el puerto se inicializa y el puerto 2 est谩 conectado (los datos se pueden transmitir normalmente)
+#define S_INIT			0x01	//Se inicializa el puerto
+#define S_CONN			0x02	//El puerto completa la conexi贸n y puede transmitir datos normalmente
 
-//端口0接收和发送数据的状态,1:端口接收到数据,2:端口发送数据完成 
-#define S_RECEIVE		0x01		//端口接收到一个数据包 
-#define S_TRANSMITOK	0x02		//端口发送一个数据包完成 
+//El estado de recepci贸n y env铆o de datos en el puerto 0, 1: el puerto ha recibido datos, 2: el puerto ha enviado datos completos
+#define S_RECEIVE		0x01		// puerto recibi贸 un paquete
+#define S_TRANSMITOK	0x02		//El puerto env铆a un paquete de datos para completar
 
-typedef unsigned char SOCKET;		//自定义端口号数据类型
+typedef unsigned char SOCKET;		//Tipo de datos de n煤mero de puerto personalizado
 
-/***************----- 数据结构定义 -----***************/
+/***************----- Definici贸n de estructura de datos -----***************/
 typedef struct 
 {
-	unsigned char IP_Addr[4];	//本机IP地址 	
-	unsigned char Gateway_IP[4];//网关IP地址 
-	unsigned char Sub_Mask[4];	//子网掩码 
-	unsigned char Phy_Addr[6];	//物理地址(MAC) 
+	unsigned char IP_Addr[4];	//Direcci贸n IP local	
+	unsigned char Gateway_IP[4];//Direcci贸n IP de la puerta de enlace
+	unsigned char Sub_Mask[4];	//m谩scara de subred
+	unsigned char Phy_Addr[6];	//Direcci贸n f铆sica (MAC)
 }NET;
 
 typedef struct 
 {
     uint8_t     Num;
-    uint8_t     Mode;           //端口的运行模式,0:TCP服务器模式,1:TCP客户端模式,2:UDP(广播)模式
+    uint8_t     Mode;           //El modo operativo del puerto, 0: modo servidor TCP, 1: modo cliente TCP, 2: modo UDP (difusi贸n)
     uint8_t     State;          
     uint8_t     DataState;
-	uint16_t    LocalPort;      //本地端口
-	uint8_t     DestIP[4];      //目的IP地址 destination
-	uint16_t    DestPort;       //目的端口号
-    uint8_t     UdpDIPR[4];	    //UDP(广播)模式,目的主机IP地址
-	uint16_t    UdpDestPort;    //UDP(广播)模式,目的主机端口号
+	uint16_t    LocalPort;     // puerto local
+	uint8_t     DestIP[4];      //Destino Direcci贸n IP destino
+	uint16_t    DestPort;       //n煤mero de puerto de destino
+    uint8_t     UdpDIPR[4];	    //Modo UDP (difusi贸n), direcci贸n IP del host de destino
+	uint16_t    UdpDestPort;    //Modo UDP (difusi贸n), n煤mero de puerto del host de destino
 }SOCKET_TYPE;
 
-/***************----- 网络参数变量定义 -----***************/
+/***************----- Definici贸n de variable de par谩metro de red -----***************/
 extern NET           Net;
 extern SOCKET_TYPE   Socket[8];
 
-/***************----- 端口数据缓冲区 -----***************/
-extern unsigned char Rx_Buffer[2048];	//端口接收数据缓冲区 
-extern unsigned char Tx_Buffer[2048];	//端口发送数据缓冲区 
+/***************----- b煤fer de datos del puerto -----***************/
+extern unsigned char Rx_Buffer[2048];	//Bufer de datos de recepci贸n del puerto
+extern unsigned char Tx_Buffer[2048];	// b煤fer de datos de env铆o del puerto
 
 
-extern unsigned char W5500_Interrupt;	//W5500中断标志(0:无中断,1:有中断)
+extern unsigned char W5500_Interrupt;	//Bandera de interrupci贸n W5500 (0: sin interrupci贸n, 1: interrupci贸n)
 
 
-extern void Delay(unsigned int d);//延时函数(ms)
-extern void W5500_GPIO_Configuration(void);//W5500 GPIO初始化配置
-extern void W5500_NVIC_Configuration(void);//W5500 接收引脚中断优先级设置
+extern void Delay(unsigned int d);//Funci贸n de retardo (ms)
+extern void W5500_GPIO_Configuration(void);//Configuraci贸n inicial de W5500 GPIO
+extern void W5500_NVIC_Configuration(void);//Configuraci贸n de prioridad de interrupci贸n de pin de recepci贸n W5500
 
-extern void W5500_Hardware_Reset(void);//硬件复位W5500
-extern void W5500_Init(void);//初始化W5500寄存器函数
-extern unsigned char Detect_Gateway(SOCKET s);  //检查网关服务器
-extern void Socket_Init(SOCKET s);              //指定Socket(0~7)初始化
-extern unsigned char Socket_Connect(SOCKET s);  //设置指定Socket(0~7)为客户端与远程服务器连接
-extern unsigned char Socket_Listen(SOCKET s);   //设置指定Socket(0~7)作为服务器等待远程主机的连接
-extern unsigned char Socket_UDP(SOCKET s);      //设置指定Socket(0~7)为UDP模式
-extern unsigned short Read_SOCK_Data_Buffer(SOCKET s, unsigned char *dat_ptr);//指定Socket(0~7)接收数据处理
-extern void Write_SOCK_Data_Buffer(SOCKET s, unsigned char *dat_ptr, unsigned short size); //指定Socket(0~7)发送数据处理
-extern void W5500_Interrupt_Process(void);//W5500中断处理程序框架
+extern void W5500_Hardware_Reset(void);//Restablecimiento de hardware W5500
+extern void W5500_Init(void);//Inicializa la funci贸n de registro W5500
+extern unsigned char Detect_Gateway(SOCKET s);  // comprobar servidor de puerta de enlace
+extern void Socket_Init(SOCKET s);              //Especificar la inicializaci贸n del Socket (0~7)
+extern unsigned char Socket_Connect(SOCKET s);  //Establecer el Socket especificado (0~7) como el cliente para conectarse con el servidor remoto
+extern unsigned char Socket_Listen(SOCKET s);   //Establecer el Socket especificado (0~7) como el servidor para esperar la conexi贸n del host remoto
+extern unsigned char Socket_UDP(SOCKET s);     //Establecer el Socket especificado (0~7) en modo UDP
+extern unsigned short Read_SOCK_Data_Buffer(SOCKET s, unsigned char *dat_ptr);//Especificar Socket (0~7) para recibir procesamiento de datos
+extern void Write_SOCK_Data_Buffer(SOCKET s, unsigned char *dat_ptr, unsigned short size); //Especificar Socket (0~7) para enviar procesamiento de datos
+extern void W5500_Interrupt_Process(void);// Marco del controlador de interrupciones W5500
 
 extern void W5500_Socket_Set(SOCKET s);
 extern void Load_Net_Parameters(void);
