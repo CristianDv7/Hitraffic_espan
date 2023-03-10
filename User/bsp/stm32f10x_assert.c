@@ -1,50 +1,50 @@
 /*
 *********************************************************************************************************
 *	                                  
-*	Ä£¿éÃû³Æ : ¶ÏÑÔÄ£¿é¡£
-*	ÎÄ¼şÃû³Æ : stm32f10x_assert.c
-*	°æ    ±¾ : V1.0
-*	Ëµ    Ã÷ : Ìá¹©¶ÏÑÔº¯Êı,Ö÷ÒªÓÃÓÚ³ÌĞòµ÷ÊÔ¡£ST¹Ì¼ş¿âÖĞµÄº¯Êı¾ù¿ÉÒÔ¶ÔÊäÈë²ÎÊı½øĞĞ¼ì²é£¬Ìá¸ß³ÌĞòµÄ½¡×³ĞÔ¡£
-*	ĞŞ¸Ä¼ÇÂ¼ :
+*	module-name : mÃ³dulo de aserciÃ³n.
+*	Nombre del archivo: stm32f10x_assert.c
+*	VersiÃ³n: V1.0
+*	DescripciÃ³n: proporciona la funciÃ³n de aserciÃ³n, utilizada principalmente para la depuraciÃ³n de programas. Las funciones de la biblioteca de firmware ST pueden comprobar los parÃ¡metros de entrada para mejorar la solidez del programa.
+*	Registro de modificaciÃ³n:
 *
 *
 *********************************************************************************************************
 */
 
-#include "stm32f10x.h"	/* Õâ¸öÎÄ¼ş°üº¬ÁËstm32f10x_conf.h, stm32f10x_conf.hÎÄ¼ş¶¨ÒåÁËUSE_FULL_ASSERT */
+#include "stm32f10x.h"	/* Este archivo contiene stm32f10x_conf.h, el archivo stm32f10x_conf.h define USE_FULL_ASSERT */
 #include <stdio.h>
 
 /* 
-	ST¿âº¯ÊıÊ¹ÓÃÁËC±àÒëÆ÷µÄ¶ÏÑÔ¹¦ÄÜ£¬Èç¹û¶¨ÒåÁËUSE_FULL_ASSERT£¬ÄÇÃ´ËùÓĞµÄST¿âº¯Êı½«¼ì²éº¯ÊıĞÎ²Î
-	ÊÇ·ñÕıÈ·¡£Èç¹û²»ÕıÈ·½«µ÷ÓÃ assert_failed() º¯Êı£¬Õâ¸öº¯ÊıÊÇÒ»¸öËÀÑ­»·£¬±ãÓÚÓÃ»§¼ì²é´úÂë¡£
+	Las funciones de la biblioteca ST utilizan la funciÃ³n de afirmaciÃ³n del compilador C. Si se define USE_FULL_ASSERT, todas las funciones de la biblioteca ST verificarÃ¡n los parÃ¡metros de la funciÃ³n.
+	es correcto o no. Si es incorrecto, se llamarÃ¡ a la funciÃ³n assert_failed() Esta funciÃ³n es un bucle infinito, lo cual es conveniente para que los usuarios verifiquen el cÃ³digo.ã€‚
 	
-	¹Ø¼ü×Ö __LINE__ ±íÊ¾Ô´´úÂëĞĞºÅ¡£
-	¹Ø¼ü×Ö__FILE__±íÊ¾Ô´´úÂëÎÄ¼şÃû¡£
+	La palabra clave __LINE__ indica el nÃºmero de lÃ­nea del cÃ³digo fuente.
+	La palabra clave __FILE__ representa el nombre del archivo de cÃ³digo fuente.
 	
-	¶ÏÑÔ¹¦ÄÜÊ¹ÄÜºó½«Ôö´ó´úÂë´óĞ¡£¬ÍÆ¼öÓÃ»§½öÔÚµ÷ÊÔÊ±Ê¹ÄÜ£¬ÔÚÕıÊ½·¢²¼Èí¼şÊÇ½ûÖ¹¡£
+	Una vez habilitada la funciÃ³n de aserciÃ³n, el tamaÃ±o del cÃ³digo aumentarÃ¡. Se recomienda que los usuarios solo la habiliten durante la depuraciÃ³n y la prohÃ­ban cuando el software se lance oficialmente.
 
-	ÓÃ»§¿ÉÒÔÑ¡ÔñÊÇ·ñÊ¹ÄÜST¹Ì¼ş¿âµÄ¶ÏÑÔ¹©ÄÜ¡£Ê¹ÄÜ¶ÏÑÔµÄ·½·¨ÓĞÁ½ÖÖ£º
-	(1) ÔÚC±àÒëÆ÷µÄÔ¤¶¨ÒåºêÑ¡ÏîÖĞ¶¨ÒåUSE_FULL_ASSERT¡£
-	(2) ÔÚ±¾ÎÄ¼şÈ¡Ïû"#define USE_FULL_ASSERT    1"ĞĞµÄ×¢ÊÍ¡£	
+	El usuario puede elegir si habilitar la aserciÃ³n de la biblioteca de firmware ST. Hay dos formas de habilitar aserciones:
+	(1) Defina USE_FULL_ASSERT en las opciones de macro predefinidas del compilador C.
+	(2) Quite el comentario de la lÃ­nea "#define USE_FULL_ASSERT 1" en este archivo.	
 */
 #ifdef USE_FULL_ASSERT
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: assert_failed
-*	ĞÎ    ²Î£ºfile : Ô´´úÂëÎÄ¼şÃû³Æ¡£¹Ø¼ü×Ö__FILE__±íÊ¾Ô´´úÂëÎÄ¼şÃû¡£
-*			  line £º´úÂëĞĞºÅ¡£¹Ø¼ü×Ö __LINE__ ±íÊ¾Ô´´úÂëĞĞºÅ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: assert_failed
+*	ParÃ¡metros formales: archivo: nombre del archivo de cÃ³digo fuente. La palabra clave __FILE__ representa el nombre del archivo de cÃ³digo fuente.
+*			  lÃ­nea: nÃºmero de lÃ­nea de cÃ³digo. La palabra clave __LINE__ indica el nÃºmero de lÃ­nea del cÃ³digo fuente
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void assert_failed(uint8_t* file, uint32_t line)
 { 
 	/* 
-		ÓÃ»§¿ÉÒÔÌí¼Ó×Ô¼ºµÄ´úÂë±¨¸æÔ´´úÂëÎÄ¼şÃûºÍ´úÂëĞĞºÅ£¬±ÈÈç½«´íÎóÎÄ¼şºÍĞĞºÅ´òÓ¡µ½´®¿Ú
+		Los usuarios pueden agregar su propio cÃ³digo para informar el nombre del archivo del cÃ³digo fuente y el nÃºmero de lÃ­nea del cÃ³digo, como imprimir el archivo de error y el nÃºmero de lÃ­nea en el puerto serie.
 		printf("Wrong parameters value: file %s on line %d\r\n", file, line)
 	*/
 	
-	/* ÕâÊÇÒ»¸öËÀÑ­»·£¬¶ÏÑÔÊ§°ÜÊ±³ÌĞò»áÔÚ´Ë´¦ËÀ»ú£¬ÒÔ±ãÓÚÓÃ»§²é´í */
+	/* Este es un bucle infinito. Cuando la afirmaciÃ³n falla, el programa se bloquearÃ¡ aquÃ­, para que los usuarios puedan comprobar si hay errores */
 	while (1)
 	{
 	}
