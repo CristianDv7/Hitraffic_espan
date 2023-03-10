@@ -1,12 +1,12 @@
 /*
 *********************************************************************************************************
 *	                                  
-*	模块名称 : 中断模块
-*	文件名称 : stm32f10x_it.h
-*	版    本 : V2.0
-*	说    明 : 头文件
-*	修改记录 :
-*		版本号  日期       作者    说明
+*	Nombre del m贸dulo: m贸dulo de interrupci贸n
+*	Nombre del archivo: stm32f10x_it.h
+*	Versi贸n: V2.0
+*	Descripci贸n: archivo de cabecera
+*	Registro de modificaci贸n:
+*		N煤mero de versi贸n Fecha Autor Descripci贸n
 *
 *
 *********************************************************************************************************
