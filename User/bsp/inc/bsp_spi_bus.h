@@ -1,10 +1,10 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : SPI总线驱动
-*	文件名称 : bsp_spi_bus.h
-*	版    本 : V1.0
-*	说    明 : 头文件
+*	Nombre del m贸dulo: controlador de bus SPI
+*	Nombre del archivo: bsp_spi_bus.h
+*	Version : V1.0
+*	Nombre del archivo: bsp_spi_bus.h
 *
 *********************************************************************************************************
 */
@@ -16,9 +16,9 @@
 
 
 /*
-	【SPI时钟最快是2分频，不支持不分频】
-	如果是SPI1，2分频时SCK时钟 = 42M，4分频时SCK时钟 = 21M
-	如果是SPI3, 2分频时SCK时钟 = 21M
+	[El reloj SPI m谩s r谩pido se divide por 2, no se admite ninguna divisi贸n de frecuencia]
+	Si es SPI1, el reloj SCK = 42M cuando la frecuencia se divide por 2, y el reloj SCK = 21M cuando la frecuencia se divide por 4
+	Si es SPI3, reloj SCK = 21M cuando se divide por 2
 */
 #define SPI_SPEED_42M		SPI_BaudRatePrescaler_2
 #define SPI_SPEED_21M		SPI_BaudRatePrescaler_4
