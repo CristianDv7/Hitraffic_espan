@@ -241,27 +241,27 @@ void RS485_InitTXE(void)
 {
 	GPIO_InitTypeDef GPIO_InitStructure;
 
-	RCC_APB2PeriphClockCmd(RCC_RS485_DIR, ENABLE);	/* Turn on the GPIO clock */
+	RCC_APB2PeriphClockCmd(RCC_RS485_DIR, ENABLE);	/* Enciende el reloj GPIO */
 
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	/* Push-pull output mode */
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	/* Modo de salida push-pull */
 	GPIO_InitStructure.GPIO_Pin = RS485_DIR_PIN;
 	GPIO_Init(RS485_DIR_PORT, &GPIO_InitStructure);
 }
 
 /*
 *********************************************************************************************************
-* Function name: bsp_Set485Baud 
-* Function description: modify UART4 baud rate 
-* Formal parameters: None 
-* Return value: None
+* Nombre de la función: bsp_Set485Baud
+* Descripción de la función: modificar la tasa de baudios UART4
+*	Parámetros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_Set485Baud(uint32_t _baud)
 {
 	USART_InitTypeDef USART_InitStructure;
 
-	/* Step 2: Configure serial port hardware parameters */
+	/* Paso 2: Configurar los parámetros de hardware del puerto serie */
 	USART_InitStructure.USART_BaudRate = _baud;	/* tasa de baudios */
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
@@ -273,12 +273,12 @@ void bsp_Set485Baud(uint32_t _baud)
 
 void RS485_SendBefor(void)
 {
-	RS485_TX_EN();	/* Switch the RS485 transceiver chip to send mode */
+	RS485_TX_EN();	/* Cambiar el chip transceptor RS485 al modo de envío */
 }
 
 void RS485_SendOver(void)
 {
-	RS485_RX_EN();	/* Switch the RS485 transceiver chip to receive mode */
+	RS485_RX_EN();	/* Cambiar el chip transceptor RS485 al modo de recepción */
 }
 
 void RS485_SendBuf(uint8_t *_ucaBuf, uint16_t _usLen)
@@ -293,10 +293,10 @@ void RS485_SendStr(char *_pBuf)
 
 /*
 *********************************************************************************************************
-* Function name: UartVarInit 
-* Function description: Initialize variables related to the serial port 
-* Formal parameters: None 
-* Return value: None
+* Nombre de la función: UartVarInit
+* Descripción de la función: Inicializar variables relacionadas con el puerto serie
+* 	Parámetros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 
@@ -391,10 +391,10 @@ static void UartVarInit(void)
 
 /*
 *********************************************************************************************************
-* Function name: InitHardUart 
-* Function description: Configure the hardware parameters of the serial port (baud rate, 
-data bits, stop bits, start bits, parity bits, interrupt enable) suitable for 
-STM32-F4 development board 
+* Nombre de la función: InitHardUart
+* Descripción de la función: Configure los parámetros de hardware del puerto serie (tasa de baudios,
+bits de datos, bits de parada, bits de inicio, bits de paridad, habilitar interrupción) adecuado para
+Placa de desarrollo STM32-F4
 * Formal parameters: none 
 * Return value: None
 *********************************************************************************************************
@@ -407,26 +407,26 @@ static void InitHardUart(void)
 
 #if UART1_FIFO_EN == 1		/* Serial 1 TX = PA9   RX = PA10 or TX = PB6   RX = PB7*/
 
-	/* Step 1: Turn on clocks for GPIO and USART parts */
+	/* Paso 1: Enciende los relojes para las partes GPIO y USART */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_USART1, ENABLE);
 
-	/* Step 2: Configure the GPIO of USART Tx as push-pull multiplexing mode */
+	/* Paso 2: Configurar el GPIO de USART Tx como modo de multiplexación push-pull */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_9;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	/* Step 3: Configure the GPIO of USART Rx as floating input mode Since after the
-	CPU is reset, the GPIO defaults to the floating input mode, so the following step 
-	is not necessary However, I still recommend adding it for easy reading, and to 
-	prevent other places from modifying the setting parameters of this line
-	*/
+	/* Paso 3: Configurar el GPIO de USART Rx como modo de entrada flotante Ya que después de la
+La CPU se restablece, el GPIO pasa por defecto al modo de entrada flotante, por lo que el siguiente paso
+no es necesario Sin embargo, sigo recomendando agregarlo para facilitar la lectura y para
+evitar que otros lugares modifiquen los parámetros de configuración de esta línea
+*/
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 	
-	/* Step 4: Configure serial port hardware parameters */
+	/* Paso 4: Configurar los parámetros de hardware del puerto serie */
 	USART_InitStructure.USART_BaudRate = UART1_BAUD;	/* Tasa de baudios */
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
@@ -435,92 +435,92 @@ static void InitHardUart(void)
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 	USART_Init(USART1, &USART_InitStructure);
 
-	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);	/* Enable receive interrupt */
+	USART_ITConfig(USART1, USART_IT_RXNE, ENABLE);	/* Habilitar interrupción de recepción */
 	/*
-		USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
-		NOTE: Do not turn on send interrupts here The 
-		send interrupt enable is enabled in the SendUart() 
-		function
-	*/
-	USART_Cmd(USART1, ENABLE);		/* enable serial port*/
+USART_ITConfig(USART1, USART_IT_TXE, HABILITAR);
+NOTA: No active el envío de interrupciones aquí.
+la habilitación de interrupción de envío está habilitada en SendUart()
+función
+*/
+	USART_Cmd(USART1, ENABLE);		/* habilitar puerto serie*/
 
-	/* Small defect of the CPU: the serial port is configured 
-	well, if you send it directly, the first byte cannot be 
-	sent out The following statement solves the problem that 
-	the first byte cannot be sent out correctly */
+	/* Pequeño defecto de la CPU: el puerto serie está configurado
+bueno, si lo envía directamente, el primer byte no puede ser
+enviado La siguiente sentencia resuelve el problema de que
+el primer byte no se puede enviar correctamente */
 	
-	USART_ClearFlag(USART1, USART_FLAG_TC);     /* Clear the transmission complete flag, Transmission Complete flag */
+	USART_ClearFlag(USART1, USART_FLAG_TC);     /* Borra el indicador de transmisión completa, el indicador de transmisión completa */
 #endif
 
-#if UART2_FIFO_EN == 1		/* Serial port 2 TX = PA2, RX = PA3 */
-	/* Step 1: Turn on Clocks for GPIO and USART Parts */
+#if UART2_FIFO_EN == 1		/* Puerto serie 2 TX = PA2, RX = PA3 */
+	/* Paso 1: Encienda los relojes para piezas GPIO y USART */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOA | RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART2, ENABLE);
 
-	/* Step 2: Configure the GPIO of USART Tx as push-pull multiplexing mode */
+	/* Paso 2: Configurar el GPIO de USART Tx como modo de multiplexación push-pull */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	/* Step 3: Configure GPIO of USART Rx as floating input mode Since after the CPU is reset, the GPIO defaults 
-	to the floating input mode, so the following step is not necessary However, I still recommend adding it for 
-	easy reading, and to prevent other places from modifying the setting parameters of this line
-	*/
+	/* Paso 3: Configurar el GPIO de USART Rx como modo de entrada flotante Ya que después de la
+La CPU se restablece, el GPIO pasa por defecto al modo de entrada flotante, por lo que el siguiente paso
+no es necesario Sin embargo, sigo recomendando agregarlo para facilitar la lectura y para
+evitar que otros lugares modifiquen los parámetros de configuración de esta línea
+*/
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
-	/*  Step 3 has already been done, so this step can be skipped GPIO_InitStructure.GPIO_Speed ??= GPIO_Speed_50MHz;
-	*/
+	/* El paso 3 ya se ha realizado, por lo que este paso se puede omitir GPIO_InitStructure.GPIO_Speed ​​??= GPIO_Speed_50MHz; */
 	GPIO_Init(GPIOA, &GPIO_InitStructure);
 
-	/* Step 4: Configure serial port hardware parameters*/
+	/* Paso 4: Configure los parámetros de hardware del puerto serie*/
 	USART_InitStructure.USART_BaudRate = UART2_BAUD;	/* tasa de baudios */
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
 	USART_InitStructure.USART_Parity = USART_Parity_No ;
 	USART_InitStructure.USART_HardwareFlowControl = USART_HardwareFlowControl_None;
-	USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;		/* Only select receive mode*/
+	USART_InitStructure.USART_Mode = USART_Mode_Tx | USART_Mode_Rx;		/* Seleccionar solo el modo de recepción*/
 	USART_Init(USART2, &USART_InitStructure);
 
-	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);	/* Enable receive interrupt */
+	USART_ITConfig(USART2, USART_IT_RXNE, ENABLE);	/* Habilitar interrupción de recepción */
 	/*
-		USART_ITConfig(USART1, USART_IT_TXE, ENABLE); NOTE: Do not turn on send interrupts here 
-		The send interrupt enable is enabled in the SendUart() function
+		USART_ITConfig(USART1, USART_IT_TXE, HABILITAR); NOTA: No active las interrupciones de envío aquí
+		La habilitación de interrupción de envío está habilitada en la función SendUart()
 	*/
-	USART_Cmd(USART2, ENABLE);		/* enable serial port */
+	USART_Cmd(USART2, ENABLE);		/* habilitar puerto serie */
 
-	/* Small defect of the CPU: the serial port is configured well, if you send it directly, 
-	the first byte cannot be sent out The following statement solves the problem that the 
-	first byte cannot be sent out correctly */
-	USART_ClearFlag(USART2, USART_FLAG_TC);     /* Clear send completion flag, Transmission Complete flag */
+	/* Pequeño defecto de la CPU: el puerto serie está configurado
+bueno, si lo envía directamente, el primer byte no puede ser
+enviado La siguiente sentencia resuelve el problema de que
+el primer byte no se puede enviar correctamente */
+	USART_ClearFlag(USART2, USART_FLAG_TC);    /* Borrar indicador de finalización de envío, indicador de transmisión completa */
 #endif
 
-#if UART3_FIFO_EN == 1			/* Serial port 3 TX = PB10 RX = PB11 */
-	/* Step 1: Turn on GPIO and UART clocks */
+#if UART3_FIFO_EN == 1			/* Serial puerto 3 TX = PB10 RX = PB11 */
+	/* Paso 1: Enciende los relojes GPIO y UART */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_USART3, ENABLE);
 
-	/* Step 2: Configure the GPIO of USART Tx as push-pull multiplexing mode */
+	/* Paso 2: Configurar el GPIO de USART Tx como modo de multiplexación push-pull */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-	/* Step 3: Configure GPIO of USART Rx as floating input mode Since after the CPU is reset, the GPIO 
-	defaults to the floating input mode, so the following step is not necessary However, I still 
-	recommend adding it for easy reading, and to prevent other places from modifying the setting 
-	parameters of this line
-	*/
+	/* Paso 3: Configurar el GPIO de USART Rx como modo de entrada flotante Ya que después de la
+La CPU se restablece, el GPIO pasa por defecto al modo de entrada flotante, por lo que el siguiente paso
+no es necesario Sin embargo, sigo recomendando agregarlo para facilitar la lectura y para
+evitar que otros lugares modifiquen los parámetros de configuración de esta línea
+*/
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
-	/*  Step 3 has already been done, so this step can be skipped
-		GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	*/
+	/* El paso 3 ya se ha realizado, por lo que este paso se puede omitir 
+	GPIO_InitStructure.GPIO_Speed ????= GPIO_Speed_50MHz; */
 	GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-	/* Step 4: Configure serial port hardware parameters */
+	/* Paso 4: Configure los parámetros de hardware del puerto serie*/
 	USART_InitStructure.USART_BaudRate = UART3_BAUD;	/* tasa de baudiios */
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
@@ -529,23 +529,23 @@ static void InitHardUart(void)
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 	USART_Init(USART3, &USART_InitStructure);
 
-	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);	/* Enable receive interrupt */
+	USART_ITConfig(USART3, USART_IT_RXNE, ENABLE);	/* Habilitar interrupción de recepción */
 	/*
 		USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
 		NOTE: Do not turn on send interrupts here 
 		The send interrupt enable is enabled in the SendUart() function
 	*/
-	USART_Cmd(USART3, ENABLE);		/* enable serial port*/
+	USART_Cmd(USART3, ENABLE);		/* habilitar puerto serie*/
 
-	/* Small defect of the CPU: the serial port is configured well, 
-	if you send it directly, the first byte cannot be sent out The 
-	following statement solves the problem that the first byte cannot 
-	be sent out correctly */
-	USART_ClearFlag(USART3, USART_FLAG_TC);     /* Clear send completion flag, Transmission Complete flag */
+	/* Pequeño defecto de la CPU: el puerto serie está configurado
+bueno, si lo envía directamente, el primer byte no puede ser
+enviado La siguiente sentencia resuelve el problema de que
+el primer byte no se puede enviar correctamente */
+	USART_ClearFlag(USART3, USART_FLAG_TC);    /* Borrar indicador de finalización de envío, indicador de transmisión completa */
 #endif
 
 #if UART4_FIFO_EN == 1			/*Serial port 4 TX = PC10   RX = PC11 */
-	/* Configure PD0 as a push-pull output for switching the transceiver status of the RS485 chip */
+	/* Configure PD0 como una salida push-pull para cambiar el estado del transceptor del chip RS485 */
 	{
 		RCC_APB2PeriphClockCmd(RCC_RS485_DIR, ENABLE);
 
@@ -554,26 +554,26 @@ static void InitHardUart(void)
 		GPIO_InitStructure.GPIO_Pin = RS485_DIR_PIN;
 		GPIO_Init(RS485_DIR_PORT, &GPIO_InitStructure);
 	}
-	/* Step 1: Turn on GPIO and UART clocks */
+	/* Paso 1: Enciende los relojes GPIO y UART */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART4, ENABLE);
 
-	/* Step 2: Configure the GPIO of USART Tx as push-pull multiplexing mode*/
+	/* Paso 2: Configure el GPIO de USART Tx como modo de multiplexación push-pull*/
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_10;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-	/* Step 3: Configure GPIO of USART Rx as floating input mode Since after the CPU 
-	is reset, the GPIO defaults to the floating input mode, so the following step is 
-	not necessary However, I still recommend adding it for easy reading, and to 
-	prevent other places from modifying the setting parameters of this line
-	*/
+	/* Paso 3: Configurar el GPIO de USART Rx como modo de entrada flotante Ya que después de la
+La CPU se restablece, el GPIO pasa por defecto al modo de entrada flotante, por lo que el siguiente paso
+no es necesario Sin embargo, sigo recomendando agregarlo para facilitar la lectura y para
+evitar que otros lugares modifiquen los parámetros de configuración de esta línea
+*/
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_11;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-	/* Step 4: Configure serial port hardware parameters */
+	/* Paso 4: Configurar los parámetros de hardware del puerto serie */
 	USART_InitStructure.USART_BaudRate = UART4_BAUD;	/* tasa baudios */
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
@@ -582,45 +582,44 @@ static void InitHardUart(void)
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 	USART_Init(UART4, &USART_InitStructure);
 
-	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);	/* Enable receive interrupt */
-	/*
-		USART_ITConfig(USART1, USART_IT_TXE, ENABLE);
-		NOTE: Do not turn on send interrupts here The 
-		send interrupt enable is enabled in the SendUart() function
+	USART_ITConfig(UART4, USART_IT_RXNE, ENABLE);	/* Habilitar interrupción de recepción */
+		/*
+	USART_ITConfig(USART1, USART_IT_TXE, HABILITAR); NOTA: No active las interrupciones de envío aquí
+		La habilitación de interrupción de envío está habilitada en la función SendUart()
 	*/
-	USART_Cmd(UART4, ENABLE);		/* enable serial port*/
+	USART_Cmd(UART4, ENABLE);		/* habilitar puerto serie*/
 
-	/* Small defect of the CPU: the serial port is configured well, 
-	if you send it directly, the first byte cannot be sent out The 
-	following statement solves the problem that the first byte cannot 
-	be sent out correctly */
-	USART_ClearFlag(UART4, USART_FLAG_TC);     /* Clear send completion flag, Transmission Complete flag */
+	/* Pequeño defecto de la CPU: el puerto serie está configurado
+bueno, si lo envía directamente, el primer byte no puede ser
+enviado La siguiente sentencia resuelve el problema de que
+el primer byte no se puede enviar correctamente */
+	USART_ClearFlag(UART4, USART_FLAG_TC);     /* Borrar indicador de finalización de envío, indicador de transmisión completa */
+
 #endif
 
 #if UART5_FIFO_EN == 1			/* Serial port 5 TX = PC12 RX = PD2 */
-	/* Step 1: Turn on GPIO and UART clock */
+	/* Paso 1: Enciende el reloj GPIO y UART */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOD | RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_UART5, ENABLE);
 
-	/* Step 2: Configure the GPIO of USART Tx as push-pull multiplexing mode */
+	/* Paso 2: Configurar el GPIO de USART Tx como modo de multiplexación push-pull */
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
 
-	/* Step 3: Configure GPIO of USART Rx as floating input mode Since 
-	after the CPU is reset, the GPIO defaults to the floating input mode,
-	so the following step is not necessary However, I still recommend 
-	adding it for easy reading, and to prevent other places from modifying 
-	the setting parameters of this line
-	*/
+	/* Paso 3: Configurar el GPIO de USART Rx como modo de entrada flotante Ya que después de la
+La CPU se restablece, el GPIO pasa por defecto al modo de entrada flotante, por lo que el siguiente paso
+no es necesario Sin embargo, sigo recomendando agregarlo para facilitar la lectura y para
+evitar que otros lugares modifiquen los parámetros de configuración de esta línea
+*/
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOD, &GPIO_InitStructure);
 
 
-	/* Step 4: Configure serial port hardware parameters*/
-	USART_InitStructure.USART_BaudRate = UART5_BAUD;	/* Baud rate*/
+	/* Paso 4: Configure los parámetros de hardware del puerto serie*/
+	USART_InitStructure.USART_BaudRate = UART5_BAUD;	/* Tasa de baudios*/
 	USART_InitStructure.USART_WordLength = USART_WordLength_8b;
 	USART_InitStructure.USART_StopBits = USART_StopBits_1;
 	USART_InitStructure.USART_Parity = USART_Parity_No ;
@@ -628,38 +627,37 @@ static void InitHardUart(void)
 	USART_InitStructure.USART_Mode = USART_Mode_Rx | USART_Mode_Tx;
 	USART_Init(UART5, &USART_InitStructure);
 
-	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);	/* Enable receive interrupt */
-	/*
-		USART_ITConfig(USART1, USART_IT_TXE, ENABLE); NOTE: Do not turn on send 
-		interrupts here The send interrupt enable is enabled in the SendUart() 
-		function
+	USART_ITConfig(UART5, USART_IT_RXNE, ENABLE);	/* Habilitar interrupción de recepción */
+		/*
+	USART_ITConfig(USART1, USART_IT_TXE, HABILITAR); NOTA: No active las interrupciones de envío aquí
+		La habilitación de interrupción de envío está habilitada en la función SendUart()
 	*/
-	USART_Cmd(UART5, ENABLE);		/* enable serial port */
+	USART_Cmd(UART5, ENABLE);		/* habilitar puerto serie */
 
-	/* Small defect of the CPU: the serial port is configured well, if you send it 
-	directly, the first byte cannot be sent out The following statement solves the 
-	problem that the first byte cannot be sent out correctly */
-	USART_ClearFlag(UART5, USART_FLAG_TC);     /* Clear the sending completion flag, Transmission Complete flag */
+	/* Pequeño defecto de la CPU: el puerto serie está configurado
+bueno, si lo envía directamente, el primer byte no puede ser
+enviado La siguiente sentencia resuelve el problema de que
+el primer byte no se puede enviar correctamente */
+	USART_ClearFlag(UART5, USART_FLAG_TC);    /* Borra el indicador de finalización de envío, el indicador de transmisión completa */
 #endif
 }
 
 /*
 *********************************************************************************************************
-*	Function name: ConfigUartNVIC 
-* Function description: configure serial port hardware interrupt. 
-* Formal parameters: none 
-* Return value: None
+* Nombre de la función: ConfigUartNVIC
+* Descripción de la función: configurar la interrupción de hardware del puerto serie.
+* Parámetros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 static void ConfigUartNVIC(void)
 {
 	NVIC_InitTypeDef NVIC_InitStructure;
 
-	/* Configure the NVIC Preemption Priority Bits */
-	/*	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);  --- Configure the interrupt priority group in bsp_Init() in bsp.c */
-
+	/* Configurar los bits de prioridad de prioridad de NVIC */
+	/*NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0); --- Configure el grupo de prioridad de interrupción en bsp_Init() en bsp.c */
 #if UART1_FIFO_EN == 1
-	/* Enable serial port 1 interrupt */
+	/* Habilita la interrupción del puerto serie 1 */
 	NVIC_InitStructure.NVIC_IRQChannel = USART1_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -667,7 +665,7 @@ static void ConfigUartNVIC(void)
 #endif
 
 #if UART2_FIFO_EN == 1
-	/* Enable serial port 2 interrupt */
+	/* Habilita la interrupción del puerto serie 2 */
 	NVIC_InitStructure.NVIC_IRQChannel = USART2_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 1;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -675,7 +673,7 @@ static void ConfigUartNVIC(void)
 #endif
 
 #if UART3_FIFO_EN == 1
-	/* Enable serial port 3 interrupt t */
+	/* Habilita la interrupción del puerto serie 3 */
 	NVIC_InitStructure.NVIC_IRQChannel = USART3_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 2;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -683,7 +681,7 @@ static void ConfigUartNVIC(void)
 #endif
 
 #if UART4_FIFO_EN == 1
-	/* Enable serial port 4 interrupt t */
+	/* Habilita la interrupción del puerto serie 4 */
 	NVIC_InitStructure.NVIC_IRQChannel = UART4_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 3;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -691,7 +689,7 @@ static void ConfigUartNVIC(void)
 #endif
 
 #if UART5_FIFO_EN == 1
-	/* Enable serial port 5 interrupt t */
+	/* Habilita la interrupción del puerto serie 5 */
 	NVIC_InitStructure.NVIC_IRQChannel = UART5_IRQn;
 	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 4;
 	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
@@ -701,19 +699,19 @@ static void ConfigUartNVIC(void)
 
 /*
 *********************************************************************************************************
-* Function name: UartIRQ 
-* Function description: Called by interrupt service program, general serial port interrupt processing function 
-* Formal parameter: _pUart : serial device 
-* Return value: None
+* Nombre de la función: UartIRQ
+* Descripción de la función: llamado por el programa de servicio de interrupción, función de procesamiento de interrupción de puerto serie general 
+* Parámetro formal: _pUart: dispositivo serie
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 static void UartIRQ(UART_T *_pUart)
 {
-	/* Handling Receive Interrupts  */
+	/* Manejo de interrupciones de recepción */
 	if(USART_GetITStatus(_pUart->uart, USART_IT_RXNE) != RESET)
 	{
-		/* Read data from the serial port receive data register and store it 
-		in the receive FIFO */
+		/* Leer datos del puerto serial recibir registro de datos y almacenarlos
+		en el FIFO de recepción */
 		
 		uint8_t ch;
 		
@@ -729,31 +727,31 @@ static void UartIRQ(UART_T *_pUart)
 			_pUart->usRxCount++;
 		}
 
-		/* Callback function to notify the application that new data has been received,
-		usually by sending a message or setting a flag */
+		/* Función de devolución de llamada para notificar a la aplicación que se han recibido
+		nuevos datos, generalmente enviando un mensaje o configurando una bandera */
         if (_pUart->ReciveNew)
         {
             _pUart->ReciveNew(ch);
         }
 	}
 
-	/* Handle send buffer empty interrupt */
+	/* Maneja la interrupción de envío de búfer vacío */
 	if(USART_GetITStatus(_pUart->uart, USART_IT_TXE) != RESET)
 	{
 		//if (_pUart->usTxRead == _pUart->usTxWrite)
 		if (_pUart->usTxCount == 0)
 		{
-			/* When the data in the sending buffer has been fetched, the sending buffer 
-			empty interrupt is prohibited (note: the last data has not been sent yet*/
+			/* Cuando se han obtenido los datos en el búfer de envío, el búfer de envío 
+			la interrupción vacía está prohibida (nota: el último dato aún no ha sido enviado*/
 			USART_ITConfig(_pUart->uart, USART_IT_TXE, DISABLE);
 
-			/* Enable data transmission complete interrupt*/
+			/* Habilitar interrupción completa de transmisión de datos*/
 			USART_ITConfig(_pUart->uart, USART_IT_TC, ENABLE);
 		}
 		else
 		{
-			/* Take 1 byte from the sending FIFO and write it into the serial port 
-			sending data register */
+			/* Tome 1 byte del FIFO de envío y escríbalo en el puerto serie
+			envío de registro de datos */
 			USART_SendData(_pUart->uart, _pUart->pTxBuf[_pUart->usTxRead]);
 			if (++_pUart->usTxRead >= _pUart->usTxBufSize)
 			{
@@ -762,18 +760,18 @@ static void UartIRQ(UART_T *_pUart)
 			_pUart->usTxCount--;
 		}
 	}
-	/* Interrupt when all data bits have been sent */
+	/* Interrumpe cuando se han enviado todos los bits de datos */
 	else if (USART_GetITStatus(_pUart->uart, USART_IT_TC) != RESET)
 	{
 		//if (_pUart->usTxRead == _pUart->usTxWrite)
 		if (_pUart->usTxCount == 0)
 		{
 			/* If all the data in the sending FIFO has been sent, the data sending 
-			complete interrupt is prohibited */
+			complete interrupt is prohibited *//* Si todos los datos en el envío FIFO han sido enviados, la interrupción completa del envío de datos está prohibida */
 			USART_ITConfig(_pUart->uart, USART_IT_TC, DISABLE);
 
-			/* Callback function, generally used to handle RS485 communication, set the 
-			RS485 chip to receive mode, to avoid preempting the bus */
+			/* Función de devolución de llamada, generalmente utilizada para manejar la comunicación RS485, establece el
+Chip RS485 para modo recepción, para evitar apropiarse del bus */
 			if (_pUart->SendOver)
 			{
 				_pUart->SendOver();
@@ -781,9 +779,9 @@ static void UartIRQ(UART_T *_pUart)
 		}
 		else
 		{
-			/* Under normal circumstances, this branch will not be entered */
-			/* If the data in the sending FIFO has not been completed, take 
-			1 data from the sending FIFO and write it into the sending data register */
+			/* En circunstancias normales, esta rama no se ingresará */
+/* Si los datos en el FIFO de envío no han sido completados, tomar
+1 datos del FIFO de envío y escribirlos en el registro de datos de envío */
 			USART_SendData(_pUart->uart, _pUart->pTxBuf[_pUart->usTxRead]);
 			if (++_pUart->usTxRead >= _pUart->usTxBufSize)
 			{
@@ -796,11 +794,11 @@ static void UartIRQ(UART_T *_pUart)
 
 static void GpsIRQ(void)
 {
-	/* Handling Receive Interrupts  */
+	/* Manejo de interrupciones de recepción */
 	if(USART_GetITStatus(Uart2Gps.uart, USART_IT_RXNE) != RESET)
 	{
-		/* Read data from the serial port receive data register and 
-		store it in the receive FIFO */
+		/* Leer datos del puerto serial recibir registro de datos y
+almacenarlo en el FIFO de recepción */
 		uint8_t ch;
 		
 		ch = USART_ReceiveData(Uart2Gps.uart);
@@ -817,7 +815,7 @@ static void GpsIRQ(void)
 			Uart2Gps.usRxCount++;
 		}
         
-        //Uart2Gps is for GPS, and if GPS get a packet end code then we analysis it; 
+        //Uart2Gps es para GPS, y si el GPS obtiene un código de fin de paquete, lo analizamos; 
         if(ch == '\n')//0x0a
 		{
 			if(Uart2Gps.ReciveNew)
@@ -827,21 +825,21 @@ static void GpsIRQ(void)
 		}
 	}
 
-	/* Handle send buffer empty interrupt */
+	/* Maneja la interrupción de envío de búfer vacío */
 	if(USART_GetITStatus(Uart2Gps.uart, USART_IT_TXE) != RESET)
 	{
 		if (Uart2Gps.usTxCount == 0)
 		{
-			/* When the data in the sending buffer has been fetched, disable the sending 
-			buffer empty interrupt (note: the last data has not been sent yet)*/
+			/* Cuando se han obtenido los datos en el búfer de envío, deshabilitar el envío
+interrupción de búfer vacío (nota: los últimos datos aún no se han enviado)*/
 			USART_ITConfig(Uart2Gps.uart, USART_IT_TXE, DISABLE);
 
-			/* Enable data transmission complete interrupt */
+			/* Habilitar interrupción completa de transmisión de datos */
 			USART_ITConfig(Uart2Gps.uart, USART_IT_TC, ENABLE);
 		}
 		else
 		{
-			/* Take 1 byte from the sending FIFO and write it into the serial port sending data register */
+			/* Tome 1 byte del FIFO de envío y escríbalo en el registro de datos de envío del puerto serie */
 			USART_SendData(Uart2Gps.uart, Uart2Gps.pTxBuf[Uart2Gps.usTxRead]);
 			if (++Uart2Gps.usTxRead >= Uart2Gps.usTxBufSize)
 			{
@@ -850,16 +848,15 @@ static void GpsIRQ(void)
 			Uart2Gps.usTxCount--;
 		}
 	}
-	/* Interrupt when all data bits are sent */
+	/* Interrumpe cuando se envían todos los bits de datos */
 	else if (USART_GetITStatus(Uart2Gps.uart, USART_IT_TC) != RESET)
 	{
 		if (Uart2Gps.usTxCount == 0)
 		{
-			/* If all the data in the sending FIFO has been sent, disable the interrupt when the data is sent */
+			/* Si se han enviado todos los datos en el FIFO de envío, deshabilite la interrupción cuando se envían los datos */
 			USART_ITConfig(Uart2Gps.uart, USART_IT_TC, DISABLE);
 
-			/* Callback function, generally used to handle RS485 communication, 
-			set the RS485 chip to receive mode to avoid preempting the bus */
+			/* Función de devolución de llamada, generalmente utilizada para manejar la comunicación RS485, 860 configure el chip RS485 en modo de recepción para evitar adelantarse al bus */
 			if (Uart2Gps.SendOver)
 			{
 				Uart2Gps.SendOver();
@@ -886,7 +883,7 @@ void Gps_ReciveNew(uint16_t RxCount)
     {
         if(strstr((char*)Uart2Gps.pRxBuf, ",,,,,"))
         {
-            //printf("Place the GPS to open area\n");
+            //printf("Coloca el GPS en el área abierta\n");
             return;
         }
         else 
@@ -976,10 +973,10 @@ void printf_fifo_hex(uint8_t* tx, uint8_t len)
 }
 /*
 *********************************************************************************************************
-* Function name: USART1_IRQHandler USART2_IRQHandler USART3_IRQHandler UART4_IRQHandler UART5_IRQHandler 
-* Function description: USART interrupt service routine 
-* Formal parameters: none 
-* Return value: None
+* Nombre de la función: USART1_IRQHandler USART2_IRQHandler USART3_IRQHandler UART4_IRQHandler UART5_IRQHandler 
+* Descripción de la función: rutina de servicio de interrupción USART
+* Parámetros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 #if UART1_FIFO_EN == 1
@@ -989,7 +986,7 @@ void USART1_IRQHandler(void)
 }
 #endif
 
-//GPS reception interrupt
+//Interrupción de recepción de GPS
 #if UART2_FIFO_EN == 1
 void USART2_IRQHandler(void)
 {
@@ -1030,11 +1027,11 @@ void UART5_IRQHandler(void)
 
 /*
 *********************************************************************************************************
-* Function name: fputc 
-* Function description: Redefine the putc function so that the printf function 
+* Nombre de la función: fputc
+* Descripción de la función: redefine la función putc para que la función printf
 can be used to print output from serial port 1 
-* Formal parameters: None 
-* Return value: None
+* Parámetros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 int fputc(int ch, FILE *f)
@@ -1045,11 +1042,11 @@ int fputc(int ch, FILE *f)
 
 /*
 *********************************************************************************************************
-* Function name: fgetc 
+* Nombre de la función: fgetc
 * Function description: Redefine the getc function so that you can use the getchar 
-function to input data from serial port 1 
-* Formal parameters: none 
-* Return value: None
+función para ingresar datos desde el puerto serie 1
+* Parámetros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 int fgetc(FILE *f)
