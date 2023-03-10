@@ -1,8 +1,8 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : I2C总线驱动模块
-*	文件名称 : bsp_i2c.c
+*	Nombre del m贸dulo: m贸dulo de controlador de bus I2C
+*	Nombre del archivo: bsp_i2c.c
 *********************************************************************************************************
 */
 
@@ -13,34 +13,34 @@ void bsp_Init_RTC_IRQ(void)
     EXTI_InitTypeDef EXTI_InitStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
     
-    /* GPIOB.5 中断线配置 IRQ0 */
+    /* GPIOB.5 configuraci贸n de l铆nea de interrupci贸n IRQ0 */
   	GPIO_EXTILineConfig(GPIO_PortSourceGPIOB,GPIO_PinSource5);
-    /* GPIOB.5 中断初始化配置 */
+  /* Configuraci贸n de inicializaci贸n de interrupci贸n GPIOB.5 */
   	EXTI_InitStructure.EXTI_Line = EXTI_Line5;
   	EXTI_InitStructure.EXTI_Mode = EXTI_Mode_Interrupt;	
   	EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Falling;
   	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
-    /*根据EXTI_InitStruct中指定的参数初始化外设EXTI寄存*/
+   /* Inicializar el registro EXTI perif茅rico de acuerdo con los par谩metros especificados en EXTI_InitStruct */
   	EXTI_Init(&EXTI_InitStructure);
 	
-    /*使能按键所在的外部中断通道*/
+   /*Habilitar el canal de interrupci贸n externo donde se encuentra el bot贸n*/
   	NVIC_InitStructure.NVIC_IRQChannel = EXTI9_5_IRQn;
-    /*设置抢占优先级，抢占优先级设为2*/	
+    /*Establezca la prioridad de preferencia, la prioridad de preferencia se establece en 2*/	
   	//NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x02;	
-    /*设置子优先级，子优先级设为2*/
+    /*Establecer la subprioridad, la subprioridad se establece en 2*/
   	NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;		
-    /*使能外部中断通*/
+    /* Habilitar paso de interrupci贸n externa */
   	NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;	
-    /*根据NVIC_InitStruct中指定的参数初始化外设NVIC寄存器*/	
+  /*Inicialice los registros NVIC perif茅ricos de acuerdo con los par谩metros especificados en NVIC_InitStruct*/	
   	NVIC_Init(&NVIC_InitStructure);
 }
 
 /*
 *********************************************************************************************************
-*	函 数 名: bsp_InitI2C
-*	功能说明: 配置I2C总线的GPIO，采用模拟IO的方式实现
-*	形    参:  无
-*	返 回 值: 无
+*	Nombre de la funci贸n: bsp_InitI2C
+*	Descripci贸n de la funci贸n: Configure el GPIO del bus I2C, que se realiza mediante E/S anal贸gica
+*	Par谩metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */
 void bsp_InitI2C(void)  
@@ -65,7 +65,7 @@ void bsp_InitI2C(void)
     I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
     I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;   
     I2C_InitStructure.I2C_OwnAddress1 = 0XA0;   
-    I2C_InitStructure.I2C_Ack = I2C_Ack_Enable; //使能自动应答 
+    I2C_InitStructure.I2C_Ack = I2C_Ack_Enable; //Habilitar respuesta autom谩tica
     I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;   
     I2C_InitStructure.I2C_ClockSpeed = 50000;
   
@@ -73,7 +73,7 @@ void bsp_InitI2C(void)
   
     I2C_Cmd(I2C1,ENABLE);
     I2C_AcknowledgeConfig(I2C1, ENABLE);
-    bsp_Init_RTC_IRQ(); //初始化MCU的RTC中断接口
+    bsp_Init_RTC_IRQ(); // Inicializar la interfaz de interrupci贸n RTC de la MCU
 }
 
 void I2C_ByteWrite(uint8_t Addr,uint8_t addr,uint8_t dataValue)  
@@ -226,10 +226,10 @@ void Temperature_Read(void)
 
 void EXTI9_5_IRQHandler(void)
 {
-    if(EXTI_GetITStatus(EXTI_Line5) != RESET) //检查指定的EXTI5线路触发请求发生与否
+    if(EXTI_GetITStatus(EXTI_Line5) != RESET) //Comprobar si se produce o no la solicitud de activaci贸n de l铆nea EXTI5 especificada
 	{
         RtcIrqCallback();
-        EXTI_ClearITPendingBit(EXTI_Line5); /*清除EXTI5线路挂起位*/
+        EXTI_ClearITPendingBit(EXTI_Line5); /* borrar el bit pendiente de la l铆nea EXTI5 */
     }
 }
 
