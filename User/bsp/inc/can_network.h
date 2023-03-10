@@ -1,15 +1,15 @@
 /*
 *********************************************************************************************************
 *	                                  
-*	模块名称 : CAN网络演示程序。
-*	文件名称 : can_network.h
-*	版    本 : V1.0
-*	说    明 : 头文件
-*	修改记录 :
-*		版本号  日期       作者    说明
-*		v1.0    2011-09-01 armfly  ST固件库V3.5.0版本。
+*	Nombre del m贸dulo: programa de demostraci贸n de red CAN.
+*	Nombre del archivo: can_network.h
+*	Versi贸n: V1.0
+*	Descripci贸n: archivo de cabecera
+*	Registro de modificaci贸n:
+*		N煤mero de versi贸n Fecha Autor Descripci贸n
+*		v1.0 2011-09-01 biblioteca de firmware armfly ST versi贸n V3.5.0.
 *
-*	Copyright (C), 2010-2011, 安富莱电子 www.armfly.com
+*	Copyright (C), 2010-2011, Armfly Electronics www.armfly.com
 *
 *********************************************************************************************************
 */
@@ -25,9 +25,9 @@
 extern CanTxMsg CanTxMsgStruct;
 extern CanRxMsg CanRxMsgStruct;
 
-/* 供外部调用的函数声明 */
-void can_Init(void);					/* 初始化STM32 CAN硬件 */
-void can_NVIC_Config(void);				/* 配置CAN中断 */
+/* Declaraci贸n de funci贸n para llamadas externas */
+void can_Init(void);					/* Inicializar hardware STM32 CAN */
+void can_NVIC_Config(void);				/* Configurar interrupci贸n CAN */
 void SendCanMsg(uint8_t *p, uint8_t length);
 
 #endif
