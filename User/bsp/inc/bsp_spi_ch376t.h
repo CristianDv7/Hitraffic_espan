@@ -1,10 +1,10 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : SPI接口文件管理芯片
-*	文件名称 : bsp_spi_ch376t.h
-*	版    本 : V1.0
-*	说    明 : 头文件
+*	Nombre del m贸dulo: chip de gesti贸n de archivos de interfaz SPI
+*	Nombre del archivo: bsp_spi_ch376t.h
+*	Versi贸n: V1.0
+*	Descripci贸n: archivo de cabecera
 *
 *********************************************************************************************************
 */
@@ -24,21 +24,21 @@
 
 typedef enum
 {
-	CheckConnect = 0,	/* 连接 */
-	DiskMount = 1,		/* 挂载 */
+	CheckConnect = 0,	/* conectar */
+	DiskMount = 1,		/* montar */
     SetFileName = 2
 }USB_FOX;
 
-/* 结构体，成员变量必须是 volatile, 否则C编译器优化时可能有问题 */
+/* estructura, las variables miembro deben ser vol谩tiles, de lo contrario puede haber problemas cuando el compilador de C optimiza */
 typedef struct
 {
-    volatile uint8_t fox;       /* fox进程 */
-	volatile uint8_t SendCmdFlag;      /* 是否检查状态 */
-	volatile uint8_t Cmd;		/* usb操作命令 */
-	volatile uint8_t Status;	/* 期望返回状态 */
-    volatile uint8_t OperFlag;  /* 操作结果 */
-	volatile uint32_t Count;	/* 计数器 */
-    volatile uint32_t MaxCount; /* 最大计数 */
+    volatile uint8_t fox;      /* proceso zorro */
+	volatile uint8_t SendCmdFlag;     /* comprobar estado */
+	volatile uint8_t Cmd;		/* comando de operaci贸n usb */
+	volatile uint8_t Status;	/* estado de retorno esperado */
+    volatile uint8_t OperFlag;  /* resultado de la operaci贸n */
+	volatile uint32_t Count;	/* encimera */
+    volatile uint32_t MaxCount; /* recuento m谩ximo */
 }USB_STATUS;
 
 #define CMD_RET_SUCESS 0x51
@@ -592,7 +592,7 @@ typedef union _CH376_CMD_DATA
 #endif
 
 #define DEF_INT_TIMEOUT     500
-#define ERR_USB_UNKNOWN		0xFA	/* 未知错误 */
+#define ERR_USB_UNKNOWN		0xFA	/* error desconocido */
 
 #define	STRUCT_OFFSET(s, m)	((uint8_t)( &((s*)0)-> m))
 
