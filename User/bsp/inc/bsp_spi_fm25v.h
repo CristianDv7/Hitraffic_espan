@@ -1,10 +1,10 @@
 /*
 *********************************************************************************************************
 *
-*	模块名称 : SPI接口串行FLASH 读写模块
-*	文件名称 : bsp_spi_fm25v.h
-*	版    本 : V1.0
-*	说    明 : 头文件
+*	Nombre del m贸dulo: M贸dulo de lectura y escritura FLASH serial de interfaz SPI
+*	Nombre del archivo: bsp_spi_fm25v.h
+*	Version : V1.0
+*	Descripci贸n: archivo de cabecera
 *
 *********************************************************************************************************
 */
@@ -16,9 +16,9 @@
 
 typedef struct
 {
-	uint8_t ChipID[9];		/* 芯片ID */
-	char ChipName[16];		/* 芯片型号字符串，主要用于显示 */
-	uint32_t TotalSize;		/* 总容量 */
+	uint8_t ChipID[9];		/* Identificaci贸n del chip */
+	char ChipName[16];		/* Cadena de modelo de chip, utilizada principalmente para visualizaci贸n */
+	uint32_t TotalSize;		/* capacidad total */
 }Fm25v_T;
 
 void Fm25v_Init(void);
