@@ -1,18 +1,19 @@
 /*
 *********************************************************************************************************
 *	                                  
-*	Ä£¿éÃû³Æ : ÖĞ¶ÏÄ£¿é
-*	ÎÄ¼şÃû³Æ : stm32f10x_it.c
-*	°æ    ±¾ : V2.0
-*	Ëµ    Ã÷ : 
-*			Ö»ĞèÒªÌí¼ÓĞèÒªµÄÖĞ¶Ïº¯Êı¼´¿É¡£Ò»°ãÖĞ¶Ïº¯ÊıÃûÊÇ¹Ì¶¨µÄ£¬³ı·ÇĞŞ¸ÄÁËÆô¶¯ÎÄ¼ş£º
+*	Nombre del mÃ³dulo: mÃ³dulo de interrupciÃ³n
+*	Nombre del archivo: stm32f10x_it.c
+*	VersiÃ³n: V2.0
+*	ilustrar: 
+*			Simplemente agregue la funciÃ³n de interrupciÃ³n requerida. Generalmente, el nombre de la funciÃ³n de interrupciÃ³n es fijo, a menos que se modifique el archivo de inicio:
 *				Libraries\CMSIS\CM3\DeviceSupport\ST\STM32F10x\startup\arm\startup_stm32f10x_hd.s
 *			
-*			Æô¶¯ÎÄ¼şÊÇ»ã±àÓïÑÔÎÄ¼ş£¬¶¨ÁËÃ¿¸öÖĞ¶ÏµÄ·şÎñº¯Êı£¬ÕâĞ©º¯ÊıÊ¹ÓÃÁËWEAK ¹Ø¼ü×Ö£¬±íÊ¾Èõ¶¨Òå£¬Òò´ËÈç
-*			¹ûÎÒÃÇÔÚcÎÄ¼şÖĞÖØ¶¨ÒåÁË¸Ã·şÎñº¯Êı£¨±ØĞëºÍËüÍ¬Ãû£©£¬ÄÇÃ´Æô¶¯ÎÄ¼şµÄÖĞ¶Ïº¯Êı½«×Ô¶¯ÎŞĞ§¡£ÕâÒ²¾Í
-*			º¯ÊıÖØ¶¨ÒåµÄ¸ÅÄî£¬ÕâºÍC++ÖĞµÄº¯ÊıÖØÔØµÄÒâÒåÀàËÆ¡£
+*			El archivo de inicio es un archivo en lenguaje ensamblador, que define la funciÃ³n de servicio de cada interrupciÃ³n.Estas funciones usan la palabra clave WEAK, que significa definiciÃ³n dÃ©bil, por lo que si
+*			Si redefinimos la funciÃ³n de servicio (debe tener el mismo nombre) en el archivo c, entonces la funciÃ³n de interrupciÃ³n del archivo de inicio no serÃ¡ vÃ¡lida automÃ¡ticamente. Esto es tambiÃ©n
+*			El concepto de redefiniciÃ³n de funciones es similar al significado de sobrecarga de funciones en C++
+ã€‚
 *				
-*	ĞŞ¸Ä¼ÇÂ¼ :
+*	registro de modificaciÃ³n :
 *
 *
 *********************************************************************************************************
@@ -24,16 +25,16 @@
 
 /*
 *********************************************************************************************************
-*	Cortex-M3 ÄÚºËÒì³£ÖĞ¶Ï·şÎñ³ÌĞò
+*	Cortex-M3 Rutina de servicio de interrupciÃ³n de excepciÃ³n del kernel
 *********************************************************************************************************
 */
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: NMI_Handler
-*	¹¦ÄÜËµÃ÷: ²»¿ÉÆÁ±ÎÖĞ¶Ï·şÎñ³ÌĞò¡£
-*	ĞÎ    ²Î£ºÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: NMI_Handler
+*	DescripciÃ³n de la funciÃ³n: Rutina de servicio de interrupciÃ³n no enmascarable.
+*	ParÃ¡metros formales: ninguno
+*	Valor devuelto: Ninguno
 *********************************************************************************************************
 */  
 void NMI_Handler(void)
@@ -42,10 +43,10 @@ void NMI_Handler(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: HardFault_Handler
-*	¹¦ÄÜËµÃ÷: Ó²¼şÊ§Ğ§ÖĞ¶Ï·şÎñ³ÌĞò¡£
-*	ĞÎ    ²Î£ºÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: HardFault_Handler
+*	DescripciÃ³n de la funciÃ³n: rutina de servicio de interrupciÃ³n de falla de hardware.
+* 	ParÃ¡metros formales: ninguno
+* 	Valor devuelto: Ninguno
 *********************************************************************************************************
 */ 
 void HardFault_Handler(void)
@@ -57,12 +58,12 @@ void HardFault_Handler(void)
   for (i = 0; i < sizeof(ERR_INFO); i++)
   {
      USART1->DR = pError[i];
-     /* µÈ´ı·¢ËÍ½áÊø */
+     /* Esperar a que finalice el envÃ­o */
      while ((USART1->SR & USART_FLAG_TC) == (uint16_t)RESET);
   }
 #endif	
   
-#if 1	/* ³öÏÖÒì³£Ê±£¬Çı¶¯·äÃùÆ÷·¢Éù */	
+#if 1	/* Cuando ocurre una excepciÃ³n, hace sonar el zumbador */	
 	while(1)
 	{
 		uint16_t m;
@@ -71,7 +72,7 @@ void HardFault_Handler(void)
 	}
 #else
 	
-  /* µ±Ó²¼şÊ§Ğ§Òì³£·¢ÉúÊ±½øÈëËÀÑ­»· */
+  /* Ingrese un bucle infinito cuando ocurra una excepciÃ³n de falla de hardware */
   while (1)
   {
   }
@@ -80,15 +81,15 @@ void HardFault_Handler(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: MemManage_Handler
-*	¹¦ÄÜËµÃ÷: ÄÚ´æ¹ÜÀíÒì³£ÖĞ¶Ï·şÎñ³ÌĞò¡£
-*	ĞÎ    ²Î£ºÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: MemManage_Handler
+*	DescripciÃ³n de la funciÃ³n: rutina de servicio de interrupciÃ³n de excepciÃ³n de administraciÃ³n de memoria.ã€‚
+* ParÃ¡metros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */   
 void MemManage_Handler(void)
 {
-  /* µ±ÄÚ´æ¹ÜÀíÒì³£·¢ÉúÊ±½øÈëËÀÑ­»· */
+  /* Introduce un bucle infinito cuando se produce una excepciÃ³n de gestiÃ³n de memoria */
   while (1)
   {
   }
@@ -96,15 +97,15 @@ void MemManage_Handler(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: BusFault_Handler
-*	¹¦ÄÜËµÃ÷: ×ÜÏß·ÃÎÊÒì³£ÖĞ¶Ï·şÎñ³ÌĞò¡£
-*	ĞÎ    ²Î£ºÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: BusFault_Handler
+*	DescripciÃ³n de la funciÃ³n: Rutina de servicio de interrupciÃ³n anormal de acceso al bus.
+* ParÃ¡metros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */    
 void BusFault_Handler(void)
 {
-  /* µ±×ÜÏßÒì³£Ê±½øÈëËÀÑ­»· */
+  /* Entra en un bucle infinito cuando el bus es anormal */
   while (1)
   {
   }
@@ -112,15 +113,15 @@ void BusFault_Handler(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: UsageFault_Handler
-*	¹¦ÄÜËµÃ÷: Î´¶¨ÒåµÄÖ¸Áî»ò·Ç·¨×´Ì¬ÖĞ¶Ï·şÎñ³ÌĞò¡£
-*	ĞÎ    ²Î£ºÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: UsageFault_Handler
+*	DescripciÃ³n de la funciÃ³n: InstrucciÃ³n indefinida o rutina de servicio de interrupciÃ³n de estado ilegal.
+* ParÃ¡metros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */   
 void UsageFault_Handler(void)
 {
-  /* µ±ÓÃ·¨Òì³£Ê±½øÈëËÀÑ­»· */
+  /* Introduce un bucle infinito cuando el uso es anormal */
   while (1)
   {
   }
@@ -128,10 +129,10 @@ void UsageFault_Handler(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: SVC_Handler
-*	¹¦ÄÜËµÃ÷: Í¨¹ıSWIÖ¸ÁîµÄÏµÍ³·şÎñµ÷ÓÃÖĞ¶Ï·şÎñ³ÌĞò¡£
-*	ĞÎ    ²Î£ºÎŞ
-*	·µ »Ø Öµ: ÎŞ
+* Nombre de la funciÃ³n: SVC_Handler
+* DescripciÃ³n de la funciÃ³n: Llame a la rutina de servicio de interrupciÃ³n a travÃ©s del servicio del sistema de la instrucciÃ³n SWI.
+* ParÃ¡metros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */   
 void SVC_Handler(void)
@@ -140,10 +141,10 @@ void SVC_Handler(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: DebugMon_Handler
-*	¹¦ÄÜËµÃ÷: µ÷ÊÔ¼àÊÓÆ÷ÖĞ¶Ï·şÎñ³ÌĞò¡£
-*	ĞÎ    ²Î£ºÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: DebugMon_Handler
+*	DescripciÃ³n de la funciÃ³n: rutina de servicio de interrupciÃ³n del monitor de depuraciÃ³n.
+* ParÃ¡metros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */   
 void DebugMon_Handler(void)
@@ -152,10 +153,10 @@ void DebugMon_Handler(void)
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: PendSV_Handler
-*	¹¦ÄÜËµÃ÷: ¿É¹ÒÆğµÄÏµÍ³·şÎñµ÷ÓÃÖĞ¶Ï·şÎñ³ÌĞò¡£
-*	ĞÎ    ²Î£ºÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: PendSV_Handler
+*	DescripciÃ³n de la funciÃ³n: El servicio del sistema que se puede suspender llama a la rutina de servicio de interrupciÃ³n.
+* ParÃ¡metros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */     
 void PendSV_Handler(void)
@@ -165,27 +166,27 @@ void PendSV_Handler(void)
 
 /*
 *********************************************************************************************************
-*	STM32F10xÄÚ²¿ÍâÉèÖĞ¶Ï·şÎñ³ÌĞò
-*	ÓÃ»§ÔÚ´ËÌí¼ÓÓÃµ½ÍâÉèÖĞ¶Ï·şÎñº¯Êı¡£ÓĞĞ§µÄÖĞ¶Ï·şÎñº¯ÊıÃûÇë²Î¿¼Æô¶¯ÎÄ¼ş(startup_stm32f10x_xx.s)
+*	Rutina de servicio de interrupciÃ³n de perifÃ©rico interno STM32F10x
+*	Los usuarios agregan y usan funciones de servicio de interrupciÃ³n de perifÃ©ricos aquÃ­. Para conocer los nombres vÃ¡lidos de las funciones del servicio de interrupciÃ³n, consulte el archivo de inicio (startup_stm32f10x_xx.s)
 *********************************************************************************************************
 */
 
 /*
 *********************************************************************************************************
-*	º¯ Êı Ãû: PPP_IRQHandler
-*	¹¦ÄÜËµÃ÷: ÍâÉèÖĞ¶Ï·şÎñ³ÌĞò¡£
-*	ĞÎ    ²Î£ºÎŞ
-*	·µ »Ø Öµ: ÎŞ
+*	Nombre de la funciÃ³n: PPP_IRQHandler
+*	DescripciÃ³n de la funciÃ³n: Rutina de servicio de interrupciÃ³n de perifÃ©ricos
+* ParÃ¡metros formales: ninguno
+* Valor devuelto: Ninguno
 *********************************************************************************************************
 */    
 /* 
-	ÒòÎªÖĞ¶Ï·şÎñ³ÌĞòÍùÍùºÍ¾ßÌåµÄÓ¦ÓÃÓĞ¹Ø£¬»áÓÃµ½ÓÃ»§¹¦ÄÜÄ£¿éµÄ±äÁ¿¡¢º¯Êı¡£Èç¹ûÔÚ±¾ÎÄ¼şÕ¹¿ª£¬»áÔö¼Ó´óÁ¿µÄ
-	Íâ²¿±äÁ¿ÉùÃ÷»òÕßincludeÓï¾ä¡£
+	Debido a que las rutinas de servicio de interrupciÃ³n a menudo estÃ¡n relacionadas con aplicaciones especÃ­ficas, se utilizarÃ¡n variables y funciones de los mÃ³dulos de funciones del usuario. Si se amplÃ­a en este documento, un gran nÃºmero de
+	Declaraciones de variables externas o declaraciones de inclusiÃ³n.
 	
-	Òò´Ë£¬ÎÒÃÇÍÆ¼öÕâ¸öµØ·½Ö»Ğ´Ò»¸öµ÷ÓÃÓï¾ä£¬ÖĞ¶Ï·şÎñº¯ÊıµÄ±¾Ìå·Åµ½¶ÔÓ¦µÄÓÃ»§¹¦ÄÜÄ£¿éÖĞ¡£
-	Ôö¼ÓÒ»²ãµ÷ÓÃ»á½µµÍ´úÂëµÄÖ´ĞĞĞ§ÂÊ£¬²»¹ıÎÒÃÇÄşÔ¸ËğÊ§Õâ¸öĞ§ÂÊ£¬´Ó¶øÔöÇ¿³ÌĞòµÄÄ£¿é»¯ÌØĞÔ¡£
+	Por lo tanto, recomendamos que solo se escriba una declaraciÃ³n de llamada en este lugar y que el cuerpo de la funciÃ³n de servicio de interrupciÃ³n se coloque en el mÃ³dulo de funciÃ³n de usuario correspondiente.
+	Agregar una capa de llamadas reducirÃ¡ la eficiencia de ejecuciÃ³n del cÃ³digo, pero preferimos perder esta eficiencia para mejorar la modularidad del programa.
 	
-	Ôö¼Óextern¹Ø¼ü×Ö£¬Ö±½ÓÒıÓÃÓÃµ½µÄÍâ²¿º¯Êı£¬±ÜÃâÔÚÎÄ¼şÍ·includeÆäËûÄ£¿éµÄÍ·ÎÄ¼ş
+	Agregue la palabra clave extern para hacer referencia directa a las funciones externas utilizadas y evite incluir los archivos de encabezado de otros mÃ³dulos en el encabezado del archivo.
 extern void ppp_ISR(void);	
 void PPP_IRQHandler(void)
 {
